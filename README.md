@@ -1,14 +1,14 @@
 # Vellum House — revised website
 
-Minimal bilingual website, prepared 22 October 2026. All website pages are already built; GitHub Pages needs no Node, npm, Python or paid hosting service to publish them.
+Bilingual Vellum House website with an editorial homepage redesign, prepared 22 October 2026. All website pages are already built; GitHub Pages needs no Node, npm, Python or paid hosting service to publish them.
 
 **Start with docs/SETUP_EN.md or docs/SETUP_FA.md.**
 
 ## What is included
 
 - English and Persian versions of the home, services, approach, pathways, about, resources, consultation, privacy and terms pages.
-- New editable SVG VH monogram, full logo and matching favicon.
-- Responsive layouts, mobile navigation, local Persian fonts, keyboard focus styles and reduced-motion support.
+- Brochure-aligned midnight navy, warm ivory and antique-gold identity, with editable SVG VH monogram, full logo and matching favicon.
+- A more visual homepage with a connected-learning hero diagram, illustrated service cards, student-stage pathway and consultation steps. Responsive bilingual layouts, mobile navigation, local Persian fonts, keyboard focus styles and reduced-motion support.
 - A short consultation form: full name, grade / study level, city, phone, email and message; consent checkbox.
 - `backend/Code.gs`: Google Apps Script that stores enquiries in a private Google Sheet, sends each enquiry separately to Reyhaneh and Kasra, and acknowledges the applicant in the form's language.
 - Email delivery tracking and a five-minute retry trigger; unique request references avoid repeat rows on a retry with unchanged details.
