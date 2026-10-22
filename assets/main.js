@@ -1,55 +1,44 @@
 'use strict';
-const isFa = document.documentElement.lang === 'fa';
-const menu = document.querySelector('.menu-toggle');
-const nav = document.querySelector('#navigation');
-function closeMenu() { if (!menu || !nav) return; menu.setAttribute('aria-expanded', 'false'); nav.classList.remove('open'); }
-if (menu && nav) {
-  menu.addEventListener('click', () => { const open = menu.getAttribute('aria-expanded') !== 'true'; menu.setAttribute('aria-expanded', String(open)); nav.classList.toggle('open', open); });
-  document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.getAttribute('aria-expanded') === 'true') { closeMenu(); menu.focus(); } });
-  document.addEventListener('click', event => { if (!event.target.closest('.header')) closeMenu(); });
-  window.matchMedia('(min-width:1151px)').addEventListener('change', closeMenu);
-}
-const year = document.querySelector('#year');
-if (year) year.textContent = new Date().getFullYear();
-const form = document.querySelector('#inquiry-form');
-if (form) {
-  const result = document.querySelector('#inquiry-result');
-  const summary = document.querySelector('#inquiry-summary');
-  const status = document.querySelector('#copy-status');
-  const send = document.querySelector('#send-inquiry');
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    if (!form.reportValidity()) return;
-    const lines = [isFa ? 'درخواست مشاورهٔ ولوم هاوس' : 'Vellum House consultation enquiry', ''];
-    for (const field of form.querySelectorAll('input:not([type=checkbox]), select, textarea')) {
-      if (!field.value.trim()) continue;
-      const label = form.querySelector(`label[for="${field.id}"]`).childNodes[0].textContent.trim();
-      lines.push(`${label}: ${field.value.trim()}`);
-    }
-    summary.value = lines.join('\n');
-    status.textContent = '';
-    result.hidden = false;
-    const config = window.VELLUM_CONFIG || {};
-    const email = (config.contactEmail || '').trim();
-    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      send.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(lines[0])}&body=${encodeURIComponent(summary.value)}`;
-      send.textContent = isFa ? 'باز کردن پیش‌نویس ایمیل' : 'Open email draft';
-      result.querySelector('p').textContent = isFa ? 'می‌توانید متن را کپی کنید یا پیش‌نویس را در برنامهٔ ایمیل باز کنید. برای ارسال، باید در برنامهٔ ایمیل دکمهٔ ارسال را بزنید.' : 'Copy the summary or open a draft in your email app. You must press Send in your email app to send the enquiry.';
-    } else if (typeof config.consultationUrl === 'string' && config.consultationUrl.startsWith('https://')) {
-      send.href = config.consultationUrl;
-    }
-    document.querySelector('#result-title').focus();
-    result.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',block:'nearest'});
-  });
-  form.addEventListener('input', () => { result.hidden = true; status.textContent = ''; });
-  document.querySelector('#copy-summary').addEventListener('click', async () => {
-    try {
-      if (!navigator.clipboard) throw new Error('Clipboard unavailable');
-      await navigator.clipboard.writeText(summary.value);
-      status.textContent = isFa ? 'متن کپی شد. آن را در پیام خود در صفحهٔ مشاوره قرار دهید.' : 'Copied. Paste this into your message on the consultation page.';
-    } catch {
-      summary.focus(); summary.select(); summary.setSelectionRange(0, summary.value.length);
-      status.textContent = isFa ? 'متن انتخاب شد. با گزینهٔ کپی دستگاه یا Ctrl/Cmd+C آن را کپی کنید.' : 'Text selected. Use your device’s Copy option or Ctrl/Cmd+C.';
-    }
-  });
+const menu=document.getElementById('menu'),nav=document.getElementById('navigation');
+menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));nav.classList.toggle('open',open);});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&nav?.classList.contains('open')){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.focus();}});
+const form=document.getElementById('enquiry-form');
+if(form){
+ const fa=document.documentElement.lang==='fa',msg=(en,faText)=>fa?faText:en;
+ const status=document.getElementById('form-status'),button=form.querySelector('[type=submit]'),initial=button.textContent;
+ let requestId='',signature='',busy=false;
+ // Read-only receipt lookup returns a boolean only; no personal data is exposed.
+ function receipt(endpoint,id){return new Promise((resolve,reject)=>{
+   const cb='vhReceipt_'+crypto.randomUUID().replaceAll('-',''),script=document.createElement('script');
+   const timer=setTimeout(()=>finish(null),12000);
+   function finish(result){clearTimeout(timer);script.remove();delete window[cb];result?resolve(result):reject(new Error('receipt unavailable'));}
+   window[cb]=finish;script.onerror=()=>finish(null);
+   const u=new URL(endpoint);u.search=new URLSearchParams({requestId:id,callback:cb,t:String(Date.now())});script.src=u.href;document.head.append(script);
+ });}
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();if(busy||!form.reportValidity())return;
+  const endpoint=window.VELLUM_CONFIG?.formEndpoint||'';
+  const report=(text,error=false)=>{status.textContent=text;status.classList.toggle('error',error);};
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(endpoint)){
+   report(msg('The enquiry form is temporarily unavailable. Please email reyhaneh.vojoudi@gmail.com to request your free consultation.','فرم درخواست در حال حاضر در دسترس نیست. برای درخواست مشاوره رایگان به reyhaneh.vojoudi@gmail.com ایمیل بزنید.'),true);status.focus();return;
+  }
+  const data=new URLSearchParams(new FormData(form));data.set('language',fa?'fa':'en');
+  if(!/^\+?[0-9۰-۹٠-٩ ()\-]{6,40}$/.test(data.get('phone').trim())){report(msg('Please enter a valid phone number, including your country code.','لطفاً شماره تماس معتبر همراه با کد کشور وارد کنید.'),true);document.getElementById('phone').focus();return;}
+  const current=data.toString();if(current!==signature){signature=current;requestId=crypto.randomUUID();}data.set('requestId',requestId);
+  busy=true;button.disabled=true;button.textContent=msg('Sending…','در حال ارسال…');form.setAttribute('aria-busy','true');
+  report(msg('Saving your enquiry. Please keep this page open.','در حال ثبت درخواست شما هستیم. لطفاً صفحه را باز نگه دارید.'));
+  try{
+   // An opaque POST response is never treated as proof of success.
+   fetch(endpoint,{method:'POST',mode:'no-cors',credentials:'omit',body:data}).catch(()=>{});
+   let saved=false;
+   for(let attempt=0;attempt<5;attempt++){
+    await new Promise(resolve=>setTimeout(resolve,attempt===0?2000:4000));
+    try{const result=await receipt(endpoint,requestId);if(result.saved===true){saved=true;break;}}catch(_){}
+   }
+   if(!saved)throw new Error('unconfirmed');
+   report(msg('Thank you. Your enquiry has been received. Please check your inbox and spam folder for our acknowledgement. We will email you to arrange your free initial consultation. A meeting time is confirmed separately.','سپاسگزاریم، درخواست شما ثبت شد. لطفاً برای دریافت تأییدیه، صندوق ورودی و پوشه اسپم ایمیلتان را بررسی کنید. برای هماهنگی جلسه مشاوره اولیه رایگان به شما ایمیل می‌زنیم. زمان جلسه جداگانه تأیید می‌شود.'));
+   form.reset();requestId='';signature='';status.focus();
+  }catch(_){report(msg('We could not confirm receipt. Your details are still here. Retry with the same details to avoid a duplicate, or email reyhaneh.vojoudi@gmail.com. If an acknowledgement has arrived, your enquiry was received.','نتوانستیم ثبت درخواست را تأیید کنیم. اطلاعات شما در فرم باقی مانده است. با همین اطلاعات دوباره تلاش کنید یا به reyhaneh.vojoudi@gmail.com ایمیل بزنید. اگر تأییدیه ایمیلی دریافت کرده‌اید، درخواست شما ثبت شده است.'),true);status.focus();}
+  finally{busy=false;button.disabled=false;button.textContent=initial;form.removeAttribute('aria-busy');}
+ });
 }
