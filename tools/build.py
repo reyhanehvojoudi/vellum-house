@@ -48,3 +48,6 @@ for l in C:
  for p in C[l]['pages']:render(p,l)
 (R/'404.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Page not found | Vellum House</title><link rel="stylesheet" href="assets/style.css"><main class="page-hero wrap"><h1>Page not found</h1><p>این صفحه پیدا نشد</p><a href="index.html">English home</a> · <a href="fa.html">صفحه فارسی</a></main></html>')
 print('Built 18 bilingual pages + 404')
+from visual_design import build_visual
+build_visual(R)
+print('Applied visual redesign; Persian home + English option')
