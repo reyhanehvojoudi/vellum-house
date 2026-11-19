@@ -1,51 +1,15 @@
-# Vellum House — revised website
+# Vellum House — V5 conversion website
 
-Bilingual Vellum House website with an editorial homepage redesign, prepared 22 October 2026. All website pages are already built; GitHub Pages needs no Node, npm, Python or paid hosting service to publish them.
+A complete bilingual static website designed around the **Point A → Point B** positioning, full or modular support, and an enquiry-first booking funnel.
 
-**Start with docs/SETUP_EN.md or docs/SETUP_FA.md.**
+**Publishing:** Copy these files over the existing GitHub Pages root. Preserve the existing repository’s `.github/` configuration, any media files you are actively using, and fonts already hosted under `assets/`. The archive intentionally contains no font files or client data. Run `python tools/build.py` to regenerate HTML from the version-controlled site source; this source supersedes the old `content.json` and old generator.
 
-## What is included
+**Forms:** The static site alone cannot write private Google Sheets or send email. Install `backend/Code.gs` in a Sheet-bound Google Apps Script owned by `vellumhouse.edu@gmail.com`, run `setup()`, deploy as a Web App and paste the `/exec` endpoint into `assets/config.js`. Do **not** put credentials, spreadsheets, private links or tokens in GitHub. Until the endpoint is configured, the form honestly displays an unavailable message instead of claiming to collect enquiries.
 
-- English and Persian versions of the home, services, approach, pathways, about, resources, consultation, privacy and terms pages.
-- Brochure-aligned midnight navy, warm ivory and antique-gold identity, with editable SVG VH monogram, full logo and matching favicon.
-- A more visual homepage with a connected-learning hero diagram, illustrated service cards, student-stage pathway and consultation steps. Responsive bilingual layouts, mobile navigation, local Persian fonts, keyboard focus styles and reduced-motion support.
-- A short consultation form: full name, grade / study level, city, phone, email and message; consent checkbox.
-- `backend/Code.gs`: Google Apps Script that stores enquiries in a private Google Sheet, sends each enquiry separately to Reyhaneh and Kasra, and acknowledges the applicant in the form's language.
-- Email delivery tracking and a five-minute retry trigger; unique request references avoid repeat rows on a retry with unchanged details.
+**Booking:** Only after a unique enquiry has been saved and confirmed does the browser navigate to `https://cal.com/vhouse/30min?overlayCalendar=true&layout=month_view`. The acknowledgement email includes the link as a fallback. Booking status is initially **Not booked**, and **does not update automatically** without separate Cal.com webhook/booking reconciliation.
 
-## Connection status
+**Media:** Black frames are deliberate editable slots for later founder/team photography, videos, documented case studies and permissioned testimonials. No invented reviews, metrics or admission outcomes have been added.
 
-The design and connection code are complete. **No live Google Sheet or Apps Script deployment has been created for you.** `assets/config.js` intentionally has an empty `formEndpoint`. Until you complete setup, submitting shows an honest unavailable message and the email address; it does not claim success.
+**Privacy:** Parent or guardian should enquire for under-18s. Please confirm legal jurisdiction, retention schedule, data access and policies before making the form live; the included public policy has deliberately not asserted unverified arrangements.
 
-This implementation uses **Google Sheets**, which can be exported to `.xlsx`. It does not update a local Excel file or a Microsoft 365 workbook automatically. If you specifically need a live Microsoft Excel workbook, a separate Microsoft integration is required.
-
-Consultation times are coordinated by email. The system sends an automatic acknowledgement, not an automatic calendar booking or meeting link.
-
-## Upload to GitHub
-
-Upload the contents of this package into the existing website's publishing folder. `index.html`, `fa.html` and `assets/` must be alongside each other. Do not upload the ZIP as your website. Preserve any existing `CNAME` and GitHub configuration. Full instructions are in the setup guides.
-
-## Editing later
-
-- Basic connection setting: `assets/config.js`.
-- Styling: `assets/style.css`.
-- Form and menu behavior: `assets/main.js`.
-- Logo: `assets/logo-mark.svg`, `assets/logo.svg`, `assets/favicon.svg`.
-- Copy and page structure: `tools/build.py` and the content keys it uses in `content.json`. Run `python tools/build.py` after source edits. Some older unused content keys remain for reference; only the generated HTML is published to visitors.
-- Alternatively edit generated HTML directly, but a later rebuild will overwrite those direct edits.
-- The retained brochure is the original supplied brochure; it has not been rewritten. The website's current free-consultation description takes precedence for this form.
-
-## Verification
-
-Passed: all 19 HTML pages' local links and anchors, unique IDs and primary headings, both forms' fields / labels; JavaScript syntax checks; local backend behavior tests for storage, recipients, validation, duplicate requests, spreadsheet formula protection, private receipts and email retry. Desktop English and mobile Persian / English pages were visually reviewed; the mobile menu and unconfigured-form error were exercised.
-
-Live Google permissions, delivery, quota availability and a real published form submission remain to be verified after deployment. No real email was sent during local tests.
-
-Developer checks (optional):
-
-```sh
-python tools/build.py
-python tools/check.py
-node --check assets/main.js
-node tools/test-backend.cjs
-```
+See `docs/DEPLOYMENT.md` and `docs/CONTENT_TO_COMPLETE.md`.

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://vhouse.ir/sitemap.xml

@@ -1,95 +1,95 @@
 'use strict';
-const menu=document.getElementById('menu'),nav=document.getElementById('navigation');
-menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));nav.classList.toggle('open',open);});
-document.addEventListener('keydown',event=>{if(event.key==='Escape'&&nav?.classList.contains('open')){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.focus();}});
-const form=document.getElementById('enquiry-form');
-if(form){
- const fa=document.documentElement.lang==='fa',msg=(en,faText)=>fa?faText:en;
- const status=document.getElementById('form-status'),button=form.querySelector('[type=submit]'),initial=button.textContent;
- let requestId='',signature='',busy=false;
- // Read-only receipt lookup returns a boolean only; no personal data is exposed.
- function receipt(endpoint,id){return new Promise((resolve,reject)=>{
-   const cb='vhReceipt_'+crypto.randomUUID().replaceAll('-',''),script=document.createElement('script');
-   const timer=setTimeout(()=>finish(null),12000);
-   function finish(result){clearTimeout(timer);script.remove();delete window[cb];result?resolve(result):reject(new Error('receipt unavailable'));}
-   window[cb]=finish;script.onerror=()=>finish(null);
-   const u=new URL(endpoint);u.search=new URLSearchParams({requestId:id,callback:cb,t:String(Date.now())});script.src=u.href;document.head.append(script);
- });}
- form.addEventListener('submit',async event=>{
-  event.preventDefault();if(busy||!form.reportValidity())return;
-  const endpoint=window.VELLUM_CONFIG?.formEndpoint||'';
-  const report=(text,error=false)=>{status.textContent=text;status.classList.toggle('error',error);};
-  if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(endpoint)){
-   report(msg('The enquiry form is temporarily unavailable. Please email reyhaneh.vojoudi@gmail.com to request your free consultation.','فرم درخواست در حال حاضر در دسترس نیست. برای درخواست مشاوره رایگان به reyhaneh.vojoudi@gmail.com ایمیل بزنید.'),true);status.focus();return;
-  }
-  const data=new URLSearchParams(new FormData(form));data.set('language',fa?'fa':'en');
-  if(!/^\+?[0-9۰-۹٠-٩ ()\-]{6,40}$/.test(data.get('phone').trim())){report(msg('Please enter a valid phone number, including your country code.','لطفاً شماره تماس معتبر همراه با کد کشور وارد کنید.'),true);document.getElementById('phone').focus();return;}
-  const current=data.toString();if(current!==signature){signature=current;requestId=crypto.randomUUID();}data.set('requestId',requestId);
-  busy=true;button.disabled=true;button.textContent=msg('Sending…','در حال ارسال…');form.setAttribute('aria-busy','true');
-  report(msg('Saving your enquiry. Please keep this page open.','در حال ثبت درخواست شما هستیم. لطفاً صفحه را باز نگه دارید.'));
-  try{
-   // An opaque POST response is never treated as proof of success.
-   fetch(endpoint,{method:'POST',mode:'no-cors',credentials:'omit',body:data}).catch(()=>{});
-   let saved=false;
-   for(let attempt=0;attempt<5;attempt++){
-    await new Promise(resolve=>setTimeout(resolve,attempt===0?2000:4000));
-    try{const result=await receipt(endpoint,requestId);if(result.saved===true){saved=true;break;}}catch(_){}
-   }
-   if(!saved)throw new Error('unconfirmed');
-   report(msg('Thank you. Your enquiry has been received. Please check your inbox and spam folder for our acknowledgement. We will email you to arrange your free initial consultation. A meeting time is confirmed separately.','سپاسگزاریم، درخواست شما ثبت شد. لطفاً برای دریافت تأییدیه، صندوق ورودی و پوشه اسپم ایمیلتان را بررسی کنید. برای هماهنگی جلسه مشاوره اولیه رایگان به شما ایمیل می‌زنیم. زمان جلسه جداگانه تأیید می‌شود.'));
-   form.reset();requestId='';signature='';status.focus();
-  }catch(_){report(msg('We could not confirm receipt. Your details are still here. Retry with the same details to avoid a duplicate, or email reyhaneh.vojoudi@gmail.com. If an acknowledgement has arrived, your enquiry was received.','نتوانستیم ثبت درخواست را تأیید کنیم. اطلاعات شما در فرم باقی مانده است. با همین اطلاعات دوباره تلاش کنید یا به reyhaneh.vojoudi@gmail.com ایمیل بزنید. اگر تأییدیه ایمیلی دریافت کرده‌اید، درخواست شما ثبت شده است.'),true);status.focus();}
-  finally{busy=false;button.disabled=false;button.textContent=initial;form.removeAttribute('aria-busy');}
- });
-}
-
-// Visual navigation and motion. Submission logic above remains unchanged.
-(()=>{
- const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
- const header=document.querySelector('.site-header'),chapters=document.querySelector('.chapter-nav');
- const scenes=[...document.querySelectorAll('.scene')];
- const reveal=[...document.querySelectorAll('[data-reveal]')];
- if(!reduce.matches&&'IntersectionObserver' in window){
-  document.documentElement.classList.add('motion-ready');
-  reveal.forEach((el,i)=>{el.style.setProperty('--delay',`${(i%3)*70}ms`);});
-  const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('revealed');observer.unobserve(e.target);}}),{threshold:.08,rootMargin:'0px 0px -15px 0px'});
-  reveal.forEach(el=>observer.observe(el));
-  // Any focused content is immediately visible, including keyboard anchor targets.
-  document.addEventListener('focusin',e=>e.target.closest('[data-reveal]')?.classList.add('revealed'));
- }
- if(scenes.length){
-  if(!reduce.matches)document.documentElement.classList.add('chapter-scroll');
-  let scheduled=false;
-  function update(){
-   scheduled=false;
-   const current=scenes.findLast(s=>s.getBoundingClientRect().top<=120)||scenes[0];
-   const light=current.dataset.tone==='light';
-   header?.classList.toggle('on-light',light);chapters?.classList.toggle('on-light',light);
-   header?.classList.toggle('is-scrolled',window.scrollY>20);
-   chapters?.querySelectorAll('a').forEach(a=>{if(a.hash==='#'+current.id)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});
-  }
-  window.addEventListener('scroll',()=>{if(!scheduled){scheduled=true;requestAnimationFrame(update);}},{passive:true});
-  window.addEventListener('resize',update);update();
- }
- const tabs=[...document.querySelectorAll('.stage-tab')],panels=[...document.querySelectorAll('.stage-panel')];
- function select(index,focus=false){
-  tabs.forEach((t,i)=>{t.setAttribute('aria-selected',String(i===index));t.tabIndex=i===index?0:-1;});
-  panels.forEach((p,i)=>{p.hidden=i!==index;p.classList.remove('panel-enter');if(i===index&&!reduce.matches)p.classList.add('panel-enter');});
-  if(focus)tabs[index].focus();
- }
- tabs.forEach((t,i)=>{
-  t.addEventListener('click',()=>select(i));
-  t.addEventListener('keydown',event=>{
-   let next=i;
-   if(event.key==='ArrowDown')next=(i+1)%tabs.length;
-   else if(event.key==='ArrowUp')next=(i-1+tabs.length)%tabs.length;
-   else if(event.key==='Home')next=0;
-   else if(event.key==='End')next=tabs.length-1;
-   else return;
-   event.preventDefault();select(next,true);
+(() => {
+  const menu = document.querySelector('#menu');
+  const nav = document.querySelector('#navigation');
+  const top = document.querySelector('#back-to-top');
+  const fa = document.documentElement.lang === 'fa';
+  const t = (en, persian) => fa ? persian : en;
+  function closeMenu() { nav?.classList.remove('open'); menu?.setAttribute('aria-expanded', 'false'); }
+  menu?.addEventListener('click', () => {
+    const show = menu.getAttribute('aria-expanded') !== 'true';
+    menu.setAttribute('aria-expanded', String(show)); nav?.classList.toggle('open', show);
   });
- });
- if(tabs.length)select(0);
- nav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menu?.setAttribute('aria-expanded','false');}));
- reduce.addEventListener('change',()=>{document.documentElement.classList.toggle('chapter-scroll',scenes.length>0&&!reduce.matches);if(reduce.matches)reveal.forEach(el=>el.classList.add('revealed'));});
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeMenu(); });
+  nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+  function onScroll(){document.querySelector('.site-header')?.classList.toggle('is-scrolled',window.scrollY>40);top?.classList.toggle('visible',window.scrollY>700)}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  top?.addEventListener('click',()=>window.scrollTo({top:0,behavior:window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));
+  const form = document.querySelector('#enquiry-form');
+  if(!form) return;
+  // When JS is disabled, no GET URL fallback can expose family details.
+  form.addEventListener('submit',e=>e.preventDefault());
+  const status=document.querySelector('#form-status');
+  const fallback=document.querySelector('#booking-fallback');
+  const booking=document.querySelector('#booking-link');
+  const submit=form.querySelector('button[type=submit]');
+  const original=submit?.innerHTML;
+  const conf=window.VELLUM_CONFIG||{};
+  const bookingUrl=/^https:\/\/cal\.com\/vhouse\/30min(?:\?.*)?$/.test(conf.bookingUrl||'')?conf.bookingUrl:'https://cal.com/vhouse/30min';
+  if(booking) booking.href=bookingUrl;
+  let isSubmitting=false,prevSignature='',requestId='';
+  const report=(message,error=false)=>{
+    if(!status)return;
+    status.textContent=message;
+    status.classList.toggle('error',error);
+    status.classList.toggle('success',!error);
+  };
+  const VALID_ENDPOINT=/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/;
+  // Receipt endpoint reveals only existence of an opaque UUID; no client data is readable.
+  function receipt(endpoint,id){return new Promise((resolve,reject)=>{
+    const callback='vhReceipt_'+crypto.randomUUID().replaceAll('-','');
+    const script=document.createElement('script');let settled=false;
+    const finish=(value)=>{if(settled)return;settled=true;clearTimeout(timer);script.remove();delete window[callback];value?resolve(value):reject(new Error('unconfirmed'));};
+    const timer=setTimeout(()=>finish(null),12000);
+    window[callback]=finish;
+    script.onerror=()=>finish(null);
+    const url=new URL(endpoint);
+    url.search=new URLSearchParams({requestId:id,callback,t:String(Date.now())}).toString();
+    script.src=url.href;document.head.appendChild(script);
+  });}
+  form.addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(isSubmitting) return;
+    if(!form.reportValidity())return;
+    const endpoint=String(conf.formEndpoint||'').trim();
+    if(!VALID_ENDPOINT.test(endpoint)){
+      report(t('The enquiry system is not active yet. Please email vellumhouse.edu@gmail.com to arrange your free meeting.','سامانه ثبت درخواست هنوز فعال نشده است. برای هماهنگی جلسه رایگان به vellumhouse.edu@gmail.com ایمیل بزنید.'),true);
+      status?.focus();return;
+    }
+    const data=new URLSearchParams(new FormData(form));
+    if((data.get('website')||'').trim())return;
+    const phone=(data.get('phone')||'').trim();
+    if(phone && !/^\+?[0-9۰-۹٠-٩ ()\-]{6,40}$/.test(phone)){
+      report(t('Please enter a valid phone number, or leave it blank.','شماره تماس را درست وارد کنید یا آن را خالی بگذارید.'),true);
+      form.querySelector('#phone')?.focus();return;
+    }
+    data.set('language',fa?'fa':'en');
+    const campaign=new URLSearchParams(location.search).get('utm_source');
+    let referringSite='website';
+    if(document.referrer){try{referringSite=new URL(document.referrer).hostname||'website';}catch(_){}}
+    data.set('source',(campaign||referringSite).slice(0,300));
+    const current=data.toString();
+    if(current!==prevSignature){prevSignature=current;requestId=crypto.randomUUID();}
+    data.set('requestId',requestId);
+    isSubmitting=true;submit.disabled=true;submit.textContent=t('Saving your enquiry…','در حال ثبت درخواست…');
+    form.setAttribute('aria-busy','true');report(t('Saving your request securely.','در حال ثبت درخواست شما هستیم.'));
+    try{
+      // Google Apps Script POST returns an opaque response. Never claim success from it alone.
+      fetch(endpoint,{method:'POST',mode:'no-cors',credentials:'omit',body:data,redirect:'follow'}).catch(()=>{});
+      let confirmed=false;
+      for(let i=0;i<5;i++){
+        await new Promise(resolve=>setTimeout(resolve,i===0?2200:3300));
+        try{if((await receipt(endpoint,requestId))?.saved===true){confirmed=true;break;}}catch(_){/* retry */}
+      }
+      if(!confirmed)throw new Error('receipt-not-confirmed');
+      report(t('Your enquiry is saved. Opening the free booking calendar…','درخواست شما ثبت شد. در حال باز کردن تقویم جلسه رایگان…'));
+      if(fallback)fallback.hidden=false;
+      if(submit)submit.hidden=true;
+      // Direct booking navigation only after backend has confirmed the unique request exists.
+      window.location.assign(bookingUrl);
+    }catch(_){
+      report(t('We could not confirm your request. Your details are still here. Please retry, or email vellumhouse.edu@gmail.com.','تأیید ثبت درخواست انجام نشد. اطلاعات شما باقی مانده است؛ دوباره تلاش کنید یا به vellumhouse.edu@gmail.com ایمیل بزنید.'),true);
+      status?.focus();
+    }finally{isSubmitting=false;submit.disabled=false;submit.innerHTML=original;form.removeAttribute('aria-busy');}
+  });
 })();
