@@ -25,23 +25,13 @@
   const submit=form.querySelector('button[type=submit]');
   const original=submit?.innerHTML;
   const conf=window.VELLUM_CONFIG||{};
-  
-const bookingUrl = (() => {
-  try {
-    const url = new URL(conf.bookingUrl);
-    if (
-      url.protocol === 'https:' &&
-      url.hostname === 'cal.com' &&
-      url.pathname !== '/'
-    ) {
-      return url.href;
-    }
-  } catch (error) {
-    console.error('Invalid booking URL:', error);
-  }
-  return '';
-})();
-
+  const bookingUrl = (() => {
+    try {
+      const url = new URL(conf.bookingUrl || 'https://cal.com/vhouse/consultation');
+      if (url.protocol === 'https:' && url.hostname === 'cal.com' && url.pathname !== '/') return url.href;
+    } catch (error) { console.error('Invalid booking URL:', error); }
+    return 'https://cal.com/vhouse/consultation';
+  })();
   if(booking) booking.href=bookingUrl;
   let isSubmitting=false,prevSignature='',requestId='';
   const report=(message,error=false)=>{

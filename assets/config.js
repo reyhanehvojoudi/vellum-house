@@ -2,6 +2,6 @@
  * Activate only AFTER deploying backend/Code.gs as a Google Apps Script Web App.
  */
 window.VELLUM_CONFIG = Object.freeze({
-  formEndpoint: 'https://script.google.com/macros/s/AKfycbzLXXu4d2tjuEYsM6aylGbZ3bdQEwKDvctTKdedyPZFtYyXfIm_Bvt3Rv9BrN5VSfsadA/exec',
-  bookingUrl: 'https://cal.com/vhouse/consultation'
+  formEndpoint: '',
+  bookingUrl: 'https://cal.com/vhouse/consultation?overlayCalendar=true&layout=month_view'
 });
