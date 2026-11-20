@@ -14,9 +14,131 @@
   nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
   document.addEventListener('click', e => { if(nav && !nav.hidden && !nav.contains(e.target) && !menu?.contains(e.target)) closeMenu(); });
   window.addEventListener('resize', () => { if(window.innerWidth>900) closeMenu(); });
-  function onScroll(){document.querySelector('.site-header')?.classList.toggle('is-scrolled',window.scrollY>40);top?.classList.toggle('visible',window.scrollY>700)}
+  const readMeter = document.querySelector('.page-read-meter span');
+  function onScroll(){
+    document.querySelector('.site-header')?.classList.toggle('is-scrolled',window.scrollY>40);
+    top?.classList.toggle('visible',window.scrollY>700);
+    if(readMeter){
+      const scrollable = Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+      readMeter.style.transform = 'scaleX('+Math.min(1,window.scrollY/scrollable).toFixed(4)+')';
+    }
+  }
   window.addEventListener('scroll',onScroll,{passive:true});onScroll();
   top?.addEventListener('click',()=>window.scrollTo({top:0,behavior:window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));
+  // Interactive journey: direct exploration, keyboard navigation, guided next/previous,
+  // pointer-responsive illumination, and a visible traveler on the underlying route.
+  // All motion is an optional enhancement; reduced-motion visitors get instant updates.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.atlas').forEach(atlas => {
+    const stops = [...atlas.querySelectorAll('.atlas-stop')];
+    const detail = atlas.querySelector('#atlas-detail-inner');
+    const svgPath = atlas.querySelector('.atlas-route-progress');
+    const traveler = atlas.querySelector('.atlas-traveler');
+    const prev = atlas.querySelector('.atlas-prev');
+    const next = atlas.querySelector('.atlas-next');
+    const stepNumber = atlas.querySelector('.atlas-step-number');
+    if (!stops.length || !detail) return;
+    let activeIndex = 0, routePosition = 0, motionFrame = null, pointerFrame = null;
+    const routeLength = svgPath?.getTotalLength?.() || 0;
+    // Locate the actual SVG waypoints so the moving light arrives precisely at each node.
+    // The illustration mirrors as a whole in RTL, so no separate coordinate math is required.
+    const waypoints = stops.map(stop => {
+      if(!routeLength || !svgPath) return 0;
+      const x = parseFloat(stop.style.getPropertyValue('--x')) / 100 * 1100;
+      const y = parseFloat(stop.style.getPropertyValue('--y')) / 100 * 470;
+      let nearest = 0, distance = Infinity;
+      for(let i=0;i<=240;i++){
+        const at = routeLength*i/240, p=svgPath.getPointAtLength(at);
+        const d=(p.x-x)**2+(p.y-y)**2;
+        if(d<distance){distance=d;nearest=at;}
+      }
+      return nearest;
+    });
+    const moveTraveler = (position) => {
+      if(!traveler || !svgPath || !routeLength) return;
+      const p = svgPath.getPointAtLength(Math.min(routeLength,Math.max(0,position)));
+      traveler.setAttribute('transform',`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`);
+    };
+    const select = (index, focus = false, initial = false) => {
+      if(index<0 || index>=stops.length) return;
+      activeIndex=index;
+      stops.forEach((button,i) => {
+        const chosen=i===index;
+        button.classList.toggle('is-active',chosen);
+        button.setAttribute('aria-pressed',String(chosen));
+        button.tabIndex=chosen?0:-1;
+      });
+      atlas.dataset.active=String(index+1);
+      const target=waypoints[index] ?? (routeLength*index/(stops.length-1));
+      const fraction=routeLength?target/routeLength:0;
+      atlas.style.setProperty('--progress',String((fraction*100).toFixed(2)));
+      if(motionFrame) cancelAnimationFrame(motionFrame);
+      if(initial || reduceMotion || !routeLength) {routePosition=target;moveTraveler(target);}
+      else {
+        const from=routePosition, delta=target-from, started=performance.now(), duration=680;
+        const tick=(now)=>{
+          const t=Math.min(1,(now-started)/duration);
+          const eased=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+          routePosition=from+delta*eased;moveTraveler(routePosition);
+          if(t<1)motionFrame=requestAnimationFrame(tick);else motionFrame=null;
+        };
+        motionFrame=requestAnimationFrame(tick);
+      }
+      const template = atlas.querySelector('#atlas-template-'+(index+1));
+      if(template){
+        detail.replaceChildren(template.content.cloneNode(true));
+        detail.classList.remove('atlas-detail-enter');
+        if(!reduceMotion && !initial){void detail.offsetWidth;detail.classList.add('atlas-detail-enter');}
+      }
+      if(prev)prev.disabled=index===0;
+      if(next)next.disabled=index===stops.length-1;
+      if(stepNumber)stepNumber.textContent=String(index+1).padStart(2,'0');
+      if(focus)stops[index].focus({preventScroll:true});
+    };
+    stops.forEach((button,i)=>{
+      button.addEventListener('click',()=>select(i));
+      button.addEventListener('keydown',event=>{
+        const forward=fa?'ArrowLeft':'ArrowRight';
+        const backward=fa?'ArrowRight':'ArrowLeft';
+        if(event.key===forward || event.key==='ArrowDown') {event.preventDefault();select((i+1)%stops.length,true);}
+        else if(event.key===backward || event.key==='ArrowUp') {event.preventDefault();select((i+stops.length-1)%stops.length,true);}
+        else if(event.key==='Home'){event.preventDefault();select(0,true);}
+        else if(event.key==='End'){event.preventDefault();select(stops.length-1,true);}
+      });
+    });
+    prev?.addEventListener('click',()=>select(activeIndex-1));
+    next?.addEventListener('click',()=>select(activeIndex+1));
+    // Trackpad and mouse spotlight. Never intercept native touch/scroll gestures.
+    const map=atlas.querySelector('.atlas-map');
+    if(map && !reduceMotion){
+      map.addEventListener('pointermove',e=>{
+        if(e.pointerType==='touch')return;
+        if(pointerFrame)cancelAnimationFrame(pointerFrame);
+        pointerFrame=requestAnimationFrame(()=>{
+          const r=map.getBoundingClientRect();
+          map.style.setProperty('--pointer-x',((e.clientX-r.left)/r.width*100).toFixed(2)+'%');
+          map.style.setProperty('--pointer-y',((e.clientY-r.top)/r.height*100).toFixed(2)+'%');
+          pointerFrame=null;
+        });
+      },{passive:true});
+      map.addEventListener('pointerleave',()=>{
+        map.style.removeProperty('--pointer-x');map.style.removeProperty('--pointer-y');
+      });
+    }
+    select(0,false,true);
+  });
+  // Lightweight scroll-chapter reveals. Content stays visible without JS and with
+  // reduced-motion enabled; no network, animation library, or canvas dependency.
+  if(!reduceMotion && 'IntersectionObserver' in window){
+    const targets=document.querySelectorAll('.v7-benefit,.v7-person,.v7-evidence-card,.v7-service-row,.v7-team-placeholders,.v7-difference-grid>div:first-child');
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){entry.target.classList.add('story-visible');observer.unobserve(entry.target);}
+      });
+    },{threshold:.08,rootMargin:'0px 0px 50px 0px'});
+    targets.forEach(el=>{el.classList.add('story-reveal');observer.observe(el);});
+    document.documentElement.classList.add('v7-story-enabled');
+  }
   const form = document.querySelector('#enquiry-form');
   if(!form) return;
   // When JS is disabled, no GET URL fallback can expose family details.

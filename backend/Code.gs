@@ -114,7 +114,7 @@ function retryEmails(){
           '', 'Check the private Enquiries sheet. Booking status is updated manually unless Cal.com is integrated separately.'
         ].join('\n'):
           (fa?'درود '+r[2]+'\n\nدرخواست شما در ولوم هاوس ثبت شد. برای انتخاب زمان جلسه مشاوره رایگان اولیه ۳۰ دقیقه‌ای از لینک زیر استفاده کنید:\n'+VH.booking+'\n\nتوجه: جلسه فقط پس از انتخاب و تأیید زمان در تقویم رزرو می‌شود.\n\nشناسه درخواست: '+r[1]+'\n\nبا احترام،\nتیم ولوم هاوس':
-             'Hello '+r[2]+',\n\nThank you. Your Vellum House enquiry has been recorded. Choose a free 30-minute free initial consultation using this link:\n'+VH.booking+'\n\nYour meeting is not booked until you select and confirm a time in the calendar.\n\nReference: '+r[1]+'\n\nVellum House');
+             'Hello '+r[2]+',\n\nThank you. Your Vellum House enquiry has been recorded. Choose a free 30-minute initial consultation using this link:\n'+VH.booking+'\n\nYour meeting is not booked until you select and confirm a time in the calendar.\n\nReference: '+r[1]+'\n\nVellum House');
         try{
           MailApp.sendEmail({to,subject,body:msg,name:'Vellum House',replyTo:j===0?String(r[3]).replace(/^'/,''):VH.notify});
           r[16+j]='Sent';sheet.getRange(i+1,17+j).setValue('Sent');sheet.getRange(i+1,19).setValue('');
