@@ -8,7 +8,7 @@
 const VH = {
   tab: 'Enquiries',
   notify: 'vellumhouse.edu@gmail.com',
-  booking: 'https://cal.com/vhouse/30min?overlayCalendar=true&layout=month_view',
+  booking: 'https://cal.com/vhouse/consultation',
   headers: [
     'Received at','Request ID','Contact name','Email','Phone','Grade / level',
     'Service interest','Goals / message','Language','Lead source','Consent',
@@ -113,8 +113,8 @@ function retryEmails(){
           'Source: '+r[9],'Lead status: New','Booking status: Not booked',
           '', 'Check the private Enquiries sheet. Booking status is updated manually unless Cal.com is integrated separately.'
         ].join('\n'):
-          (fa?'درود '+r[2]+'\n\nدرخواست شما در ولوم هاوس ثبت شد. برای انتخاب زمان جلسه آشنایی آنلاین رایگان ۳۰ دقیقه‌ای از لینک زیر استفاده کنید:\n'+VH.booking+'\n\nتوجه: جلسه فقط پس از انتخاب و تأیید زمان در تقویم رزرو می‌شود.\n\nشناسه درخواست: '+r[1]+'\n\nبا احترام،\nتیم ولوم هاوس':
-             'Hello '+r[2]+',\n\nThank you. Your Vellum House enquiry has been recorded. Choose a free 30-minute discovery call using this link:\n'+VH.booking+'\n\nYour meeting is not booked until you select and confirm a time in the calendar.\n\nReference: '+r[1]+'\n\nVellum House');
+          (fa?'درود '+r[2]+'\n\nدرخواست شما در ولوم هاوس ثبت شد. برای انتخاب زمان جلسه مشاوره رایگان اولیه ۳۰ دقیقه‌ای از لینک زیر استفاده کنید:\n'+VH.booking+'\n\nتوجه: جلسه فقط پس از انتخاب و تأیید زمان در تقویم رزرو می‌شود.\n\nشناسه درخواست: '+r[1]+'\n\nبا احترام،\nتیم ولوم هاوس':
+             'Hello '+r[2]+',\n\nThank you. Your Vellum House enquiry has been recorded. Choose a free 30-minute free initial consultation using this link:\n'+VH.booking+'\n\nYour meeting is not booked until you select and confirm a time in the calendar.\n\nReference: '+r[1]+'\n\nVellum House');
         try{
           MailApp.sendEmail({to,subject,body:msg,name:'Vellum House',replyTo:j===0?String(r[3]).replace(/^'/,''):VH.notify});
           r[16+j]='Sent';sheet.getRange(i+1,17+j).setValue('Sent');sheet.getRange(i+1,19).setValue('');

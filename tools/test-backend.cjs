@@ -35,7 +35,7 @@ const v={requestId:id,fullName:'A Parent',email:'parent@example.com',grade:'Grad
 assert.equal(post({...v}).saved,true);assert.equal(rows.length,2);assert.equal(mails.length,2);
 assert.equal(rows[1][11],'New');assert.equal(rows[1][12],'Not booked');
 assert.equal(rows[1][16],'Sent');assert.equal(rows[1][17],'Sent');
-assert(mails[1].body.includes('cal.com/vhouse/30min'));
+assert(mails[1].body.includes('cal.com/vhouse/consultation'));
 assert.equal(post({...v}).saved,true);assert.equal(rows.length,2);assert.equal(mails.length,2);
 const x=ctx.doGet({parameter:{requestId:id,callback:'vhReceipt_0123456789abcdef0123456789abcdef'}}).content;
 assert(x.includes('"saved":true')&&!x.includes('parent@example.com'));

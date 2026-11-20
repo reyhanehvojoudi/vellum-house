@@ -5,13 +5,15 @@
   const top = document.querySelector('#back-to-top');
   const fa = document.documentElement.lang === 'fa';
   const t = (en, persian) => fa ? persian : en;
-  function closeMenu() { nav?.classList.remove('open'); menu?.setAttribute('aria-expanded', 'false'); }
+  function closeMenu() { if(nav){nav.hidden=true;nav.classList.remove('open')} menu?.setAttribute('aria-expanded', 'false'); }
   menu?.addEventListener('click', () => {
     const show = menu.getAttribute('aria-expanded') !== 'true';
-    menu.setAttribute('aria-expanded', String(show)); nav?.classList.toggle('open', show);
+    menu.setAttribute('aria-expanded', String(show)); if(nav){nav.hidden=!show;nav.classList.toggle('open',show)}
   });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') closeMenu(); });
   nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+  document.addEventListener('click', e => { if(nav && !nav.hidden && !nav.contains(e.target) && !menu?.contains(e.target)) closeMenu(); });
+  window.addEventListener('resize', () => { if(window.innerWidth>900) closeMenu(); });
   function onScroll(){document.querySelector('.site-header')?.classList.toggle('is-scrolled',window.scrollY>40);top?.classList.toggle('visible',window.scrollY>700)}
   window.addEventListener('scroll',onScroll,{passive:true});onScroll();
   top?.addEventListener('click',()=>window.scrollTo({top:0,behavior:window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));
@@ -59,7 +61,7 @@
     if(!form.reportValidity())return;
     const endpoint=String(conf.formEndpoint||'').trim();
     if(!VALID_ENDPOINT.test(endpoint)){
-      report(t('The enquiry system is not active yet. Please email vellumhouse.edu@gmail.com to arrange your free meeting.','سامانه ثبت درخواست هنوز فعال نشده است. برای هماهنگی جلسه رایگان به vellumhouse.edu@gmail.com ایمیل بزنید.'),true);
+      report(t('The enquiry system is not active yet. Please email vellumhouse.edu@gmail.com to arrange your free meeting.','سامانه ثبت درخواست هنوز فعال نشده است. برای هماهنگی جلسه مشاوره رایگان اولیه به vellumhouse.edu@gmail.com ایمیل بزنید.'),true);
       status?.focus();return;
     }
     const data=new URLSearchParams(new FormData(form));
@@ -88,7 +90,7 @@
         try{if((await receipt(endpoint,requestId))?.saved===true){confirmed=true;break;}}catch(_){/* retry */}
       }
       if(!confirmed)throw new Error('receipt-not-confirmed');
-      report(t('Your enquiry is saved. Opening the free booking calendar…','درخواست شما ثبت شد. در حال باز کردن تقویم جلسه رایگان…'));
+      report(t('Your enquiry is saved. Opening the free booking calendar…','درخواست شما ثبت شد. در حال باز کردن تقویم مشاوره رایگان اولیه…'));
       if(fallback)fallback.hidden=false;
       if(submit)submit.hidden=true;
       // Direct booking navigation only after backend has confirmed the unique request exists.

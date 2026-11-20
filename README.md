@@ -1,15 +1,28 @@
-# Vellum House — V5 conversion website
+# Vellum House V6 — Minimal Website
 
-A complete bilingual static website designed around the **Point A → Point B** positioning, full or modular support, and an enquiry-first booking funnel.
+A bilingual, accessible static site for Vellum House, redesigned from the uploaded GitHub repository on 20 November 2026. It emphasises a single clear proposition and a consistent free-initial-consultation CTA.
 
-**Publishing:** Copy these files over the existing GitHub Pages root. Preserve the existing repository’s `.github/` configuration, any media files you are actively using, and fonts already hosted under `assets/`. The archive intentionally contains no font files or client data. Run `python tools/build.py` to regenerate HTML from the version-controlled site source; this source supersedes the old `content.json` and old generator.
+## Go live
+Read **`docs/GITHUB_UPLOAD_FA.md`** for detailed instructions. GitHub Pages publishes from the repository root. Preserve the two existing Vazirmatn font files from your current repository; they are not duplicated in this distribution.
 
-**Forms:** The static site alone cannot write private Google Sheets or send email. Install `backend/Code.gs` in a Sheet-bound Google Apps Script owned by `vellumhouse.edu@gmail.com`, run `setup()`, deploy as a Web App and paste the `/exec` endpoint into `assets/config.js`. Do **not** put credentials, spreadsheets, private links or tokens in GitHub. Until the endpoint is configured, the form honestly displays an unavailable message instead of claiming to collect enquiries.
+## Pages
+Persian homepage: `index.html`; English homepage: `en.html`; additional bilingual pages: services, approach, pathways, about, resources, contact, privacy, terms. `fa.html` remains a Persian alias.
 
-**Booking:** Only after a unique enquiry has been saved and confirmed does the browser navigate to `https://cal.com/vhouse/30min?overlayCalendar=true&layout=month_view`. The acknowledgement email includes the link as a fallback. Booking status is initially **Not booked**, and **does not update automatically** without separate Cal.com webhook/booking reconciliation.
+## Where to edit
+- `tools/build.py`: bilingual copy, menus, HTML templates, sitemap, metadata. Regenerate via `python tools/build.py`.
+- `assets/style.css`: layout, typography, branding, responsive design.
+- `assets/config.js`: live Google Apps Script endpoint and Cal.com link. **The endpoint is configured.**
+- `assets/main.js`: enquiry form validation, confirmation receipt and redirect, menu and interactions.
+- `backend/Code.gs`: Google Sheets backend and acknowledgement email, separately deployed in Google Apps Script.
 
-**Media:** Black frames are deliberate editable slots for later founder/team photography, videos, documented case studies and permissioned testimonials. No invented reviews, metrics or admission outcomes have been added.
+The form retains the original required field names, prevents unconfirmed redirect, and retains the existing lead pipeline schema. Changes to `backend/Code.gs` in GitHub **do not** automatically update the Google Apps Script deployment.
 
-**Privacy:** Parent or guardian should enquire for under-18s. Please confirm legal jurisdiction, retention schedule, data access and policies before making the form live; the included public policy has deliberately not asserted unverified arrangements.
+## Quality checks
+Run `python tools/check.py`, `node --check assets/main.js`, `node --check < backend/Code.gs`, and `node tools/test-backend.cjs`.
 
-See `docs/DEPLOYMENT.md` and `docs/CONTENT_TO_COMPLETE.md`.
+## Reviews
+- `docs/REVIEW_40_PERSPECTIVES_FA.md`: 40 distinct heuristic perspectives, not real interview participants.
+- `docs/GITHUB_UPLOAD_FA.md`: step-by-step deployment, live-endpoint and backend email updates.
+
+## Content and compliance
+No synthetic reviews, fabricated team members or guaranteed admission claims. Privacy/terms drafts must be approved for the relevant jurisdiction before handling real user data. Under-18 enquiries should be made by a parent or guardian, with parent/guardian attendance at the consultation.
