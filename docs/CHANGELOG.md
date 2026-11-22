@@ -1,15 +1,14 @@
-# Vellum House V8 — change log
+# Final release — changes
 
-- Replaced multi-page, scrolling educational site with one viewport-bound interactive experience.
-- Added initial English | فارسی language choice, retained for the browser tab session, with manual language switch in the header.
-- Designed original editorial dark-navy-and-gold atlas artwork using lightweight SVG and CSS contour geometry; 5 clickable educational milestones and animated moving route.
-- Added five full-screen chapters reached via the compact menu or previous/next buttons: student journey, approach, founders, verified evidence placeholders, consultation.
-- Restored circular VH mark with VELLUM HOUSE / PRIVATE ACADEMIC MANAGEMENT wordmark.
-- Added dedicated editorial founder portrait slots and specialist network area, with clearly marked placeholders instead of invented headshots.
-- Added spaces for authenticated outcomes and consented testimonials, without fabricated claims.
-- Ensured persistent desktop consultation CTA and mobile floating CTA in all exploration views; the consultation form itself supplies the CTA on the final view.
-- Made the small-screen enquiry a two-step guided interaction; the body never scrolls to another section.
-- Preserved the supplied Google Apps Script `/exec` endpoint and current Cal.com `/consultation` URL; enquiry success requires a backend UUID receipt.
-- Made old marketing URLs redirect to the appropriate in-app chapter, including legacy privacy and terms URLs opening legal overlays.
-- Implemented keyboard focus states, `aria-live` feedback, semantic dialogs, reduced-motion support and back/forth stage controls.
-- Included new deployment instructions and browser/backend test scripts.
+- User-provided ornate VH logo optimised and used in the header and language chooser.
+- Language chooser on first visit (English | فارسی), with a separate short introduction after selection.
+- A new full-viewport five-stage journey with a cohesive curved line, accurate step-end highlighting (SVG clipping), and one descriptive panel below the map. No opposing left/right information panel.
+- Original full-page scrolling replaced by screen-based navigation. Small-menu views include introduction, journey, method, founders, consultation, and contact.
+- Persian and English copy professionally revised; each view is fully localised, except for proper names, public handles, international addresses and the bilingual language control.
+- Four detailed method stages: Understand, Design, Monitor & Mentor (regular progress reports), Work Toward Goals.
+- Both founder biographies show Founder status, supplied degrees, experience and learner figures. No unfinished team, testimonial, or results sections.
+- Two-step enquiry form offers a standalone talent assessment and planning service, educational programmes, mentoring/counselling/oversight, Olympiads, university applications/admissions, Iranian entrance-exam preparation and service selection guidance.
+- New contact view offers enquiry, direct email and Telegram @VH_edu.
+- Updated Apps Script backend accepts the new service codes and records readable bilingual labels while preserving existing UUID receipt verification and notification logic.
+- Persistent primary CTA; return-to-beginning button; keyboard/focus and reduced-motion support; preserved old page routes via redirects.
+- Removed public placeholders and outdated test-version labels; latest booking link is https://cal.com/vhouse/consultation.

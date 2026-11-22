@@ -18,7 +18,19 @@ const VH = {
   emailRegex: /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/,
   uuidRegex: /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i
 };
-const INTERESTS = ['full','classes','mentoring','talent','university','other'];
+const INTERESTS = ['full','talent','courses','classes','mentoring','olympiads','admissions','university','konkur','other'];
+const SERVICE_LABELS = {
+  full:{fa:'مدیریت کامل مسیر تحصیلی',en:'Full academic pathway management'},
+  talent:{fa:'استعدادیابی و برنامه‌ریزی (ارزیابی و گزارش نتایج)',en:'Talent discovery and planning (assessment with results)'},
+  courses:{fa:'دوره‌های آموزشی و آمادگی آزمون',en:'Educational programmes and exam preparation'},
+  classes:{fa:'دوره‌های آموزشی و آمادگی آزمون',en:'Educational programmes and exam preparation'},
+  mentoring:{fa:'منتورینگ، مشاوره و نظارت بر مسیر پیشرفت',en:'Mentoring, counselling and progress oversight'},
+  olympiads:{fa:'مسابقات و المپیادها',en:'Competitions and Olympiads'},
+  admissions:{fa:'اپلای و دریافت پذیرش تحصیلی',en:'University applications and admission support'},
+  university:{fa:'اپلای و دریافت پذیرش تحصیلی',en:'University applications and admission support'},
+  konkur:{fa:'آمادگی کنکور',en:'Iranian university entrance exam preparation'},
+  other:{fa:'برای انتخاب سرویس نیاز به راهنمایی بیشتر دارم',en:'I need guidance choosing the right service'}
+};
 function setup() {
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   if(!ss) throw new Error('Open this script from the target Google Sheet: Extensions > Apps Script.');
@@ -75,7 +87,7 @@ function doPost(e){
       if(count>=3)return json_({saved:false});
       sheet.appendRow([
         new Date(),p.requestId,safe_(p.fullName),safe_(p.email),safe_(p.phone),
-        safe_(p.grade),p.serviceInterest,safe_(p.message),p.language,safe_(p.source),
+        safe_(p.grade),safe_((SERVICE_LABELS[p.serviceInterest]||{})[p.language]||p.serviceInterest),safe_(p.message),p.language,safe_(p.source),
         'Yes','New','Not booked','','','', 'Pending','Pending',''
       ]);
       SpreadsheetApp.flush();cache.put(key,String(count+1),3600);

@@ -1,49 +1,46 @@
-# Vellum House V8 — The Living Atlas
+# Vellum House — Production Website
 
-**Single-screen bilingual website for `vhouse.ir`.** No long scrolling pages: the central experience changes in place, through the menu or section arrows. A language selection dialog is shown once per browser tab session (English / فارسی). The menu language control can reopen it at any time.
+A premium, one-viewport, bilingual experience, built in plain HTML, CSS and JavaScript for GitHub Pages at https://vhouse.ir/.
 
-## Launch
+## Visitor experience
 
-1. Back up your existing GitHub repository: `https://github.com/reyhanehvojoudi/vellum-house` → Code → Download ZIP.
-2. Extract this release ZIP and upload the **contents of the folder** to the **GitHub Pages publishing root** (normally the `main` branch root), replacing matching files. **Do not delete existing unrelated assets.**
-3. Preserve the **existing licensed Persian font files** in your repo: `assets/Vazirmatn-Regular.woff2` and `assets/Vazirmatn-Bold.woff2`. They are **not distributed in this ZIP**. CSS will use system fonts if they're absent.
-4. Commit as `Publish Vellum House V8 single-screen atlas` and check Settings → Pages → successful deployment.
-5. Test both languages, all five views, consultation form (private Google Sheet + Gmail receipt), booking redirect, and mobile devices.
+1. The language selection dialog appears on a visitor's first visit in each browser-tab session.
+2. After choosing English or Persian, visitors see a short introduction defining Vellum House and a button to explore the journey.
+3. The five-stage journey occupies the full central screen; clicking a stage precisely highlights the connecting route up to that stage, and its explanation appears beneath the route.
+4. A compact menu opens the method, both founders, consultation and contact views—all within one screen. No page-level scrolling is required in normal use.
+5. The consultation enquiry is completed in two small steps, saved to a private Google Sheet and independently confirmed before the booking page is opened.
 
-## Live integrations — configured in `assets/config.js`
+## Important public configuration
 
-- Google Apps Script endpoint: the exact `/exec` URL previously provided by the owner.
-- Confirmed booking link: `https://cal.com/vhouse/consultation`.
-- The Google Sheet remains private. Frontend submits via POST and checks a UUID receipt before redirecting. **Never assume a no-cors response means saved.**
-- `backend/Code.gs` is included as a reference for the connected Google Sheet. If the live deployment is already correct, **do not redeploy the script simply to upload this frontend**. If you change backend code, update the existing deployed version in Apps Script separately.
-- Cal.com appointments do not automatically update booking status in the Google Sheet. That remains a manual CRM step.
+The `assets/config.js` file contains the Google Apps Script `/exec` URL already supplied by the owner and the booking destination `https://cal.com/vhouse/consultation`. Do not overwrite it with placeholders or add secrets to this file.
 
-## Structure
+## Files
 
-- `index.html` and `en.html`: same single-screen app shell, with Persian/English defaults.
-- `assets/experience.css`: navy, champagne gold, responsive design; no external CSS framework.
-- `assets/experience.js`: bilingual copy, five interactive screens, route, modal, menu, mobile form wizard, enquiry receipt.
-- `assets/config.js`: public, non-secret integration URLs.
-- Other `.html` pages: backward-compatible redirects to relevant screens in this app, keeping old shared links useful.
-- `backend/Code.gs`: the previously tested Google Apps Script implementation.
-- `docs/` includes screenshots, QA notes and content-replacement instructions.
+- `index.html`: Persian first-visit experience
+- `en.html`: English first-visit experience
+- `assets/atelier.css`: responsive visual design and font references
+- `assets/atelier.js`: bilingual copy, navigation, interactive journey and enquiry handling
+- `assets/vh-monogram.webp`: optimised version of the user-supplied logo, transparent
+- `assets/config.js`: endpoint and booking URL
+- `backend/Code.gs`: Google Apps Script backend; must also be redeployed in Apps Script
+- Legacy URLs (contact, about, approach, services, etc.) redirect to the corresponding new single-screen view.
 
-## Content intentionally not invented
+## Existing font assets
 
-The founder portrait images are editorial placeholders. Results and testimonials are reserved for verified, permissioned material. The privacy/terms in-app notices require your legal/editorial review before public launch. No education results, admission outcomes or endorsements were invented.
+The website references the Vazirmatn font files *already present* in the existing GitHub repository:
 
-## Browser/runtime notes
+- `assets/Vazirmatn-Regular.woff2`
+- `assets/Vazirmatn-Bold.woff2`
 
-The `body` is fixed to one viewport with `overflow:hidden` and the five screens are navigated without scrolling. Very short landscape screens or an on-screen keyboard may require limited scrolling **inside the consultation panel** so inputs remain usable. This is preferable to clipping content.
+**Keep those existing font files when uploading.** They are not bundled into this release. Persian fallback fonts are used if they are missing.
 
-For local preview you can open `index.html` in a modern browser, or serve the folder with `python -m http.server 8000` and open `http://localhost:8000/`. Remote Google integration must be tested from the live HTTPS domain.
+## Publish
 
-## Tests
+Read `docs/START_HERE_FA.md` for the full Persian step-by-step GitHub, Apps Script, and Cal.com deployment instructions.
 
-```bash
-node --check assets/experience.js
-node tools/test-backend.cjs
-python tools/test_browser.py
-```
+## Important limitations
 
-The browser script uses an isolated in-memory browser because localhost navigation was blocked by the testing environment. This verifies the frontend interactions **but not the live Google services**.
+- Browser/source tests and a mocked backend test passed locally. The real Google Sheets/Gmail/Cal.com connection must be verified after deployment using a genuine, consenting test address.
+- Consultation booking status in Google Sheets is still manual unless separately integrated with Cal.com.
+- The founder experience and 3,000+ / 8,000+ figures were supplied by Vellum House; confirm authorisation and accuracy before publishing.
+- Privacy policy, regulatory disclosures and student data processing obligations need owner review before publication.
