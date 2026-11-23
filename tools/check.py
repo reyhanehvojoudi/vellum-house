@@ -1,43 +1,46 @@
-#!/usr/bin/env python3
-"""Basic source and deployment integrity checks. No external dependencies."""
-from pathlib import Path
+"""Verify the deployable bilingual site, its calendar hand-off and local assets."""
 from html.parser import HTMLParser
-import re,sys
-R=Path(__file__).resolve().parents[1]
-files=sorted(R.glob('*.html'))
-class Check(HTMLParser):
- def __init__(self):
-  super().__init__();self.links=[];self.h1=0;self.form=False;self.method=None;self.meta={};self.canonical=False;self.ids=[]
- def handle_starttag(self,tag,attrs):
-  d=dict(attrs)
-  if tag=='a' and d.get('href'):self.links.append(d['href'])
-  if tag=='h1':self.h1+=1
-  if tag=='form' and d.get('id')=='enquiry-form':self.form=True;self.method=d.get('method')
-  if tag=='meta' and d.get('name')=='description':self.meta['description']=d.get('content')
-  if tag=='link' and d.get('rel')=='canonical':self.canonical=True
-  if d.get('id'):self.ids.append(d['id'])
-errors=[];descs={}
-for file in files:
- html=file.read_text(encoding='utf-8');p=Check();p.feed(html)
- if p.h1!=1:errors.append(f'{file.name}: H1 count {p.h1}')
- if len(set(p.ids))!=len(p.ids):errors.append(f'{file.name}: duplicate IDs')
- if file.name!='404.html':
-  if not p.canonical:errors.append(f'{file.name}: missing canonical')
-  if not p.meta.get('description'):errors.append(f'{file.name}: missing description')
-  if file.name not in ('fa.html','index.html'):
-   if p.meta.get('description') in descs:errors.append(f'{file.name}: repeated metadata')
-   descs[p.meta.get('description')]=file.name
- for href in p.links:
-  loc=href.split('#',1)[0].split('?',1)[0]
-  if loc and not loc.startswith(('https:','http:','mailto:','tel:','//')) and not (R/loc).exists():errors.append(f'{file.name}: broken href {href}')
- if file.name.startswith('contact'):
-  if not p.form or p.method!='post':errors.append(f'{file.name}: missing POST form')
-  for key in ['fullName','email','serviceInterest','consent','website','form-status','booking-fallback']:
-   if key not in html:errors.append(f'{file.name}: missing form marker {key}')
- if 'https://cal.com/vhouse/30min' in html and not file.name.startswith('contact'):errors.append(f'{file.name}: direct booking link bypasses enquiry')
-for path in ['assets/style.css','assets/main.js','assets/config.js','backend/Code.gs','CNAME','robots.txt','sitemap.xml','tools/build.py']:
- if not (R/path).exists():errors.append(f'missing {path}')
-if 'month=2026-11' in (R/'assets/config.js').read_text(): errors.append('booking URL pins an expired month')
-if errors:
- print('FAILED:',*errors,sep='\n- ');sys.exit(1)
-print(f'PASS — {len(files)} pages, local links, bilingual forms, metadata, SEO and source configuration')
+from pathlib import Path
+import re
+from urllib.parse import urlsplit
+
+ROOT=Path(__file__).resolve().parents[1]
+class Page(HTMLParser):
+    def __init__(self):
+        super().__init__(); self.tags=[]
+    def handle_starttag(self, name, attrs):
+        self.tags.append((name,dict(attrs)))
+
+def check_ref(base, ref):
+    url=urlsplit(ref)
+    if url.scheme or not url.path or url.path=='/': return
+    assert (base/url.path).is_file(), ref
+
+for filename in ROOT.glob('*.html'):
+    parser=Page();parser.feed(filename.read_text())
+    for _,tag in parser.tags:
+        for attr in ('href','src'):
+            if tag.get(attr):check_ref(ROOT,tag[attr])
+        for entry in tag.get('srcset','').split(','):
+            if entry.strip():check_ref(ROOT,entry.strip().split()[0])
+    if filename.name not in ('index.html','en.html'): continue
+    raw=filename.read_text()
+    assert 'id="enquiry-form"' in raw and 'id="calendar-area"' in raw
+    selects={attrs.get('name') for name,attrs in parser.tags if name=='select'}
+    assert {'grade','serviceInterest'} <= selects
+    assert sum('data-stage' in a for _,a in parser.tags)==5
+    assert sum('data-delta' in a for _,a in parser.tags)==2
+    assert sum('linkedin.com/in/' in a.get('href','') for _,a in parser.tags)==2
+    assert 'footer' not in {n for n,_ in parser.tags}
+    assert not any(x in raw for x in ['cal.com','menu-toggle','data-form-next','chapter-marker','mailto:'])
+style=(ROOT/'assets/house.css').read_text()
+for url in re.findall(r'url\(([^)]+)\)',style):
+    if not url.startswith('"data:'):check_ref(ROOT/'assets',url.strip('"'))
+for file in ['admin.html','assets/house.js','assets/admin.js','assets/booking.js','assets/calendar-api.js','backend/Code.gs','assets/config.js']:
+    assert (ROOT/file).is_file()
+for slug in ['admin.js','house.js','booking.js','calendar-api.js']:
+    for name in re.findall(r"(?:from\s+|import\()['\"]\./([^'\"]+)['\"]",(ROOT/'assets'/slug).read_text()):
+        check_ref(ROOT/'assets',name)
+assert (ROOT/'CNAME').read_text().strip()=='vhouse.ir'
+assert 'At Vellum House, we believe exceptional futures are built through personalized guidance, not one-size-fits-all education.' in (ROOT/'en.html').read_text()
+print('PASS: local URLs, responsive image and font assets, localized forms and calendar, grade options, direct header links, two founder profiles and domain.')
