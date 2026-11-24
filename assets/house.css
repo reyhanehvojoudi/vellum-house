@@ -218,6 +218,7 @@ dialog::backdrop{background:#0a1c2cdc}
 .film-frame::before{content:"";position:absolute;z-index:-1;inset:-.55rem .55rem .55rem -.55rem;border:1px solid #ad925c;pointer-events:none}
 [dir=rtl] .film-frame::before{inset:-.55rem -.55rem .55rem .55rem}
 .film-frame video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#102534}
+.film-frame video{content-visibility:auto}
 .film-toggle{position:absolute;bottom:.65rem;right:.65rem;display:grid;place-content:center;width:2.55rem;height:2.55rem;border-radius:50%;border:1px solid #fffa;background:#0d2137dc;color:white;font:700 1rem/1 "DM Sans",sans-serif}
 .hero-film figcaption{display:flex;align-items:center;gap:.8rem;margin-top:.72rem;color:#516368;font-size:.85rem}
 .film-caption-rule{width:2rem;height:1px;background:#99793c}

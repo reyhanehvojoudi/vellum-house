@@ -5,7 +5,9 @@
   const lang=document.documentElement.lang, fa=lang==='fa', reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const video=document.getElementById('intro-film'), toggle=document.getElementById('film-toggle');
   video.setAttribute('autoplay','');
-  video.setAttribute('preload','auto');
+  // Keep the first paint light: the poster is shown immediately and the
+  // large film is fetched shortly after the interface becomes usable.
+  video.setAttribute('preload','none');
   const journey=document.getElementById('journey'), routeClip=journey.querySelector('#route-clip rect');
   if(!journey.querySelector('.journey-back')){
     const back=document.createElement('a');back.className='journey-back';back.href='#intro';back.textContent=fa?'بازگشت به ابتدا':'Back to the beginning';
@@ -14,6 +16,7 @@
   const cache=new Map([['home',home]]);
   const aliases={method:'journey',approach:'journey',pathways:'journey',services:'journey',people:'founders',about:'founders',consultation:'consult',terms:'intro'};
   let view='', stage=0, bookingModule, chosen=false, switching=false, manualPause=false, canSeeFilm=false, animation;
+  let filmWarmupTimer=0;
   const read=k=>{try{return sessionStorage.getItem(k);}catch(_){return null;}};
   function write(k,v){try{if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v);}catch(_){}}
   function booking(){return bookingModule ||= import('./booking.js?v=11').catch(err=>{bookingModule=null;throw err;});}
@@ -141,7 +144,9 @@
   });
   function reveal(){
     chosen=true;document.documentElement.classList.add('language-chosen');
-    updateFilm();filmButton();
+    filmButton();
+    clearTimeout(filmWarmupTimer);
+    filmWarmupTimer=setTimeout(()=>{if(chosen && !document.hidden)updateFilm();},900);
   }
   function openChooser(first) {
     dismiss.hidden=first;dialog.classList.remove('leaving');dialog.showModal();video.pause();
