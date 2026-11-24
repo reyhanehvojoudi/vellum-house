@@ -6,53 +6,67 @@ const VH = {
   leadHeaders: ['Received at','Request ID','Contact name','Email','Phone','Grade / level',
     'Service interest','Goals / message','Language','Lead source','Consent','Lead status',
     'Booking status','Follow-up date','Last contacted','Internal notes','Admin email',
-    'Applicant email','Last delivery error','Private booking key'],
+    'Applicant email','Last delivery error','Private booking key','Birthday (ISO)','Education stage','Major / field','School / institution'],
   timeHeaders: ['Consultation starts','Availability','Enquiry ID','Booked at','Team confirmation','Family confirmation'],
+  bookings:'Bookings', rules:'Availability rules',
+  bookingHeaders:['Enquiry ID','Start','End','Student / contact','Student email','Phone','Status','Calendar ID','Event ID','Google Meet URL','Reserved at','Team email','Student email delivery','Sync details','Notification type','iCalendar UID'],
+  ruleHeaders:['Rule key','Mode','Time ranges (minutes)','Updated at'],
   uuid: /^[a-f\d]{8}-[a-f\d]{4}-4[a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i
 };
 const TOPICS = {
+  planning:['Assessment, planning & mentoring','ارزیابی، برنامه‌ریزی و منتورینگ'],
+  learning:['Classes & exam preparation','کلاس‌ها و آمادگی آزمون'],
+  opportunities:['Competitions, research & internships','رقابت‌ها، پژوهش و کارآموزی'],
+  admission:['Admissions & scholarships','پذیرش و بورسیه'], guidance:['Help choosing a starting point','راهنمایی برای انتخاب مسیر'],
   full:['Academic planning','برنامه‌ریزی جامع تحصیلی'], talent:['Talent assessment','ارزیابی استعدادها'],
   courses:['Subject teaching and exams','کلاس‌های درسی و آمادگی آزمون'], mentoring:['Mentoring and progress reviews','مشاوره و پیگیری پیشرفت'],
   olympiads:['Competitions and Olympiads','مسابقات و المپیادها'], admissions:['University admissions','پذیرش دانشگاه'],
   konkur:['Iranian university entrance exam','آمادگی کنکور'], other:['Help choosing a service','راهنمایی برای انتخاب خدمات']
 };
+
+function properties_() { return PropertiesService.getScriptProperties(); }
+function ensureTab_(book,name,headers) {
+  const tab=book.getSheetByName(name) || book.insertSheet(name);
+  if (tab.getMaxColumns()<headers.length) tab.insertColumnsAfter(tab.getMaxColumns(),headers.length-tab.getMaxColumns());
+  const row=tab.getRange(1,1,1,headers.length), old=row.getValues()[0];
+  headers.forEach((header,i)=>{
+    if (old[i] && old[i]!==header) throw new Error('Review '+name+' column '+(i+1)+'. Expected '+header+'. Existing data was preserved.');
+  });
+  row.setValues([headers]);tab.setFrozenRows(1);return tab;
+}
 function setup() {
-  const book = SpreadsheetApp.getActiveSpreadsheet();
-  if (!book) throw new Error('Open Apps Script from the private Enquiries spreadsheet.');
-  const props = PropertiesService.getScriptProperties();
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
-  try {
-    props.setProperty('VH_SHEET_ID', book.getId());
-    if (!props.getProperty('VH_ADMIN_KEY')) props.setProperty('VH_ADMIN_KEY', Utilities.getUuid() + Utilities.getUuid());
-    const leads = book.getSheetByName(VH.leads) || book.insertSheet(VH.leads);
-    if (!leads.getLastRow()) leads.getRange(1,1,1,VH.leadHeaders.length).setValues([VH.leadHeaders]);
-    const extra = leads.getRange(1,20);
-    if (extra.getValue() && extra.getValue() !== VH.leadHeaders[19]) throw new Error('Column T is occupied. Move that custom column before setup.');
-    extra.setValue(VH.leadHeaders[19]);
-    const calendar = book.getSheetByName(VH.times) || book.insertSheet(VH.times);
-    if (!calendar.getLastRow()) calendar.getRange(1,1,1,VH.timeHeaders.length).setValues([VH.timeHeaders]);
-    if (calendar.getRange(1,1).getValue() !== VH.timeHeaders[0]) throw new Error('The Consultation times tab has different columns.');
-    for (const tab of [leads, calendar]) tab.setFrozenRows(1);
-    leads.getRange('D:E').setNumberFormat('@');
-    leads.getRange('T:T').setNumberFormat('@');
-    calendar.getRange('A:A').setNumberFormat('yyyy-mm-dd hh:mm');
-    calendar.getRange('D:D').setNumberFormat('yyyy-mm-dd hh:mm');
-    // Keep the original spreadsheet time zone and the owner's existing CRM settings.
-    if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'retryEmails')) {
+  const book=SpreadsheetApp.getActiveSpreadsheet();
+  if(!book)throw new Error('Open Apps Script from the private Vellum House spreadsheet.');
+  const props=properties_();
+  const calendar=Calendar.Calendars.get(props.getProperty('VH_CALENDAR_ID') || 'primary');
+  if (!calendar.id || !(calendar.conferenceProperties?.allowedConferenceSolutionTypes || []).includes('hangoutsMeet')) {
+    throw new Error('Select a Google Calendar that supports Google Meet in VH_CALENDAR_ID.');
+  }
+  withLock_(()=>{
+    props.setProperty('VH_SHEET_ID',book.getId());props.setProperty('VH_CALENDAR_ID',calendar.id);
+    if(!props.getProperty('VH_ADMIN_KEY'))props.setProperty('VH_ADMIN_KEY',Utilities.getUuid()+Utilities.getUuid());
+    const leads=ensureTab_(book,VH.leads,VH.leadHeaders);
+    const times=ensureTab_(book,VH.times,VH.timeHeaders);
+    const bookings=ensureTab_(book,VH.bookings,VH.bookingHeaders);
+    ensureTab_(book,VH.rules,VH.ruleHeaders);
+    leads.getRange('D:E').setNumberFormat('@');leads.getRange('T:X').setNumberFormat('@');
+    bookings.getRange('D:J').setNumberFormat('@');
+    bookings.getRange('B:C').setNumberFormat('yyyy-mm-dd hh:mm');
+    importV10_({leads,times,bookings});
+    if(!ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='retryEmails')) {
       ScriptApp.newTrigger('retryEmails').timeBased().everyMinutes(5).create();
     }
-    SpreadsheetApp.flush();
-    MailApp.getRemainingDailyQuota();
-  } finally { lock.releaseLock(); }
+  });
+  MailApp.getRemainingDailyQuota();
 }
 function store_() {
-  const id = PropertiesService.getScriptProperties().getProperty('VH_SHEET_ID');
-  if (!id) throw new Error('setup');
-  const ss = SpreadsheetApp.openById(id);
-  const leads = ss.getSheetByName(VH.leads), times = ss.getSheetByName(VH.times);
-  if (!leads || !times) throw new Error('setup');
-  return {leads, times};
+  const id=properties_().getProperty('VH_SHEET_ID');
+  need_(id,'setup');
+  const book=SpreadsheetApp.openById(id),result={};
+  for(const key of ['leads','times','bookings','rules']){
+    result[key]=book.getSheetByName(VH[key]);need_(result[key],'setup');
+  }
+  return result;
 }
 function records_(sheet, count) {
   const n = sheet.getLastRow() - 1;
@@ -97,29 +111,25 @@ function admin_(key) {
   for (let i=0;i<key.length;i++) mismatch |= key.charCodeAt(i) ^ expected.charCodeAt(i);
   need_(mismatch === 0, 'auth');
 }
+
 function doPost(e) {
-  const p = e && e.parameter || {}, action = p.action || 'legacy';
+  const p=e?.parameter || {},action=p.action || 'legacy';
   try {
-    if (action.startsWith('admin')) admin_(p.adminKey);
-    const db = store_();
-    let result;
-    switch (action) {
-      case 'legacy':
-      case 'enquiry':
-        result = withLock_(() => saveEnquiry_(db, p, action === 'legacy'));
-        break;
-      case 'calendar': result = calendar_(db,p.key); break;
-      case 'book': result = withLock_(() => book_(db,p)); break;
-      case 'adminList': result = management_(db); break;
-      case 'adminAvailability': result = withLock_(() => availability_(db,p)); break;
-      default: throw new Error('invalid');
+    if(action.startsWith('admin'))admin_(p.adminKey);
+    const db=store_();let result;
+    switch(action){
+      case 'legacy': case 'enquiry': result=withLock_(()=>saveEnquiry_(db,p,action==='legacy'));break;
+      case 'calendar': result=publicCalendar_(db,identity_(db,p.key).id);break;
+      case 'book': result=withLock_(()=>reserve_(db,p));break;
+      case 'adminList': result=management_(db);break;
+      case 'adminSchedule': case 'adminSettings':
+        result=withLock_(()=>editSchedule_(db,action,p));break;
+      default:throw new Error('invalid');
     }
-    return reply_(p,result);
-  } catch (err) {
-    const known = ['invalid','auth','setup','rate','busy','missing','unavailable','past','booked','range'];
-    const code = known.includes(err.message) ? err.message : 'service';
-    if (code === 'service') console.error(err.name);
-    return reply_(p,{ok:false,saved:false,code:code});
+    return reply_(p,Object.assign({version:11},result));
+  }catch(error){
+    const known=['invalid','auth','setup','rate','busy','missing','unavailable','past','booked','range','stale','calendar'];
+    return reply_(p,{version:11,ok:false,saved:false,code:known.includes(error.message)?error.message:'service'});
   }
 }
 function doGet(e) {
@@ -130,10 +140,27 @@ function doGet(e) {
   try { saved = !!findRow_(store_().leads,2,p.requestId); } catch (_) {}
   return ContentService.createTextOutput(p.callback + '(' + JSON.stringify({saved:saved}) + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
+
+function gradeValid_(level,grade,lang) {
+  const bounds=level==='elementary'?[1,6]:level==='middle'&&lang==='en'?[6,8]:level==='high'?[lang==='fa'?7:9,12]:null;
+  if(bounds){const match=/^grade-(\d{1,2})$/.exec(grade);return !!match && +match[1]>=bounds[0] && +match[1]<=bounds[1];}
+  if(['college','undergrad'].includes(level))return /^year-[1-6]$/.test(grade);
+  return level==='grad' && ['masters','doctoral','postgrad-other'].includes(grade);
+}
+function validBirthday_(value) {
+  if(!value)return true;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(value) || value>dayKey_(Date.now()))return false;
+  const d=new Date(value+'T12:00:00Z');
+  return isFinite(d.getTime()) && d.toISOString().slice(0,10)===value;
+}
+function phoneValid_(s) {
+  const digits=s.replace(/[^0-9۰-۹٠-٩]/g,'');
+  return /^\+?[0-9۰-۹٠-٩ ()\-]+$/.test(s) && digits.length>=6 && digits.length<=18;
+}
 function saveEnquiry_(db,p,legacy) {
   const requestId = legacy ? p.requestId : p.enquiryId;
   const text = {};
-  for (const [k,max] of Object.entries({fullName:120,email:200,phone:40,grade:100,message:2000,source:300})) {
+  for (const [k,max] of Object.entries({fullName:120,email:200,phone:40,grade:100,message:2000,source:300,birthday:10,education:20,major:120,institution:160})) {
     text[k] = String(p[k] || '').trim();
     need_(text[k].length <= max, 'invalid');
   }
@@ -141,8 +168,11 @@ function saveEnquiry_(db,p,legacy) {
   need_(VH.uuid.test(requestId || '') && (legacy || VH.uuid.test(p.key || '')), 'invalid');
   need_(p.consent === 'yes' && !p.website && ['fa','en'].includes(p.language), 'invalid');
   need_(text.fullName && /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(text.email), 'invalid');
-  need_(Object.prototype.hasOwnProperty.call(TOPICS,topic) && (!text.phone || /^\+?[0-9۰-۹٠-٩ ()\-]{6,40}$/.test(text.phone)), 'invalid');
-  if (!legacy && text.grade) need_(/^(?:kg|grade-(?:[1-9]|1[0-2])|graduate|university|other)$/.test(text.grade),'invalid');
+  need_(Object.prototype.hasOwnProperty.call(TOPICS,topic),'invalid');
+  if (!legacy) {
+    need_(phoneValid_(text.phone) && gradeValid_(text.education,text.grade,p.language) && validBirthday_(text.birthday),'invalid');
+    need_(['planning','learning','opportunities','admission','guidance'].includes(topic),'invalid');
+  } else need_(!text.phone || phoneValid_(text.phone),'invalid');
   const row = findRow_(db.leads,2,requestId);
   if (row) {
     if (legacy) return {saved:true};
@@ -156,19 +186,12 @@ function saveEnquiry_(db,p,legacy) {
     const grade = text.grade.replace(/^grade-(\d+)$/,'Grade $1');
     db.leads.appendRow([new Date(),requestId,safe_(text.fullName),safe_(text.email),safe_(text.phone),
       safe_(grade),TOPICS[topic][p.language === 'fa' ? 1 : 0],safe_(text.message),p.language,safe_(text.source),
-      'Yes','New','Not booked','','','','Pending','Pending','',key]);
+      'Yes','New','Not booked','','','','Pending','Pending','',key,text.birthday,text.education,safe_(text.major),safe_(text.institution)]);
     SpreadsheetApp.flush();
     cache.put(throttle,String(count + 1),3600);
   }
   if (legacy) return {saved:true};
-  return Object.assign({saved:true}, publicView_(schedule_(db),requestId));
-}
-function schedule_(db) { return records_(db.times,VH.timeHeaders.length); }
-function publicView_(times,requestId) {
-  const now = Date.now(), min = now + VH.notice, max = now + VH.horizon;
-  const booked = times.find(r => r[1] === 'Booked' && r[2] === requestId);
-  const slots = times.filter(r => r[1] === 'Open').map(r => instant_(r[0])).filter(t => t >= min && t <= max).sort((a,b) => a-b);
-  return {ok:true,min:min,max:max,slots:slots,booking:booked ? {start:instant_(booked[0]),ref:requestId.slice(0,8).toUpperCase()} : null};
+  return Object.assign({saved:true},publicCalendar_(db,requestId));
 }
 function identity_(db,key) {
   need_(VH.uuid.test(key || ''),'missing');
@@ -176,144 +199,12 @@ function identity_(db,key) {
   need_(row > 0,'missing');
   return {row:row,id:db.leads.getRange(row,2).getValue()};
 }
-function calendar_(db,key) { return publicView_(schedule_(db),identity_(db,key).id); }
-function book_(db,p) {
-  const person = identity_(db,p.key);
-  const times = schedule_(db), current = publicView_(times,person.id);
-  if (current.booking) return current;
-  const wanted = Number(p.start);
-  if (!current.slots.includes(wanted)) return Object.assign(current,{ok:false,code:'unavailable'});
-  const idx = times.findIndex(r => instant_(r[0]) === wanted);
-  // One row is the booking and email outbox. A retry sees this reservation before attempting a write.
-  const values = ['Booked',person.id,new Date(),'Pending','Pending'];
-  db.times.getRange(idx+2,2,1,5).setValues([values]);
-  SpreadsheetApp.flush();
-  times[idx] = [times[idx][0]].concat(values);
-  syncLeadStatus_(db.leads,person.row);
-  return publicView_(times,person.id);
-}
 function syncLeadStatus_(leads,row) {
   const pair = leads.getRange(row,12,1,2).getValues()[0];
   if ((!pair[0] || ['New','Contacted'].includes(pair[0])) && pair[1] !== 'Completed' && pair[1] !== 'Cancelled') pair[0] = 'Call booked';
-  if (!pair[1] || pair[1] === 'Not booked') pair[1] = 'Booked';
+  if (!pair[1] || ['Not booked','Cancelled'].includes(pair[1])) pair[1] = 'Booked';
   leads.getRange(row,12,1,2).setValues([pair]);
-}
-function management_(db) {
-  const times = schedule_(db), leads = new Map(records_(db.leads,9).map(r => [r[1],r]));
-  const open = [], booked = [];
-  for (const row of times) {
-    const start = instant_(row[0]);
-    if (row[1] === 'Open' && start > Date.now()) open.push(start);
-    if (row[1] !== 'Booked') continue;
-    const lead = leads.get(row[2]) || [];
-    booked.push({start:start,name:text_(lead[2]),email:text_(lead[3]),phone:text_(lead[4]),topic:text_(lead[6])});
-  }
-  return {ok:true,open:open.sort((a,b) => a-b),booked:booked.sort((a,b) => a.start-b.start)};
-}
-function timeOnDay_(day,clock) {
-  need_(/^\d{4}-\d{2}-\d{2}$/.test(day) && /^(?:[01]\d|2[0-3]):(?:00|30)$/.test(clock),'range');
-  const input = day + ' ' + clock;
-  let date;
-  try { date = Utilities.parseDate(input,VH.zone,'yyyy-MM-dd HH:mm'); } catch (_) { throw new Error('range'); }
-  need_(Utilities.formatDate(date,VH.zone,'yyyy-MM-dd HH:mm') === input,'range');
-  return date.getTime();
-}
-function availability_(db,p) {
-  need_(VH.uuid.test(p.operationId || ''),'invalid');
-  const cache = CacheService.getScriptCache(), mutation = 'vh-slot-' + p.operationId;
-  if (cache.get(mutation)) return management_(db);
-  const times = schedule_(db);
-  if (p.change === 'close') {
-    const idx = times.findIndex(r => instant_(r[0]) === Number(p.start));
-    need_(idx >= 0,'range');
-    need_(times[idx][1] !== 'Booked','booked');
-    db.times.getRange(idx+2,2).setValue('Closed');
-  } else {
-    need_(p.change === 'open','invalid');
-    const from = timeOnDay_(p.day,p.from);
-    const end = p.until === '24:00' ? timeOnDay_(p.day,'23:30') + VH.halfHour : timeOnDay_(p.day,p.until);
-    need_(from > Date.now(),'past');
-    need_(from < end && end-from <= 86400000,'range');
-    const byStart = new Map(times.map((r,i) => [instant_(r[0]),{row:r,index:i+2}]));
-    const add = [], reopen = [];
-    for (let start=from;start<end;start+=VH.halfHour) {
-      const old = byStart.get(start);
-      if (!old) add.push([new Date(start),'Open','','','','']);
-      else if (old.row[1] === 'Closed') reopen.push('B'+old.index);
-    }
-    if (add.length) {
-      const last = db.times.getLastRow(), capacity = db.times.getMaxRows();
-      if (last + add.length > capacity) db.times.insertRowsAfter(capacity,last + add.length-capacity);
-      db.times.getRange(last+1,1,add.length,6).setValues(add);
-    }
-    if (reopen.length) db.times.getRangeList(reopen).setValue('Open');
-  }
-  SpreadsheetApp.flush();
-  cache.put(mutation,'1',600);
-  return management_(db);
 }
 function resumeUrl_(lead) {
   return VH.site + (lead[8] === 'fa' ? '/' : '/en.html') + '#calendar/' + lead[19];
-}
-function emailFor_(lead,team,start) {
-  const fa = lead[8] === 'fa', name = text_(lead[2]), email = text_(lead[3]), link = resumeUrl_(lead);
-  const ref = String(lead[1]).slice(0,8).toUpperCase();
-  const when = start ? Utilities.formatDate(new Date(start),VH.zone,'yyyy-MM-dd HH:mm') : '';
-  let subject, body;
-  if (team) {
-    subject = start ? 'Vellum House | Consultation booked' : 'Vellum House | New enquiry';
-    body = [start ? 'A family has booked a 30-minute consultation.' : 'New consultation enquiry.',name,email,text_(lead[4]),text_(lead[5]),text_(lead[6]),text_(lead[7]),
-      start ? when + ' (Tehran time)' : '', 'Reference ' + ref, VH.site + '/admin.html'].filter(Boolean).join('\n');
-  } else if (start) {
-    subject = fa ? 'ولوم هاوس | تأیید وقت مشاوره' : 'Vellum House | Your consultation is booked';
-    body = fa ? 'سلام '+name+'،\n\nجلسهٔ آنلاین ۳۰ دقیقه‌ای شما برای '+when+' به وقت تهران (تاریخ میلادی) ثبت شد. جزئیات ورود به جلسه را تیم ما برایتان می‌فرستد.\n\nمشاهدهٔ جزئیات جلسه\n'+link :
-      'Hello '+name+',\n\nYour 30-minute online consultation is booked for '+when+' (Tehran time). Our team will send the joining details before the meeting.\n\nView your booking\n'+link;
-    body += '\n\nVellum House · '+ref;
-  } else {
-    subject = fa ? 'ولوم هاوس | درخواست مشاوره شما' : 'Vellum House | Your consultation enquiry';
-    body = fa ? 'سلام '+name+'،\n\nدرخواست مشاورهٔ شما را دریافت کردیم. از این پیوند اختصاصی می‌توانید وقت‌های آزاد یا جزئیات رزرو خود را ببینید.\n'+link+'\n\nولوم هاوس' :
-      'Hello '+name+',\n\nWe received your enquiry. Use this private link to choose a time or view your confirmed booking.\n'+link+'\n\nVellum House';
-  }
-  return {to:team ? VH.notify : email,replyTo:team ? email : VH.notify,subject:subject,body:body,name:'Vellum House'};
-}
-function retryEmails() {
-  // Only one mail worker runs at a time. Booking requests use the script lock independently between deliveries.
-  const db = store_(), started = Date.now();
-  let sent = 0;
-  const leads = records_(db.leads,20), times = schedule_(db);
-  const byId = new Map(leads.map((r,i) => [r[1],{lead:r,row:i+2}]));
-  function deliver(sheet,row,col,lead,team,start) {
-    const lock = LockService.getScriptLock();
-    if (!lock.tryLock(1500)) return false;
-    try {
-      const cell = sheet.getRange(row,col);
-      if (cell.getValue() === 'Sent') return true;
-      if (MailApp.getRemainingDailyQuota() < 1) return false;
-      // Mint private resume links for undelivered legacy enquiries during the upgrade.
-      if (!lead[19]) {
-        const keyCell = db.leads.getRange(byId.get(lead[1]).row,20);
-        lead[19] = keyCell.getValue() || Utilities.getUuid(); keyCell.setValue(lead[19]);
-      }
-      MailApp.sendEmail(emailFor_(lead,team,start));
-      cell.setValue('Sent'); SpreadsheetApp.flush(); sent++;
-      return true;
-    } catch (err) { console.error('Mail delivery pending'); return false; }
-    finally { lock.releaseLock(); }
-  }
-  // Send confirmations before unbooked-enquiry acknowledgements.
-  const jobs = [];
-  times.forEach((r,i) => {
-    if (r[1] !== 'Booked' || !byId.has(r[2]) || (r[4] === 'Sent' && r[5] === 'Sent')) return;
-    const contact = byId.get(r[2]);
-    withLock_(() => syncLeadStatus_(db.leads,contact.row));
-    for (let j=0;j<2;j++) if (r[4+j] !== 'Sent') jobs.push([db.times,i+2,5+j,contact.lead,j===0,instant_(r[0])]);
-  });
-  leads.forEach((r,i) => {
-    for (let j=0;j<2;j++) if (r[16+j] !== 'Sent') jobs.push([db.leads,i+2,17+j,r,j===0,0]);
-  });
-  for (const job of jobs) {
-    if (sent >= 20 || Date.now()-started > 25000) break;
-    if (MailApp.getRemainingDailyQuota() < 1) break;
-    deliver.apply(null,job);
-  }
 }

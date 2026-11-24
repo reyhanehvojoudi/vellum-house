@@ -9,7 +9,7 @@ export async function request(action, fields={}) {
   try {
     const response = await fetch(endpoint, {method:'POST',body,credentials:'omit',referrerPolicy:'no-referrer',signal:abort.signal});
     const result = await response.json();
-    if (typeof result?.ok === 'boolean') return result;
+    if (typeof result?.ok === 'boolean') return result.version===11 ? result : {ok:false,code:'setup'};
     // A response from an older deployment cannot confirm a native booking.
     if (result && 'saved' in result) return {ok:false,code:'setup'};
   } catch (_) {
@@ -38,7 +38,7 @@ function frameRequest(endpoint,body) {
       if (event.data?.type !== 'vh-calendar' || event.data.channel !== channel || typeof event.data.result?.ok !== 'boolean') return;
       let source = event.source;
       while (source && source !== frame.contentWindow && source !== source.parent) source = source.parent;
-      if (source === frame.contentWindow) finish(event.data.result);
+      if (source === frame.contentWindow) finish(event.data.result.version===11 ? event.data.result : {ok:false,code:'setup'});
     }
     const timer = setTimeout(() => finish(null),27000);
     window.addEventListener('message',receive);

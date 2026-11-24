@@ -1,4 +1,4 @@
-import {request,formatDate,dateKey,clock,longDate,el,button} from './calendar-api.js?v=10';
+import {request,formatDate,dateKey,clock,longDate,el,button} from './calendar-api.js?v=11';
 const lang=document.documentElement.lang, fa=lang==='fa';
 const tx=(en,faText) => fa ? faText : en;
 const DAY=86400000, UUID=/^[a-f\d]{8}-[a-f\d]{4}-4[a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i;
@@ -15,6 +15,7 @@ async function attempt(fields) {
   return lastAttempt;
 }
 function failure(code) {
+  if (code==='setup') return tx('Online booking is being updated. Please use Contact us to reach the team.','سامانهٔ رزرو در حال به‌روزرسانی است. لطفاً از بخش تماس با ما با تیم در ارتباط باشید.');
   if (code==='rate') return tx('We have already received several enquiries for this address. Use the private calendar link in your email to continue.','چند درخواست با این نشانی ثبت شده است. برای ادامه، پیوند اختصاصی تقویم را در پیام دریافتی باز کنید.');
   if (code==='invalid') return tx('Please check the contact details and required fields, then submit again.','لطفاً اطلاعات تماس و موارد ستاره‌دار را بررسی کنید و دوباره درخواست را بفرستید.');
   if (code==='busy') return tx('Another booking is being saved. Please try again in a moment.','رزرو دیگری در حال ثبت است. چند لحظهٔ دیگر دوباره تلاش کنید.');
@@ -25,8 +26,9 @@ export async function submitEnquiry(form) {
   const values=Object.fromEntries(new FormData(form)), status=form.querySelector('#enquiry-status'),submit=form.querySelector('[type=submit]');
   if (values.website) return;
   const phone=form.elements.phone;
-  if (phone.value.trim() && !/^\+?[0-9۰-۹٠-٩ ()\-]{6,40}$/.test(phone.value.trim())) {
-    phone.setCustomValidity(tx('Enter a valid phone number or leave the field blank.','شمارهٔ تماس را اصلاح کنید یا این بخش را خالی بگذارید.'));
+  const number=phone.value.trim(),digits=number.replace(/[^0-9۰-۹٠-٩]/g,'');
+  if (!/^\+?[0-9۰-۹٠-٩ ()\-]+$/.test(number) || digits.length<6 || digits.length>18) {
+    phone.setCustomValidity(tx('Enter a valid phone number.','لطفاً شمارهٔ تماس معتبری وارد کنید.'));
     phone.reportValidity();phone.addEventListener('input',()=>phone.setCustomValidity(''),{once:true});return;
   }
   pending=true;submit.disabled=true;form.setAttribute('aria-busy','true'); status.className='status';
@@ -130,6 +132,15 @@ function makeGrid() {
 function draw(message='') {
   const box=calendarBox();if (!box) return;
   box.replaceChildren();box.removeAttribute('aria-busy');
+  const duration=state.booking?(state.booking.end-state.booking.start)/60000:state.duration;
+  const durationNode=box.closest('section').querySelector('[data-duration]');
+  if(durationNode)durationNode.textContent=Number(duration).toLocaleString(lang)+' '+tx('minutes','دقیقه');
+  if(state.calendarOffline){
+    box.append(el('h2','',tx('Your enquiry is saved','درخواست شما ثبت شد')),el('p','subtle',tx('We could not check Google Calendar. Try again or contact the team to arrange a time.','دسترسی به تقویم در این لحظه ممکن نشد. دوباره تلاش کنید یا برای هماهنگی وقت با تیم تماس بگیرید.')),
+      button(tx('Try again','تلاش دوباره'),'btn outline',()=>openCalendar()),copyLink(tx('Contact us','تماس با ما'),'#contact'));return;
+  }
+  if(state.cancelled && !message)message=tx('Your previous consultation was cancelled. You can choose a new time.','جلسهٔ قبلی شما لغو شد. می‌توانید وقت جدیدی انتخاب کنید.');
+  if(state.conflict && !message)message=tx('Your previous time is no longer available. Choose a new time.','زمان قبلی شما دیگر در دسترس نیست. لطفاً وقت دیگری انتخاب کنید.');
   if (state.booking) {showConfirmation(box,state.booking);return;}
   const header=el('div','calendar-head'),h=el('h2','',monthName(month)); h.tabIndex=-1; header.append(h);
   const controls=el('div','month-controls');
@@ -162,7 +173,7 @@ async function confirmTime() {
   box.querySelectorAll('button').forEach(b=>b.disabled=true);box.setAttribute('aria-busy','true');
   const sending=el('p','status',tx('Confirming your time…','در حال تأیید زمان جلسه…'));sending.setAttribute('role','status');box.append(sending);
   try {
-    const result=await request('book',{key:activeKey,start:selectedTime});
+    const result=await request('book',{key:activeKey,start:selectedTime,expectedDuration:state.duration});
     if (ticket!==version || !box.isConnected) return;
     if (result.code==='unavailable' && Array.isArray(result.slots)) {
       updateState(result);draw(tx('That time has just become unavailable. Choose another time.','این وقت دیگر آزاد نیست. لطفاً وقت دیگری انتخاب کنید.'));return;
@@ -175,19 +186,31 @@ async function confirmTime() {
 }
 function showConfirmation(box,booking) {
   const section=box.closest('section');
-  section.querySelector('h1').textContent=tx('Your consultation is booked.','جلسهٔ مشاورهٔ شما رزرو شد.');
-  section.querySelector('#calendar-intro').textContent=tx('Keep this page or your private email link to view the booking again.','برای مشاهدهٔ دوبارهٔ جزئیات، این صفحه یا پیوند اختصاصی در ایمیل خود را نگه دارید.');
-  const heading=el('h2','',tx('Booking confirmed','تأیید رزرو'));heading.dataset.confirmation='';heading.tabIndex=-1;
+  const pending=booking.status==='Reserved', imported=booking.status==='Imported';
+  section.querySelector('h1').textContent=pending?tx('Your time is reserved.','وقت شما نگه داشته شد.'):tx('Your consultation is booked.','جلسهٔ مشاورهٔ شما رزرو شد.');
+  section.querySelector('#calendar-intro').textContent=tx('Use the private link in your email to return to these details.','با پیوند اختصاصی در ایمیلتان می‌توانید دوباره جزئیات جلسه را ببینید.');
+  const heading=el('h2','',pending?tx('Preparing your Google Meet','در حال آماده‌سازی گوگل میت'):tx('Booking confirmed','تأیید رزرو'));heading.dataset.confirmation='';heading.tabIndex=-1;
   const time=el('p','confirmation-date',longDate(booking.start,lang)+' · '+clock(booking.start,lang)+' '+tx('(Tehran)','(به وقت تهران)'));
   const code=el('bdi','',booking.ref),reference=el('p','subtle',tx('Booking reference ','شناسهٔ رزرو '));code.dir='ltr';reference.append(code);
-  box.append(heading,time,reference,el('p','subtle',tx('Our team will email the joining details before the meeting.','تیم ولوم هاوس پیش از جلسه، جزئیات ورود را برایتان می‌فرستد.')));
-  const actions=el('div','actions');actions.append(button(tx('Add to my calendar','افزودن به تقویم من'),'btn solid',()=>downloadEvent(booking)));box.append(actions);
+  box.append(heading,time,reference);
+  const actions=el('div','actions');box.append(actions);
+  if(pending){
+    box.insertBefore(el('p','subtle',tx('Google Calendar is processing your reservation. Your confirmation and meeting link will be emailed automatically.','ثبت جلسه در گوگل کلندر در حال انجام است. تأییدیه و پیوند جلسه به‌صورت خودکار برایتان ایمیل می‌شود.')),actions);
+    actions.append(button(tx('Refresh booking','بررسی وضعیت رزرو'),'btn outline',()=>openCalendar()));return;
+  }
+  if(!imported && /^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}\/?$/.test(booking.meet || '')){
+    const join=el('a','btn solid',tx('Open Google Meet','ورود به گوگل میت'));
+    join.href=booking.meet;join.target='_blank';join.rel='noopener noreferrer';actions.append(join);
+    box.insertBefore(el('p','subtle',tx('Your confirmation email includes this Google Meet link.','پیوند گوگل میت در ایمیل تأیید رزرو شما نیز درج می‌شود.')),actions);
+  }
+  if(imported)actions.append(copyLink(tx('Contact the team','تماس با تیم'),'#contact'));
+  actions.append(button(tx('Download calendar event','دریافت فایل تقویم'),'btn outline',()=>downloadEvent(booking)));
 }
-function downloadEvent({start,ref}) {
+function downloadEvent({start,end,ref,meet,icalUid}) {
   const stamp=n=>new Date(n).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
   const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Vellum House//Consultations//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT',
-    'UID:'+start+'-'+ref+'@vhouse.ir','DTSTAMP:'+stamp(Date.now()),'DTSTART:'+stamp(start),'DTEND:'+stamp(start+1800000),
-    'SUMMARY:Vellum House consultation','LOCATION:Online','END:VEVENT','END:VCALENDAR',''];
+    'UID:'+(icalUid || start+'-'+ref+'@vhouse.ir'),'DTSTAMP:'+stamp(Date.now()),'DTSTART:'+stamp(start),'DTEND:'+stamp(end),
+    'SUMMARY:Vellum House consultation','LOCATION:'+(meet || 'Online'),'END:VEVENT','END:VCALENDAR',''];
   const url=URL.createObjectURL(new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'})),a=el('a');
   a.href=url;a.download='Vellum-House-consultation.ics';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
 }

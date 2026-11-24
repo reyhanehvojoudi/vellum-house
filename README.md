@@ -1,43 +1,45 @@
-# Vellum House website and consultation calendar
+# Vellum House website
 
-This release runs on the existing GitHub Pages site at vhouse.ir. The public pages, enquiry, calendar and staff dashboard use the same domain. The existing private Google Sheet stores enquiries, shared availability and reservations.
+The ZIP contains the complete bilingual GitHub Pages site, the staff dashboard and the Google Apps Script booking service. Start with the Google setup, then upload the site. Persian instructions are in [START_HERE_FA.md](docs/START_HERE_FA.md).
 
-The illustrated home page includes the supplied English introduction and its Persian adaptation. English reading order is left to right and Persian reading order is right to left. Both founders have their own portrait and LinkedIn profile.
+## Activate Google Calendar and booking
 
-## Activate the booking service
+1. Sign in as the owner of the existing private Vellum House enquiry spreadsheet. Open **Extensions → Apps Script**. Replace the existing **Code.gs** with the file from `backend/`. Add two script files named **Schedule** and **Meetings**, and paste in their respective `.gs` contents.
+2. In **Project Settings**, enable **Show “appsscript.json” manifest file in editor**. The included `backend/appsscript.json` declares **Google Calendar API v3** and the required permissions. For the original Vellum House project, copy this manifest into the editor. In a shared script project that also hosts other integrations, merge the listed service and scopes into its existing manifest. If it uses a standard Google Cloud project, enable **Google Calendar API** in that project as well. [Google advanced services](https://developers.google.com/apps-script/guides/services/advanced)
+3. The default destination is the owner's primary calendar. To use a particular team calendar, set the script property **VH_CALENDAR_ID** to that calendar’s ID before running setup. The deploying account needs edit access and Google Meet support. Optionally, **VH_BUSY_CALENDARS** accepts a comma-separated list of other accessible calendar IDs whose busy time should also block appointments.
+4. In the editor select **setup**, click **Run**, and authorize the requested Google permissions. Setup prepares the sheet tabs and creates a five-minute trigger for outstanding emails, pending Meet links and calendar changes. Find **VH_ADMIN_KEY** in **Project Settings → Script properties**. Keep the value with staff who manage consultations.
+5. Go to **Deploy → Manage deployments → Edit** on the existing web app. Select **New version**, set **Execute as me** and **Who has access → Anyone**, then deploy. Updating that deployment keeps the existing `/exec` address in `assets/config.js`. If Google gives you a different URL, update the `formEndpoint` value before uploading GitHub files. [Google web app deployment](https://developers.google.com/apps-script/guides/web)
+6. Extract the ZIP and upload its contents to the existing GitHub Pages publishing root with `index.html` and `CNAME` at the top level. The supplied `CNAME` is `vhouse.ir`. Commit the files. The public site uses plain HTML, CSS and JavaScript and needs no build step.
+7. Open **/admin.html** on your domain and sign in with the staff key. Publish a weekly time range or a specific date at least 48 hours and within 14 days ahead. Use an email address you control to submit a test enquiry and book one time. Verify its rows in **Enquiries** and **Bookings**, the calendar event and guest, and the confirmation email containing the same Meet URL. The attendee's calendar settings control whether they must accept the invitation.
 
-1. Open the existing private Vellum House enquiry spreadsheet with its owner account. Choose **Extensions → Apps Script**. Copy the contents of the included `backend/Code.gs` into the existing `Code.gs` file and save.
-2. In the Apps Script editor, select **setup** and click **Run**. Authorize spreadsheet access, sending mail and the timed trigger when requested. Setup adds a private booking-key column to the original `Enquiries` tab and creates `Consultation times`. It also creates the staff access key and the email delivery trigger. You can run setup again. If you used column T for a custom field, move that field to another unused column before running setup.
-3. Open **Project Settings → Script Properties**. Copy the generated value of `VH_ADMIN_KEY` into the staff password manager. This key gives access to family contact details and availability management. To rotate it, replace it there with a new randomly generated value of at least 24 characters.
-4. Open **Deploy → Manage deployments**, select the existing web app, choose **Edit**, select **New version** and deploy. The web app runs as the owner and needs to be accessible to **Anyone** so prospective families can book. The spreadsheet itself stays private. Updating the existing deployment keeps its URL in `assets/config.js`. If a different deployment is used, change only `formEndpoint` to its actual HTTPS `/exec` URL.
-5. Extract the release ZIP. In the Pages publishing root of `reyhanehvojoudi/vellum-house`, upload the extracted files and folders with `index.html` at the root. Keep the existing `CNAME` value of `vhouse.ir`. Commit the update and wait for the Pages deployment.
-6. Open `https://vhouse.ir/admin.html` and sign in using the staff key. Publish your first available date and time range. The public calendar starts empty. Open only times that are free in your current diary, including any appointments already arranged through Cal.com or Google Calendar.
-7. Check the public flow from a separate browser session with an address you control. Submit the enquiry, reserve one published time and verify that the same booking appears in the staff dashboard and that both confirmation emails arrive.
+## Set availability
 
-Google documents the deployment settings in its [web app guide](https://developers.google.com/apps-script/guides/web) and [deployment guide](https://developers.google.com/apps-script/concepts/deployments).
+| Control | Effect |
+| --- | --- |
+| Weekly hours | Pick a weekday and save its recurring hours. |
+| One date | Set hours for one Gregorian date in Tehran. This overrides the weekly rule for that date. |
+| Selected hours | Enter one or more time ranges, for example 09:00–12:00 and 14:00–17:00. An end time of 00:00 means the following midnight. |
+| All day / unavailable all day | Open the complete local day or close it. Existing bookings and Google Calendar busy time still block overlapping starts. |
+| Remove this rule | Remove the selected exception or weekday rule. A date without an exception follows the weekly schedule, or any existing V10 times if there is no weekly rule. |
+| Meeting duration | Length of each new appointment. |
+| Offer a start time every | Spacing between offered starts. A 45-minute meeting every 15 minutes in a 10:00–11:00 window offers 10:00 and 10:15. |
+| Published schedule | Choose **Edit** beside a date or weekday to change it. |
 
-## Using the dashboard
+To reschedule a website booking, move its existing **timed event** in the organizer’s Google Calendar. The service checks upcoming events in batches and updates the booking and emails the revised date, Tehran time and Meet link. An explicit Calendar cancellation releases the website reservation when the service receives the change.
 
-- **Open times.** Select a Gregorian date and the start and end of a free period in Tehran time. Opening 15:00–16:30 publishes 15:00, 15:30 and 16:00. A range can be published ahead of the public booking window.
-- **Change availability.** Use **Close slot** beside an open time. To move an opening, close the original and publish the new time. A booked meeting stays reserved when a staff member edits overlapping availability.
-- **See meetings.** Filter by upcoming, past or all meetings. Each entry includes the scheduled time, the applicant's name, contact details and consultation topic. Refresh to pick up changes made by another staff member.
-- **Provide the joining details.** The website reserves the appointment. Staff send the meeting link before the consultation. The calendar download on a confirmed booking adds the event to the family's preferred calendar.
-- **Use either language.** Dates appear in the Persian calendar on the Persian site and in the Gregorian calendar on the English site. All displayed times use Asia/Tehran.
+## Records and delivery
 
-## Booking behavior
+| Sheet | Contents |
+| --- | --- |
+| **Enquiries** | One record per submitted form, including contact details, education stage, grade or year, service, consent and any optional birthday, institution or major. A family can submit without finishing a booking. |
+| **Bookings** | One row per reservation, linked by enquiry ID. Includes the student, start and end, status, organizer calendar, event ID, Meet link and email delivery state. |
+| **Availability rules** | Weekly hours and date overrides set by staff. |
+| **Consultation times** | Legacy V10 slots. Setup carries previous reservations into Bookings as **Imported**. Review any upcoming imported meetings against the existing diary. New Google invitations and links are created for new website bookings. |
 
-Appointments last 30 minutes. Families can select times from 48 hours to 14 days ahead, with both limits checked when a reservation is written. The booking ledger is authoritative. A shared server lock protects each write, and a repeated submission returns the original reservation. The original CRM receives the booked status. Dates in raw Sheet cells display in that spreadsheet's configured time zone.
+The private calendar link lets the student return after leaving the site. Enquiry receipts and booking confirmations are separate. A booking moves from **Reserved** to **Confirmed** once its Google Meet link exists. The event invites the student's submitted email. The branded email includes the date, Tehran time, platform, clickable link and the under-18 attendance note where applicable. Google service or email quota delays remain queued for retry. Check **Bookings** and **Apps Script → Executions** when diagnosing delayed delivery.
 
-Families receive a private link to resume the calendar or reopen their confirmation. New-enquiry and booking emails are queued for the existing five-minute Apps Script trigger and sent subject to the owner's Google mail quota. Staff manage the availability of this calendar independently. Existing Cal.com or external Google Calendar appointments are not imported or synchronized.
+## Site content and checks
 
-## Editing the site
+`index.html` holds the Persian copy and `en.html` the English copy. Both use the tab title **Vellum House** and the displayed wordmark **Vellume House · Academic Management**. The film, video poster, founder portraits and logo variants are in `assets/media/`. The supplied footage has no audio track. It plays muted after language selection, pauses when out of view and offers a play button when autoplay is restricted. Visitors who prefer reduced motion can start it manually.
 
-The Persian and English copy lives in `index.html` and `en.html`. Both files include the section templates. Layout and local typefaces are in `assets/house.css`. The page navigation, calendar and staff interface use `assets/house.js`, `assets/booking.js`, `assets/calendar-api.js` and `assets/admin.js`. No package installation or front-end build is required.
-
-The home photograph has responsive AVIF and WebP sizes. Founder portraits load when their page opens. Calendar code loads on demand. All fonts and production images ship with the website.
-
-## Verification
-
-Run `node tools/test-backend.cjs` for the offline booking regression suite and `python3 tools/check.py` for the site integrity checks. Verification in this release used isolated test records, without modifying the live spreadsheet or sending mail. The live-domain check in step 7 verifies your deployment and Google account permissions.
-
-راهنمای گام‌به‌گام فارسی در [راهنمای انتشار و راه‌اندازی](docs/START_HERE_FA.md) آمده است.
+Run the included source checks with `python3 tools/check.py` and the isolated booking regression suite with `node tools/test-backend.cjs`. The live Google Calendar, Sheet and inbox acceptance check is step 7 above.

@@ -1,94 +1,167 @@
 (() => {
   'use strict';
-  const lang = document.documentElement.lang, fa = lang === 'fa', main = document.querySelector('main');
-  const dialog = document.getElementById('language-dialog');
-  const cache = new Map([['intro',main.firstElementChild]]);
-  const aliases = {method:'journey',approach:'journey',pathways:'journey',services:'journey',people:'founders',about:'founders',consultation:'consult',terms:'intro'};
-  const known = ['intro','journey','founders','contact','consult','calendar','privacy'];
-  let current = '', stage = 0, bookingModule;
-  function read(k) { try { return sessionStorage.getItem(k); } catch (_) { return null; } }
-  function write(k,v) { try { if (v===null) sessionStorage.removeItem(k); else sessionStorage.setItem(k,v); } catch (_) {} }
-  function booking() { return bookingModule ||= import('./booking.js?v=10').catch(e => {bookingModule=null;throw e;}); }
-  function locationInfo() {
-    const [part='',key=''] = location.hash.slice(1).split('/');
-    const name = aliases[part] || part;
-    return {view:known.includes(name) ? name : 'intro',key};
+  const main=document.querySelector('main'), home=document.getElementById('home-views');
+  const dialog=document.getElementById('language-dialog'), dismiss=document.getElementById('dismiss-language');
+  const lang=document.documentElement.lang, fa=lang==='fa', reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const video=document.getElementById('intro-film'), toggle=document.getElementById('film-toggle');
+  const journey=document.getElementById('journey'), routeClip=journey.querySelector('#route-clip rect');
+  const cache=new Map([['home',home]]);
+  const aliases={method:'journey',approach:'journey',pathways:'journey',services:'journey',people:'founders',about:'founders',consultation:'consult',terms:'intro'};
+  let view='', stage=0, bookingModule, chosen=false, switching=false, manualPause=false, canSeeFilm=false, animation;
+  const read=k=>{try{return sessionStorage.getItem(k);}catch(_){return null;}};
+  function write(k,v){try{if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v);}catch(_){}}
+  function booking(){return bookingModule ||= import('./booking.js?v=11').catch(err=>{bookingModule=null;throw err;});}
+  function filmButton() {
+    const label=video.paused?(fa?'پخش ویدئو':'Play film'):(fa?'توقف ویدئو':'Pause film');
+    toggle.setAttribute('aria-label',label);toggle.title=label;
+    toggle.dataset.playing=String(!video.paused);toggle.firstElementChild.textContent='';
   }
-  function route(focus=true) {
-    const {view,key} = locationInfo(), name = view === 'privacy' ? 'consult' : view;
-    if (!cache.has(name)) cache.set(name,document.getElementById('view-'+name).content.firstElementChild.cloneNode(true));
-    const changed = current !== name;
-    current = name;
-    if (changed) {
-      main.replaceChildren(cache.get(name)); main.dataset.view=name;
-      document.querySelectorAll('.mast a[href^="#"]').forEach(a => {
-        if (a.hash === '#'+name || (name==='calendar' && a.hash==='#consult')) a.setAttribute('aria-current','page');
-        else a.removeAttribute('aria-current');
-      });
-      if (focus) {main.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+  function playVideo() {
+    if (!video.getAttribute('src')) {
+      const small=matchMedia('(max-width: 780px)').matches || navigator.connection?.saveData;
+      video.src=small ? video.dataset.srcSmall : video.dataset.src;
     }
-    if (name === 'intro') {
-      const image=main.querySelector('.hero-media');
-      if(image) image.replaceWith(image.content.cloneNode(true));
+    video.muted=true;
+    video.play().catch(filmButton);
+  }
+  function updateFilm() {
+    if (!chosen || dialog.open || document.hidden || view!=='home' || !canSeeFilm || manualPause || reduced.matches) {video.pause();return;}
+    playVideo();
+  }
+  toggle.addEventListener('click',()=>{
+    if(video.paused){manualPause=false;playVideo();}else{manualPause=true;video.pause();}
+  });
+  for(const event of ['play','pause','error'])video.addEventListener(event,filmButton);
+  new IntersectionObserver(entries=>{canSeeFilm=entries[0].isIntersecting;updateFilm();},{threshold:.12}).observe(video);
+  document.addEventListener('visibilitychange',updateFilm);
+  reduced.addEventListener('change',updateFilm);
+  function showStage(index) {
+    const nodes=[...journey.querySelectorAll('[data-stage]')];
+    if (!nodes[index]) return;
+    stage=index;
+    nodes.forEach((node,i)=>{node.setAttribute('aria-pressed',String(i===index));node.classList.toggle('passed',i<index);});
+    journey.querySelectorAll('[data-stage-copy]').forEach((article,i)=>{article.hidden=i!==index;});
+    journey.querySelectorAll('[data-delta]').forEach(btn=>{btn.disabled=!nodes[index+Number(btn.dataset.delta)];});
+    cancelAnimationFrame(animation);
+    const from=Number(routeClip.getAttribute('width')),to=Number(nodes[index].dataset.x);
+    if(reduced.matches || from===to){routeClip.setAttribute('width',to);return;}
+    const start=performance.now();
+    function draw(now){
+      const fraction=Math.min(1,(now-start)/420);
+      routeClip.setAttribute('width',from+(to-from)*(1-(1-fraction)**3));
+      if(fraction<1)animation=requestAnimationFrame(draw);
     }
-    if (name === 'journey') showStage(stage);
-    if (view === 'privacy') main.querySelector('details').open=true;
-    if (name === 'consult') restoreDraft();
-    if (name === 'calendar') booking().then(m => { if (current==='calendar') m.openCalendar(key); }).catch(() => {
-      if (current==='calendar') document.getElementById('calendar-area').textContent=fa?'تقویم بارگیری نشد. صفحه را دوباره باز کنید.':'The calendar could not load. Please reload this page.';
+    animation=requestAnimationFrame(draw);
+  }
+  function scrollHome(name,animate=false) {
+    const y=name==='journey'?journey.getBoundingClientRect().top+scrollY-document.querySelector('.mast').offsetHeight:0;
+    window.scrollTo({top:y,behavior:animate && !reduced.matches?'smooth':'instant'});
+  }
+  // Finish a downward gesture at the same destination as Explore. A long
+  // introduction on a small screen stays freely scrollable until the route enters.
+  let scrollTimer=0,previousY=scrollY;
+  window.addEventListener('scroll',()=>{
+    const y=scrollY,down=y>previousY;previousY=y;clearTimeout(scrollTimer);
+    if(view!=='home' || !chosen || dialog.open || !down)return;
+    scrollTimer=setTimeout(()=>{
+      if(view!=='home' || dialog.open)return;
+      const top=journey.getBoundingClientRect().top,mast=document.querySelector('.mast').offsetHeight;
+      if(top>mast+3 && top<innerHeight-Math.min(115,innerHeight*.2))scrollHome('journey',true);
+    },150);
+  },{passive:true});
+  function markNav(name) {
+    document.querySelectorAll('.mast a[href^="#"]').forEach(a=>{
+      const match=a.hash==='#'+name || (name==='calendar' && a.hash==='#consult');
+      if(match)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
     });
   }
-  function showStage(value) {
-    if (value<0 || value>4) return;
-    stage=value;
-    main.querySelectorAll('[data-stage]').forEach((b,i) => {b.setAttribute('aria-pressed',String(i===value));b.classList.toggle('passed',i<value);});
-    main.querySelectorAll('[data-stage-copy]').forEach((a,i) => {a.hidden=i!==value;});
-    main.querySelectorAll('[data-delta]').forEach(b => {const target=value+Number(b.dataset.delta);b.disabled=target<0 || target>4;});
-    main.querySelector('#route-clip rect').setAttribute('width',String(100+value*200));
+  function route(focus=true,animate=false) {
+    const [raw,key='']=location.hash.slice(1).split('/');
+    const name=aliases[raw] || raw || 'intro';
+    const page=['consult','calendar','founders','contact'].includes(name)?name:name==='privacy'?'consult':'home';
+    if(!cache.has(page))cache.set(page,document.getElementById('view-'+page).content.firstElementChild.cloneNode(true));
+    if(view!==page){view=page;main.replaceChildren(cache.get(page));main.dataset.view=page;updateFilm();}
+    markNav(page==='home'?'intro':page);
+    if(page==='home'){
+      if(focus && name==='journey')journey.focus({preventScroll:true});
+      else if(focus)main.focus({preventScroll:true});
+      requestAnimationFrame(()=>{if(view==='home')scrollHome(name,animate);});
+    } else {
+      if(focus)main.focus({preventScroll:true});
+      window.scrollTo({top:0,behavior:'instant'});
+    }
+    if(page==='consult'){
+      let draft;
+      try{draft=JSON.parse(read('vh-language-draft'));}catch(_){}
+      write('vh-language-draft',null);window.VellumEducation.hydrate(main.querySelector('form'),draft);
+      if(name==='privacy')main.querySelector('details').open=true;
+    }
+    if(page==='calendar')booking().then(m=>{if(view==='calendar')m.openCalendar(key);}).catch(()=>{
+      if(view==='calendar')document.getElementById('calendar-area').textContent=fa?'بارگیری تقویم ممکن نشد. صفحه را دوباره باز کنید.':'The calendar could not load. Please reload.';
+    });
   }
-  function restoreDraft() {
-    const draft=read('vh-language-draft'), form=document.getElementById('enquiry-form');
-    if (!draft || !form) return;
-    write('vh-language-draft',null);
-    try {
-      for (const [key,value] of Object.entries(JSON.parse(draft))) {
-        const field=form.elements.namedItem(key);
-        if (!field || key==='website') continue;
-        if (field.type==='checkbox') field.checked=value==='yes'; else field.value=value;
-      }
-    } catch (_) {}
+  const track=new IntersectionObserver(entries=>{
+    const entry=entries[0];if(view!=='home' || !chosen || dialog.open)return;
+    journey.classList.toggle('in-view',entry.isIntersecting);
+    if(entry.isIntersecting && entry.intersectionRatio>=.35 && location.hash!=='#journey')history.replaceState(null,'','#journey');
+    else if(!entry.isIntersecting && entry.boundingClientRect.top>0 && location.hash==='#journey')history.replaceState(null,'','#intro');
+  },{threshold:[0,.35,.65]});track.observe(journey);
+  document.addEventListener('click',event=>{
+    const link=event.target.closest('a[href="#intro"],a[href="#journey"]');
+    if(!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)return;
+    event.preventDefault();
+    if(location.hash!==link.hash)history.pushState(null,'',link.hash);
+    route(true,true);
+  });
+  main.addEventListener('click',event=>{
+    const node=event.target.closest('button');if(!node || !journey.contains(node))return;
+    if(node.hasAttribute('data-stage'))showStage(Number(node.dataset.stage));
+    if(node.hasAttribute('data-delta'))showStage(stage+Number(node.dataset.delta));
+  });
+  journey.addEventListener('keydown',event=>{
+    if(!['ArrowRight','ArrowLeft'].includes(event.key))return;
+    event.preventDefault();showStage(stage+(event.key===(fa?'ArrowLeft':'ArrowRight')?1:-1));
+    journey.querySelector('[data-stage="'+stage+'"]').focus({preventScroll:true});
+  });
+  main.addEventListener('submit',async e=>{
+    if(e.target.id!=='enquiry-form')return;e.preventDefault();
+    const form=e.target;
+    try{await (await booking()).submitEnquiry(form);}catch(_){
+      const s=form.querySelector('#enquiry-status');s.className='status error';s.textContent=fa?'ثبت درخواست تأیید نشد. دوباره تلاش کنید.':'We could not verify your enquiry. Please try again.';
+    }
+  });
+  function reveal(){
+    chosen=true;document.documentElement.classList.add('language-chosen');
+    updateFilm();filmButton();
+  }
+  function openChooser(first) {
+    dismiss.hidden=first;dialog.classList.remove('leaving');dialog.showModal();video.pause();
+    dialog.querySelector('[data-lang="'+lang+'"]').focus({preventScroll:true});
   }
   function choose(choice) {
-    write('vh-lang',choice);
-    if (dialog.open) dialog.close();
-    if (choice===lang) return;
-    const form=document.getElementById('enquiry-form');
-    if (form) { const data = Object.fromEntries(new FormData(form)); delete data.website; write('vh-language-draft',JSON.stringify(data)); }
-    const url=new URL(choice==='fa'?'index.html':'en.html',location.href);
-    url.search=location.search; url.hash=location.hash; location.assign(url.href);
+    if(switching)return;switching=true;write('vh-lang',choice);dialog.classList.add('leaving');
+    const finish=()=>{
+      if(choice!==lang){
+        const form=main.querySelector('#enquiry-form');
+        if(form){const data=Object.fromEntries(new FormData(form));delete data.website;write('vh-language-draft',JSON.stringify(data));}
+        const url=new URL(choice==='fa'?'index.html':'en.html',location.href);
+        url.search=location.search;url.hash=location.hash;location.assign(url.href);return;
+      }
+      dialog.close();switching=false;const first=!chosen;reveal();
+      (first?main:document.getElementById('language-control')).focus({preventScroll:true});
+    };
+    setTimeout(finish,reduced.matches?0:230);
   }
+  dialog.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>choose(b.dataset.lang)));
+  dismiss.addEventListener('click',()=>choose(lang));
+  dialog.addEventListener('cancel',e=>{e.preventDefault();if(chosen)choose(lang);});
+  document.getElementById('language-control').addEventListener('click',()=>openChooser(false));
   document.querySelector('.skip').addEventListener('click',e=>{e.preventDefault();main.focus();});
-  document.getElementById('language-control').addEventListener('click',() => dialog.showModal());
-  dialog.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click',() => choose(b.dataset.lang)));
-  document.getElementById('dismiss-language').addEventListener('click',() => choose(lang));
-  dialog.addEventListener('cancel',() => write('vh-lang',lang));
-  main.addEventListener('click',event => {
-    const btn=event.target.closest('button'); if (!btn || current!=='journey') return;
-    if (btn.hasAttribute('data-stage')) showStage(Number(btn.dataset.stage));
-    if (btn.hasAttribute('data-delta')) showStage(stage+Number(btn.dataset.delta));
-  });
-  main.addEventListener('keydown',event => {
-    if (current !== 'journey' || dialog.open || !['ArrowRight','ArrowLeft'].includes(event.key)) return;
-    event.preventDefault(); showStage(stage+(event.key===(fa?'ArrowLeft':'ArrowRight')?1:-1));
-  });
-  main.addEventListener('submit',async event => {
-    if (event.target.id!=='enquiry-form') return;
-    event.preventDefault();
-    const form=event.target, status=form.querySelector('#enquiry-status');
-    try { const mod=await booking();await mod.submitEnquiry(form); }
-    catch (_) {status.className='status error';status.textContent=fa?'ثبت درخواست تأیید نشد. دوباره تلاش کنید.':'We could not verify your enquiry. Please try again.';}
-  });
-  window.addEventListener('hashchange',() => route());
-  route(false);
-  if (!read('vh-lang')) dialog.showModal();
+  window.addEventListener('hashchange',()=>route());
+  const previous=read('vh-lang');
+  if(previous && previous!==lang && !/\/(en|index)\.html$/.test(location.pathname)){
+    const url=new URL(previous==='en'?'en.html':'index.html',location.href);url.search=location.search;url.hash=location.hash;location.replace(url.href);return;
+  }
+  showStage(0);route(false);
+  if(previous)reveal();else openChooser(true);
 })();

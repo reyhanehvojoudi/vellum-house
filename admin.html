@@ -2,22 +2,28 @@
 <html lang="fa" dir="rtl"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#102637">
-<title>مدیریت وقت‌های مشاوره | ولوم هاوس</title>
-<link rel="icon" href="assets/media/crest-ink.webp" type="image/webp"><link rel="stylesheet" href="assets/house.css?v=10">
-<script defer src="assets/config.js?v=10"></script><script type="module" src="assets/admin.js?v=10"></script>
+<title>Vellum House</title>
+<link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" href="assets/media/icon-32.png" sizes="32x32" type="image/png"><link rel="icon" type="image/png" sizes="192x192" href="assets/media/icon-192.png"><link rel="apple-touch-icon" href="assets/media/icon-180.png"><link rel="stylesheet" href="assets/house.css?v=11">
+<script defer src="assets/config.js?v=11"></script><script type="module" src="assets/admin.js?v=11"></script>
 </head><body>
-<header class="mast admin-mast"><div class="mast-inner"><a class="wordmark" id="admin-home" href="index.html"><img width="48" height="48" src="assets/media/crest-gold.webp" alt=""><span data-text="brand">ولوم هاوس</span></a>
+<header class="mast admin-mast"><div class="mast-inner"><a class="wordmark" id="admin-home" href="index.html"><img width="48" height="48" src="assets/media/crest-gold.webp" alt=""><span class="brand-lock" dir="ltr" lang="en"><b>Vellume House</b><small>Academic Management</small></span></a>
 <div class="admin-tools"><button type="button" id="admin-lang" class="language-control" lang="en">English</button>
 <button type="button" id="signout" class="btn gold" hidden data-text="signout"></button></div></div></header>
 <main class="admin-wrap"><div class="page-head"><h1 data-text="title">مدیریت وقت‌های مشاوره</h1></div>
 <section id="login" class="paper admin-login"><h2 data-text="login">ورود همکاران</h2>
 <form id="login-form" class="admin-form"><label><span data-text="key">کلید دسترسی</span><input type="password" id="staff-key" name="key" dir="ltr" autocomplete="current-password" required></label><button class="btn solid" type="submit" data-text="signin">ورود</button></form></section>
 <p id="admin-status" class="status" role="status" tabindex="-1"></p>
-<div class="admin-panels" id="panels" hidden><section class="paper admin-card"><h2 data-text="avail"></h2><p class="subtle" data-text="rules"></p>
-<form id="open-form"><div class="admin-form"><label><span data-text="date"></span><input type="date" id="staff-date" name="day" required></label>
-<label><span data-text="from"></span><select name="from" required></select></label><label><span data-text="until"></span><select name="until" required></select></label></div>
-<button class="btn solid" type="submit" data-text="publish"></button></form><h3 data-text="open"></h3><ul class="admin-list" id="open-times"></ul></section>
-<section class="paper admin-card"><div class="admin-heading"><h2 data-text="meetings"></h2><button type="button" id="refresh" class="text-button" data-text="refresh"></button></div>
-<label><span data-text="show"></span> <select id="meeting-filter"><option value="upcoming" data-text="upcoming"></option><option value="past" data-text="past"></option><option value="all" data-text="all"></option></select></label>
-<ul class="admin-list" id="meeting-list"></ul></section></div>
+<div class="admin-panels" id="panels" hidden><div class="schedule-stack">
+<section class="paper admin-card"><h2 data-text="avail"></h2><p class="subtle" data-text="rules"></p>
+<form id="rule-form"><div class="segmented" role="group" aria-label="Schedule"><button type="button" data-scope="weekly" aria-pressed="true" data-text="weekly"></button><button type="button" data-scope="date" aria-pressed="false" data-text="specific"></button></div>
+<div id="week-field"><label class="field-label" for="weekday" data-text="weekday"></label><select id="weekday"></select></div>
+<div id="date-field" hidden><label class="field-label" for="staff-date" data-text="date"></label><input type="date" id="staff-date" dir="ltr"></div>
+<label class="field-label" for="rule-mode" data-text="hours"></label><select id="rule-mode"><option value="hours" data-text="part"></option><option value="all" data-text="full"></option><option value="off" data-text="off"></option></select>
+<div id="ranges-field"><div id="ranges"></div><button type="button" id="add-range" class="text-button" data-text="addRange"></button></div>
+<p id="rule-preview" class="rule-preview" aria-live="polite"></p>
+<div class="actions"><button class="btn solid" type="submit" data-text="saveHours"></button><button type="button" id="revert" class="text-button" data-text="revert" hidden></button></div></form></section>
+<section class="paper admin-card"><h2 data-text="settings"></h2><form id="settings-form"><div class="admin-form"><label><span data-text="duration"></span><select id="duration"></select></label><label><span data-text="interval"></span><select id="interval"></select></label></div><p id="interval-example" class="subtle"></p><button type="submit" class="btn outline" data-text="saveSettings"></button></form></section></div>
+<div class="schedule-stack"><section class="paper admin-card"><div class="admin-heading"><h2 data-text="saved"></h2><button type="button" id="refresh" class="text-button" data-text="refresh"></button></div><ul class="admin-list" id="saved-rules"></ul></section>
+<section class="paper admin-card"><h2 data-text="meetings"></h2><label class="meeting-filter"><span data-text="show"></span> <select id="meeting-filter"><option value="upcoming" data-text="upcoming"></option><option value="past" data-text="past"></option><option value="all" data-text="allMeetings"></option></select></label>
+<ul class="admin-list" id="meeting-list"></ul></section></div></div>
 <noscript>برای مدیریت وقت‌ها جاوااسکریپت را فعال کنید. Enable JavaScript to manage the calendar.</noscript></main></body></html>
