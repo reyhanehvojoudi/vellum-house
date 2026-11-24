@@ -226,10 +226,29 @@ dialog::backdrop{background:#0a1c2cdc}
 .explore{display:inline-flex;align-items:center;gap:.7rem;color:#173c46;font-weight:650;text-decoration:none;font-size:1rem}
 .explore>span{display:grid;place-content:center;width:2.2rem;height:2.2rem;border:1px solid #b5aa8c;border-radius:50%;transition:transform .2s}
 .explore:hover>span{transform:translateY(3px)}
+.home-lock{overflow:hidden}
+.home-lock main{height:calc(100svh - 4.85rem);overflow:hidden}
+.home-lock #home-views{height:100%;position:relative}
+.home-lock #intro,.home-lock #journey{height:100%;min-height:0;box-sizing:border-box}
+.home-lock #intro{overflow:hidden}
+.home-lock #journey{overflow:auto;scrollbar-width:none}
+.home-lock #intro,.home-lock #journey{position:absolute;inset:0;transition:opacity .55s ease,transform .65s cubic-bezier(.22,.8,.25,1);}
+.home-lock #intro{transform:translateY(0);opacity:1}
+.home-lock #journey{transform:translateY(100%);opacity:0}
+.home-lock.journey-scene #intro{transform:translateY(-18%);opacity:0;pointer-events:none}
+.home-lock.journey-scene #journey{transform:translateY(0);opacity:1}
+.home-lock #journey::-webkit-scrollbar{display:none}
+.home-lock .hero-foot{align-self:end}
+.home-lock .explore{font-weight:800;font-size:1.12rem;padding:.35rem .2rem .35rem 0;color:#123a45}
+.home-lock .explore>span{width:2.75rem;height:2.75rem;background:#173c46;color:#fff;border-color:#d8b773;box-shadow:0 8px 18px #10253425}
+.home-lock .explore svg{stroke:#fff}
 .journey-shell{min-height:calc(100svh - 4.8rem);background:#102534;color:#fff9eb;display:grid;align-items:center;outline:none}
 .journey{width:100%;max-width:calc(var(--width) + 2 * var(--pad));padding-block:clamp(2rem,5vh,4.5rem)}
 .journey-heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.4rem 1.5rem}
 .journey-heading h2{font-size:clamp(2.8rem,5.2vw,5.5rem);color:#fffaef}
+.journey-back{display:inline-flex;align-items:center;gap:.45rem;color:#f3d49a;text-decoration:none;font-weight:700;font-size:.92rem;margin-bottom:1rem}
+.journey-back::before{content:'←';font-size:1.2rem;line-height:1}
+.journey-back:hover{text-decoration:underline}
 .journey-heading p{font-size:.99rem;color:#d9d9cc}
 .journey-map{background:radial-gradient(ellipse at 72% 85%,#25454e,#102534 68%);margin:.8rem 0 0;border-top:1px solid #6e7d7d;border-bottom:0}
 .map-grid{opacity:.095;background-size:3rem 3rem}

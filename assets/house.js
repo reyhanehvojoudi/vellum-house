@@ -4,7 +4,13 @@
   const dialog=document.getElementById('language-dialog'), dismiss=document.getElementById('dismiss-language');
   const lang=document.documentElement.lang, fa=lang==='fa', reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const video=document.getElementById('intro-film'), toggle=document.getElementById('film-toggle');
+  video.setAttribute('autoplay','');
+  video.setAttribute('preload','auto');
   const journey=document.getElementById('journey'), routeClip=journey.querySelector('#route-clip rect');
+  if(!journey.querySelector('.journey-back')){
+    const back=document.createElement('a');back.className='journey-back';back.href='#intro';back.textContent=fa?'بازگشت به ابتدا':'Back to the beginning';
+    journey.querySelector('.journey').prepend(back);
+  }
   const cache=new Map([['home',home]]);
   const aliases={method:'journey',approach:'journey',pathways:'journey',services:'journey',people:'founders',about:'founders',consultation:'consult',terms:'intro'};
   let view='', stage=0, bookingModule, chosen=false, switching=false, manualPause=false, canSeeFilm=false, animation;
@@ -20,9 +26,12 @@
     if (!video.getAttribute('src')) {
       const small=matchMedia('(max-width: 780px)').matches || navigator.connection?.saveData;
       video.src=small ? video.dataset.srcSmall : video.dataset.src;
+      video.load();
     }
     video.muted=true;
-    video.play().catch(filmButton);
+    const attempt=()=>video.play().catch(filmButton);
+    if(video.readyState>=2) attempt();
+    else video.addEventListener('canplay',attempt,{once:true});
   }
   function updateFilm() {
     if (!chosen || dialog.open || document.hidden || view!=='home' || !canSeeFilm || manualPause || reduced.matches) {video.pause();return;}
@@ -57,18 +66,17 @@
     const y=name==='journey'?journey.getBoundingClientRect().top+scrollY-document.querySelector('.mast').offsetHeight:0;
     window.scrollTo({top:y,behavior:animate && !reduced.matches?'smooth':'instant'});
   }
-  // Finish a downward gesture at the same destination as Explore. A long
-  // introduction on a small screen stays freely scrollable until the route enters.
-  let scrollTimer=0,previousY=scrollY;
-  window.addEventListener('scroll',()=>{
-    const y=scrollY,down=y>previousY;previousY=y;clearTimeout(scrollTimer);
-    if(view!=='home' || !chosen || dialog.open || !down)return;
-    scrollTimer=setTimeout(()=>{
-      if(view!=='home' || dialog.open)return;
-      const top=journey.getBoundingClientRect().top,mast=document.querySelector('.mast').offsetHeight;
-      if(top>mast+3 && top<innerHeight-Math.min(115,innerHeight*.2))scrollHome('journey',true);
-    },150);
-  },{passive:true});
+  // Keep the home experience to one viewport: wheel and swipe gestures
+  // transition between the introduction and the journey scene.
+  let touchStart=0,gestureLocked=false;
+  function sceneStep(direction){
+    if(view!=='home' || !chosen || dialog.open || gestureLocked)return;
+    const next=direction>0?'journey':'intro';
+    if(location.hash!==`#${next}`){gestureLocked=true;history.pushState(null,'',`#${next}`);route(true,true);setTimeout(()=>gestureLocked=false,650);}
+  }
+  window.addEventListener('wheel',event=>{if(Math.abs(event.deltaY)<8)return;event.preventDefault();sceneStep(event.deltaY);},{passive:false});
+  window.addEventListener('touchstart',event=>{touchStart=event.touches[0].clientY;},{passive:true});
+  window.addEventListener('touchend',event=>{const delta=touchStart-event.changedTouches[0].clientY;if(Math.abs(delta)>36)sceneStep(delta);},{passive:true});
   function markNav(name) {
     document.querySelectorAll('.mast a[href^="#"]').forEach(a=>{
       const match=a.hash==='#'+name || (name==='calendar' && a.hash==='#consult');
@@ -80,12 +88,13 @@
     const name=aliases[raw] || raw || 'intro';
     const page=['consult','calendar','founders','contact'].includes(name)?name:name==='privacy'?'consult':'home';
     if(!cache.has(page))cache.set(page,document.getElementById('view-'+page).content.firstElementChild.cloneNode(true));
-    if(view!==page){view=page;main.replaceChildren(cache.get(page));main.dataset.view=page;updateFilm();}
+    if(view!==page){view=page;main.replaceChildren(cache.get(page));main.dataset.view=page;document.body.classList.toggle('home-lock',page==='home');updateFilm();}
+    document.body.classList.toggle('journey-scene',page==='home' && name==='journey');
     markNav(page==='home'?'intro':page);
     if(page==='home'){
       if(focus && name==='journey')journey.focus({preventScroll:true});
       else if(focus)main.focus({preventScroll:true});
-      requestAnimationFrame(()=>{if(view==='home')scrollHome(name,animate);});
+      if(name!=='journey') requestAnimationFrame(()=>{if(view==='home')scrollHome('intro',animate);});
     } else {
       if(focus)main.focus({preventScroll:true});
       window.scrollTo({top:0,behavior:'instant'});
