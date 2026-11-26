@@ -1,43 +1,55 @@
-#!/usr/bin/env python3
-"""Basic source and deployment integrity checks. No external dependencies."""
-from pathlib import Path
+"""Check all public entry points, bilingual content, required controls and production assets."""
 from html.parser import HTMLParser
-import re,sys
-R=Path(__file__).resolve().parents[1]
-files=sorted(R.glob('*.html'))
-class Check(HTMLParser):
- def __init__(self):
-  super().__init__();self.links=[];self.h1=0;self.form=False;self.method=None;self.meta={};self.canonical=False;self.ids=[]
- def handle_starttag(self,tag,attrs):
-  d=dict(attrs)
-  if tag=='a' and d.get('href'):self.links.append(d['href'])
-  if tag=='h1':self.h1+=1
-  if tag=='form' and d.get('id')=='enquiry-form':self.form=True;self.method=d.get('method')
-  if tag=='meta' and d.get('name')=='description':self.meta['description']=d.get('content')
-  if tag=='link' and d.get('rel')=='canonical':self.canonical=True
-  if d.get('id'):self.ids.append(d['id'])
-errors=[];descs={}
-for file in files:
- html=file.read_text(encoding='utf-8');p=Check();p.feed(html)
- if p.h1!=1:errors.append(f'{file.name}: H1 count {p.h1}')
- if len(set(p.ids))!=len(p.ids):errors.append(f'{file.name}: duplicate IDs')
- if file.name!='404.html':
-  if not p.canonical:errors.append(f'{file.name}: missing canonical')
-  if not p.meta.get('description'):errors.append(f'{file.name}: missing description')
-  if file.name not in ('fa.html','index.html'):
-   if p.meta.get('description') in descs:errors.append(f'{file.name}: repeated metadata')
-   descs[p.meta.get('description')]=file.name
- for href in p.links:
-  loc=href.split('#',1)[0].split('?',1)[0]
-  if loc and not loc.startswith(('https:','http:','mailto:','tel:','//')) and not (R/loc).exists():errors.append(f'{file.name}: broken href {href}')
- if file.name.startswith('contact'):
-  if not p.form or p.method!='post':errors.append(f'{file.name}: missing POST form')
-  for key in ['fullName','email','serviceInterest','consent','website','form-status','booking-fallback']:
-   if key not in html:errors.append(f'{file.name}: missing form marker {key}')
- if 'https://cal.com/vhouse/30min' in html and not file.name.startswith('contact'):errors.append(f'{file.name}: direct booking link bypasses enquiry')
-for path in ['assets/style.css','assets/main.js','assets/config.js','backend/Code.gs','CNAME','robots.txt','sitemap.xml','tools/build.py']:
- if not (R/path).exists():errors.append(f'missing {path}')
-if 'month=2026-11' in (R/'assets/config.js').read_text(): errors.append('booking URL pins an expired month')
-if errors:
- print('FAILED:',*errors,sep='\n- ');sys.exit(1)
-print(f'PASS — {len(files)} pages, local links, bilingual forms, metadata, SEO and source configuration')
+from pathlib import Path
+from urllib.parse import urlsplit
+import re,json
+ROOT=Path(__file__).resolve().parents[1]
+class Page(HTMLParser):
+    def __init__(self):
+        super().__init__();self.tags=[]
+    def handle_starttag(self,tag,attrs):self.tags.append((tag,dict(attrs)))
+def check_ref(base,ref):
+    url=urlsplit(ref)
+    if not url.scheme and url.path and url.path!='/':assert (base/url.path).is_file(),ref
+pages=sorted(ROOT.glob('*.html'))
+for p in pages:
+    raw=p.read_text()
+    assert re.search(r'<title>Vellum House</title>',raw),p
+    assert not re.search(r'دانش[\s‌-]*آموز',raw),p
+    parser=Page();parser.feed(raw)
+    assert any(a.get('rel')=='icon' for _,a in parser.tags),p
+    for _,a in parser.tags:
+        for attr in ('href','src','poster','data-src','data-src-small'):
+            if a.get(attr):check_ref(ROOT,a[attr])
+        for ref in a.get('srcset','').split(','):
+            if ref.strip():check_ref(ROOT,ref.strip().split()[0])
+    if p.name not in ('index.html','en.html'):continue
+    fields={a.get('name'):a for _,a in parser.tags if a.get('name')}
+    assert all('required' in fields[k] for k in ['fullName','email','phone','education','grade','serviceInterest','consent'])
+    assert all(k in fields for k in ['birthday','major','institution'])
+    assert ('value="middle"' in raw)==(p.name=='en.html')
+    assert sum('data-stage' in a for _,a in parser.tags)==4
+    assert sum('data-stage-copy' in a for _,a in parser.tags)==4
+    assert sum('data-delta' in a for _,a in parser.tags)==2
+    assert sum('linkedin.com/in/' in a.get('href','') for _,a in parser.tags)==2
+    assert any(a.get('href')=='https://t.me/VH_edu' for _,a in parser.tags)
+    assert any(a.get('href')=='mailto:vellumhouse.edu@gmail.com' for _,a in parser.tags)
+    assert 'Vellum House' in raw and 'Academic Management' in raw and 'ولوم هاوس | مدیریت یکپارچه و اختصاصی مسیر رشد و موفقیت' in raw
+    assert 'id="language-dialog"' in raw and 'id="calendar-area"' in raw and 'id="journey"' in raw
+    assert not any(x in raw for x in ('atlas-','How we plan','چگونه با هم'))
+    ids=[a['id'] for _,a in parser.tags if 'id' in a];assert len(ids)==len(set(ids))
+style=(ROOT/'assets/house.css').read_text()
+for ref in re.findall(r'url\(([^)]+)\)',style):
+    u=ref.strip('"\'')
+    if not u.startswith(('data:','#')):check_ref(ROOT/'assets',u)
+for p in (ROOT/'assets').glob('*.js'):
+    s=p.read_text()
+    for ref in re.findall(r"(?:from\s+|import\()['\"]\./([^'\"]+)['\"]",s):check_ref(p.parent,ref)
+    assert 'qa-transport' not in s and 'example.test' not in s
+assert not any('atlas-' in p.name for p in (ROOT/'assets/media').iterdir())
+assert (ROOT/'CNAME').read_text().strip()=='vhouse.ir'
+assert 'At Vellum House, we believe exceptional futures are built through personalized guidance, not one-size-fits-all education.' in (ROOT/'en.html').read_text()
+assert json.loads((ROOT/'backend/appsscript.json').read_text())['dependencies']['enabledAdvancedServices'][0]['version']=='v3'
+assert (ROOT/'assets/media/hero-desktop.0b38327897.mp4').stat().st_size>100000
+assert (ROOT/'favicon.ico').read_bytes()[:4]==bytes([0,0,1,0])
+print(f'PASS. {len(pages)} HTML entry points, English tab titles, bilingual profiles and navigation, four-stage path, form requirements, linked media, fonts, contact destinations and Apps Script manifest.')
