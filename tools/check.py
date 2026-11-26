@@ -28,9 +28,12 @@ for p in pages:
     assert all('required' in fields[k] for k in ['fullName','email','phone','education','grade','serviceInterest','consent'])
     assert all(k in fields for k in ['birthday','major','institution'])
     assert ('value="middle"' in raw)==(p.name=='en.html')
-    assert sum('data-stage' in a for _,a in parser.tags)==4
-    assert sum('data-stage-copy' in a for _,a in parser.tags)==4
+    assert sum('data-stage' in a for _,a in parser.tags)==6
+    assert sum('data-stage-copy' in a for _,a in parser.tags)==6
     assert sum('data-delta' in a for _,a in parser.tags)==2
+    assert 'id="journey-pause"' in raw and 'class="royal-route desktop"' in raw and 'class="royal-route mobile"' in raw
+    assert 'assets/royal.css' in raw and 'class="explore btn gold"' in raw
+    assert raw.index('class="hero-film"') < raw.index('class="explore btn gold"')
     assert sum('linkedin.com/in/' in a.get('href','') for _,a in parser.tags)==2
     assert any(a.get('href')=='https://t.me/VH_edu' for _,a in parser.tags)
     assert any(a.get('href')=='mailto:vellumhouse.edu@gmail.com' for _,a in parser.tags)
@@ -38,7 +41,7 @@ for p in pages:
     assert 'id="language-dialog"' in raw and 'id="calendar-area"' in raw and 'id="journey"' in raw
     assert not any(x in raw for x in ('atlas-','How we plan','چگونه با هم'))
     ids=[a['id'] for _,a in parser.tags if 'id' in a];assert len(ids)==len(set(ids))
-style=(ROOT/'assets/house.css').read_text()
+style=(ROOT/'assets/house.css').read_text()+'\n'+(ROOT/'assets/royal.css').read_text()
 for ref in re.findall(r'url\(([^)]+)\)',style):
     u=ref.strip('"\'')
     if not u.startswith(('data:','#')):check_ref(ROOT/'assets',u)
@@ -50,6 +53,6 @@ assert not any('atlas-' in p.name for p in (ROOT/'assets/media').iterdir())
 assert (ROOT/'CNAME').read_text().strip()=='vhouse.ir'
 assert 'At Vellum House, we believe exceptional futures are built through personalized guidance, not one-size-fits-all education.' in (ROOT/'en.html').read_text()
 assert json.loads((ROOT/'backend/appsscript.json').read_text())['dependencies']['enabledAdvancedServices'][0]['version']=='v3'
-assert (ROOT/'assets/media/hero-desktop.70fbe2130a66.mp4').stat().st_size>100000
+assert (ROOT/'assets/media/hero-desktop.1b758f4796d5.mp4').stat().st_size>100000
 assert (ROOT/'favicon.ico').read_bytes()[:4]==bytes([0,0,1,0])
-print(f'PASS. {len(pages)} HTML entry points, English tab titles, bilingual profiles and navigation, four-stage path, form requirements, linked media, fonts, contact destinations and Apps Script manifest.')
+print(f'PASS. {len(pages)} HTML entry points, English tab titles, bilingual profiles and navigation, six-stage path, form requirements, linked media, fonts, contact destinations and Apps Script manifest.')

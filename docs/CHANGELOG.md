@@ -1,15 +1,8 @@
-# Vellum House V8 — change log
-
-- Replaced multi-page, scrolling educational site with one viewport-bound interactive experience.
-- Added initial English | فارسی language choice, retained for the browser tab session, with manual language switch in the header.
-- Designed original editorial dark-navy-and-gold atlas artwork using lightweight SVG and CSS contour geometry; 5 clickable educational milestones and animated moving route.
-- Added five full-screen chapters reached via the compact menu or previous/next buttons: student journey, approach, founders, verified evidence placeholders, consultation.
-- Restored circular VH mark with VELLUM HOUSE / PRIVATE ACADEMIC MANAGEMENT wordmark.
-- Added dedicated editorial founder portrait slots and specialist network area, with clearly marked placeholders instead of invented headshots.
-- Added spaces for authenticated outcomes and consented testimonials, without fabricated claims.
-- Ensured persistent desktop consultation CTA and mobile floating CTA in all exploration views; the consultation form itself supplies the CTA on the final view.
-- Made the small-screen enquiry a two-step guided interaction; the body never scrolls to another section.
-- Preserved the supplied Google Apps Script `/exec` endpoint and current Cal.com `/consultation` URL; enquiry success requires a backend UUID receipt.
-- Made old marketing URLs redirect to the appropriate in-app chapter, including legacy privacy and terms URLs opening legal overlays.
-- Implemented keyboard focus states, `aria-live` feedback, semantic dialogs, reduced-motion support and back/forth stage controls.
-- Included new deployment instructions and browser/backend test scripts.
+# Royal Academia release changes
+- Modified `index.html`, `en.html`: header/drawer, centered composition (CSS), CTA order, 6 bilingual journey milestones, responsive SVG paths, pause, final consultation action, language gate crest. Existing homepage and founder text, photo links, form fields and identifiers retained.
+- Replaced `assets/thread.ad99890decf7.css` with `assets/royal.css`, separate `royal-fonts.css` installation hook. Shared house.css/admin remain unchanged. No extra animation library.
+- Modified `assets/house.js`: chapter dissolve, drawer focus/dismiss, manual playback fallback, adaptive media, six-stage animated route, auto/manual controls, language-stage preservation, native scrolling for forms and founders; remove stepped-form implementation and early booking prefetch.
+- Replaced desktop/mobile MP4 assets with content-hashed optimized versions; removed older public video versions. Original ZIP retained as rollback source.
+- Updated tools/check.py for six stages and new assets, added tools/install_fonts.py, revised tools/visual-qa.py; archived previous design/performance reports. Added design, performance, test, deployment and rollback docs.
+- Preserved byte-for-byte: backend directory, assets/config.js, assets/calendar-api.js, assets/booking.js, assets/education.js, assets/admin.js, assets/house.css, admin.html, CNAME, legacy redirects, crest, portraits, existing form endpoint.
+- Decisions: keep all content rather than force unreadable single viewport; on mobile show video/CTA before long introductory paragraph; font fallback until approved files obtained; fade through navy rather than an overlap of live scenes. No production writes or deployment.

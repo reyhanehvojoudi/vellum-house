@@ -1,51 +1,45 @@
-"""Run against a local static server: python -m http.server 8765
-Then python tools/visual-qa.py (install playwright + its browser if necessary).
-Only synthetic form inputs, no real bookings or submissions. Writes CSV and screenshots.
+"""Owner-run browser evidence. Start python -m http.server 8765 first.
+Install playwright and browser (python -m pip install playwright; python -m playwright install chromium).
+All nonlocal network requests are blocked; calendar data is a clearly labelled mocked fixture.
+No real submissions or private data. Screenshots and JSON in qa-output/ (do not upload to GitHub).
 """
-import csv, os, json
 from pathlib import Path
+import json,os,time
 from playwright.sync_api import sync_playwright
-BASE=os.environ.get('VH_QA_URL','http://127.0.0.1:8765').rstrip('/')
+BASE=os.getenv('VH_QA_URL','http://127.0.0.1:8765').rstrip('/')
 OUT=Path('qa-output');OUT.mkdir(exist_ok=True)
-SIZES=[(320,568),(360,640),(390,844),(430,932),(844,390),(640,360),(768,1024),(1024,768),(1280,720),(1366,768),(1440,900),(1920,1080),(2560,1440)]
-ROUTES=['intro','journey','founders','consult','contact','calendar','privacy','dialog','menu','form-errors','404']
-JS='''()=>{const root=document.documentElement,m=document.querySelector('main'),h=document.querySelector('.hero h1');return {scrollHeight:root.scrollHeight,innerHeight,scrollWidth:root.scrollWidth,innerWidth,stageHeight:m?.clientHeight,stageScrollHeight:m?.scrollHeight,hits:[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&(r.right>innerWidth+1||r.left< -1)}).map(e=>e.tagName+'.'+String(e.className)).slice(0,60),fontFamily:h?getComputedStyle(h).fontFamily:'',fontColor:h?getComputedStyle(h).color:'',fonts:[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family+' '+f.weight)}}'''
+SIZES=[(320,568),(360,640),(390,844),(430,932),(768,1024),(1024,768),(1280,720),(1440,900),(1920,1080)]
+KEY='11111111-1111-4111-8111-111111111111'
 results=[]
 with sync_playwright() as p:
     opts={'headless':True};exe=os.getenv('VH_CHROMIUM');
     if exe:opts['executable_path']=exe
-    browser=p.chromium.launch(**opts)
-    for run in (1,2):
-        for lang,entry in [('fa','index.html'),('en','en.html')]:
-            for w,h in SIZES:
-                ctx=browser.new_context(viewport={'width':w,'height':h},reduced_motion='reduce');page=ctx.new_page()
-                for state in ROUTES:
-                    route={'dialog':'intro','menu':'intro','form-errors':'consult'}.get(state,state)
-                    record=dict(run=run,lang=lang,viewport=f'{w}x{h}',state=state)
-                    try:
-                        page.goto(BASE+'/'+('404.html' if state=='404' else entry+'#'+route),wait_until='domcontentloaded',timeout=8000);page.evaluate('document.fonts.ready');page.wait_for_timeout(200)
-                        if state=='dialog':page.locator('.footer-lang').click()
-                        if state=='menu':
-                            if not page.locator('.menu-toggle').is_visible():continue
-                            page.locator('.menu-toggle').click()
-                        if state=='form-errors':
-                            if page.locator('.form-navigation').is_visible():page.locator('.form-navigation .btn.solid').click();page.locator('.form-navigation .btn.solid').click()
-                            else:page.locator('#submit-enquiry').click()
-                        record.update(page.evaluate(JS));record['fit']=record['scrollHeight']<=record['innerHeight'] and record['scrollWidth']<=record['innerWidth'] and (record['stageScrollHeight'] or 0)<=(record['stageHeight'] or 0)+1;record['status']='measured'
-                        page.screenshot(path=str(OUT/f'{run}-{lang}-{w}x{h}-{state}.png'))
-                    except Exception as e:record['status']='blocked/error: '+str(e).splitlines()[0]
-                    results.append(record)
-                ctx.close()
-    # Motion recordings of forward/back using native CSS animation, not reduced-motion mode.
+    b=p.chromium.launch(**opts)
     for lang,entry in [('fa','index.html'),('en','en.html')]:
-        ctx=browser.new_context(viewport={'width':1440,'height':900},record_video_dir=str(OUT/'motion'));page=ctx.new_page()
-        try:
-            page.goto(BASE+'/'+entry+'#intro');page.wait_for_timeout(300);page.locator('.hero-foot .explore').click();page.wait_for_timeout(1000);page.locator('.journey-back').click();page.wait_for_timeout(1000)
-        except Exception as e:print('Motion error',e)
-        ctx.close()
-    browser.close()
-(OUT/'results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
-keys=sorted({k for r in results for k in r});
-with (OUT/'one-screen.csv').open('w',newline='',encoding='utf-8-sig') as f:
-    writer=csv.DictWriter(f,fieldnames=keys);writer.writeheader();writer.writerows(results)
-print('Measured rows:',sum(r.get('status')=='measured' for r in results),'Fit:',sum(r.get('fit') is True for r in results),'Total:',len(results))
+        for w,h in SIZES:
+            c=b.new_context(viewport={'width':w,'height':h},reduced_motion='reduce');pg=c.new_page();errors=[];pg.on('pageerror',lambda e:errors.append(str(e)))
+            def intercept(r):
+                if r.request.url.startswith(BASE+'/'):r.continue_();return
+                if r.request.url.startswith('https://script.google.com/macros/'):
+                    now=int(time.time()*1000);slots=[now+3*86400000,now+3*86400000+3600000,now+4*86400000]
+                    r.fulfill(status=200,content_type='application/json',headers={'Access-Control-Allow-Origin':'*'},body=json.dumps({'ok':True,'version':11,'slots':slots,'min':now+2*86400000,'max':now+14*86400000,'duration':45,'interval':60}));return
+                r.abort()
+            c.route('**/*',intercept)
+            for route in ('intro','journey','founders','contact','consult','calendar/'+KEY,'intro-menu','intro-dialog'):
+                name=route.split('/')[0];state=route if not route.startswith('calendar/') else 'calendar-MOCK';record={'lang':lang,'viewport':f'{w}x{h}','state':state}
+                try:
+                    pg.goto(BASE+'/'+entry+'#'+('intro' if route.startswith('intro-') else route),wait_until='domcontentloaded',timeout=10000);pg.evaluate('document.fonts.ready');pg.wait_for_timeout(300)
+                    if route=='intro-menu':pg.locator('.menu-toggle').click()
+                    if route=='intro-dialog':pg.locator('#language-control').click()
+                    if route=='journey':
+                        assert pg.locator('[data-stage]').count()==6
+                        pg.locator('[data-stage="2"]').click();assert pg.locator('[data-stage-copy="2"]').is_visible()
+                    if route=='consult':
+                        form=pg.locator('#enquiry-form');assert form.is_visible();assert form.locator('[name="fullName"]').is_visible();assert form.locator('[name="serviceInterest"]').is_visible();assert form.locator('[type="submit"]').is_visible();assert not pg.locator('.form-navigation').count()
+                    record.update(pg.evaluate('''()=>{const m=document.querySelector('main');return {scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,mainWidth:m?.clientWidth,mainScrollWidth:m?.scrollWidth,mainHeight:m?.clientHeight,mainScrollHeight:m?.scrollHeight,loadedFonts:[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family)}}'''))
+                    pg.screenshot(path=str(OUT/f'{lang}-{w}x{h}-{state}.png'));record['status']='measured';record['errors']=errors[:]
+                except Exception as e:record['status']='blocked/error';record['detail']=str(e).splitlines()[0]
+                results.append(record)
+            c.close()
+    b.close()
+(OUT/'results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2));print('Measured:',sum(r['status']=='measured' for r in results),'/',len(results));print('Calendar screenshots are MOCK data; not proof of live availability.')

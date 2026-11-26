@@ -1,3 +1,7 @@
+# Royal Academia — review build
+
+Start with [Persian deployment guide](docs/DEPLOYMENT_GUIDE_FA.md), [Design](docs/DESIGN.md), [Test report](docs/TEST_REPORT.md), [Performance](docs/PERFORMANCE_REPORT.md), [Changelog](docs/CHANGELOG.md), and [Rollback](docs/ROLLBACK_GUIDE.md). The legacy setup instructions below remain relevant for the unchanged Apps Script backend; prior design reports in docs/archive are historical, not current verification.
+
 # Vellum House website
 
 The ZIP contains the complete bilingual GitHub Pages site, the staff dashboard and the Google Apps Script booking service. Start with the Google setup, then upload the site. Persian instructions are in [START_HERE_FA.md](docs/START_HERE_FA.md).
