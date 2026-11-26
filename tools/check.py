@@ -50,6 +50,6 @@ assert not any('atlas-' in p.name for p in (ROOT/'assets/media').iterdir())
 assert (ROOT/'CNAME').read_text().strip()=='vhouse.ir'
 assert 'At Vellum House, we believe exceptional futures are built through personalized guidance, not one-size-fits-all education.' in (ROOT/'en.html').read_text()
 assert json.loads((ROOT/'backend/appsscript.json').read_text())['dependencies']['enabledAdvancedServices'][0]['version']=='v3'
-assert (ROOT/'assets/media/hero-desktop.0b38327897.mp4').stat().st_size>100000
+assert (ROOT/'assets/media/hero-desktop.70fbe2130a66.mp4').stat().st_size>100000
 assert (ROOT/'favicon.ico').read_bytes()[:4]==bytes([0,0,1,0])
 print(f'PASS. {len(pages)} HTML entry points, English tab titles, bilingual profiles and navigation, four-stage path, form requirements, linked media, fonts, contact destinations and Apps Script manifest.')

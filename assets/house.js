@@ -30,7 +30,7 @@
   function playVideo() {
     if(!loaded||blocked()||document.hidden||!canSeeFilm||document.body.classList.contains('journey-scene'))return;
     if (!video.getAttribute('src')) {
-      const small=matchMedia('(max-width: 780px)').matches || navigator.connection?.saveData;
+      const small=matchMedia('(max-aspect-ratio: 1/1)').matches;
       video.src=small ? video.dataset.srcSmall : video.dataset.src;
       video.load();
     }
@@ -54,7 +54,7 @@
   function showStage(index) {
     const nodes=[...journey.querySelectorAll('[data-stage]')];
     if (!nodes[index]) return;
-    stage=index;
+    stage=index;journey.querySelector('.route-canvas').style.setProperty('--journey-progress',index/3);journey.querySelector('.stage-detail').dataset.numeral=String(index+1).padStart(2,'0').replace(/\d/g,d=>fa?'۰۱۲۳۴۵۶۷۸۹'[Number(d)]:d);
     nodes.forEach((node,i)=>{node.setAttribute('aria-pressed',String(i===index));node.classList.toggle('passed',i<index);});
     journey.querySelectorAll('[data-stage-copy]').forEach((article,i)=>{article.hidden=i!==index;});
     journey.querySelectorAll('[data-delta]').forEach(btn=>{btn.disabled=!nodes[index+Number(btn.dataset.delta)];});
@@ -73,17 +73,35 @@
     const y=0;
     window.scrollTo({top:y,behavior:animate && !reduced.matches?'smooth':'instant'});
   }
-  // Keep the home experience to one viewport: wheel and swipe gestures
-  // transition between the introduction and the journey scene.
-  let touchStart=0,gestureLocked=false;
-  function sceneStep(direction){
-    if(view!=='home' || !chosen || dialog.open || gestureLocked)return;
-    const next=direction>0?'journey':'intro';
-    if(location.hash!==`#${next}`){gestureLocked=true;history.pushState(null,'',`#${next}`);route(true,true);setTimeout(()=>gestureLocked=false,650);}
+  // The thread is the navigation; native scrolling remains available for keyboard / zoom.
+  let touchStart=null, gestureLocked=false;
+  journey.addEventListener('touchstart',e=>{touchStart=[e.touches[0].clientX,e.touches[0].clientY];},{passive:true});
+  journey.addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].clientX-touchStart[0],dy=e.changedTouches[0].clientY-touchStart[1];touchStart=null;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.4)showStage(stage+(dx*(fa?1:-1)>0?1:-1));},{passive:true});
+  function sceneStep(direction){if(!chosen||dialog.open||gestureLocked)return;const next=direction>0?'journey':'intro';if(view!=='home'||location.hash===`#${next}`)return;gestureLocked=true;navigate(`#${next}`);setTimeout(()=>gestureLocked=false,850);}
+  main.addEventListener('wheel',e=>{if(view!=='home'||Math.abs(e.deltaY)<18||dialog.open)return;const bottom=main.scrollTop+main.clientHeight>=main.scrollHeight-2;const top=main.scrollTop<=0;if((e.deltaY>0&&bottom&&!document.body.classList.contains('journey-scene'))||(e.deltaY<0&&top&&document.body.classList.contains('journey-scene'))){e.preventDefault();sceneStep(e.deltaY);}},{passive:false});
+  const names=fa?['آغاز','مسیر همراهی','بنیان‌گذاران','مشاوره']:['Home','Approach','Founders','Consultation'];
+  const indexOf=(hash)=>{const raw=hash.replace(/^#/, '').split('/')[0];const n=aliases[raw]||raw;return n==='journey'?1:n==='founders'?2:['consult','calendar','contact','privacy'].includes(n)?3:0};
+  const numeral=n=>String(n).padStart(2,'0').replace(/\d/g,d=>fa?'۰۱۲۳۴۵۶۷۸۹'[Number(d)]:d);
+  let currentLeaf=0, transitionTimer, transitionEnd, moving=false;
+  const sweep=document.querySelector('.thread-sweep');
+  function updateSpine(){currentLeaf=indexOf(location.hash);document.body.style.setProperty('--progress',(currentLeaf+1)/4);const count=`${numeral(currentLeaf+1)} / ${numeral(4)}`;document.querySelector('.spine-index').textContent=count;document.querySelector('.footer-index').textContent=count;document.querySelector('.spine-name').textContent=names[currentLeaf];}
+  function animateRoute(apply,next){clearTimeout(transitionTimer);clearTimeout(transitionEnd);sweep.className='thread-sweep';main.classList.remove('reveal-stage');if(reduced.matches||next===currentLeaf){apply();main.classList.add('reveal-stage');return;}moving=true;sweep.classList.add(next>=currentLeaf?'forward':'reverse');void sweep.offsetWidth;sweep.classList.add('active');transitionTimer=setTimeout(()=>{apply();main.classList.add('reveal-stage');},395);transitionEnd=setTimeout(()=>{sweep.classList.remove('active');main.classList.remove('reveal-stage');moving=false;},800);}
+  function navigate(hash){if(moving||hash===location.hash)return;const next=indexOf(hash);animateRoute(()=>{history.pushState(null,'',hash);route(true);},next);}
+  function setupForm(form){if(form.dataset.stepped)return;form.dataset.stepped='yes';const fields=form.querySelector('.fields'), labels=[...fields.children], consent=form.querySelector('.consent'), privacy=form.querySelector('.privacy'), submit=form.querySelector('#submit-enquiry'), section=form.closest('.booking-layout');
+    const groupNames=fa?['پیش از شروع','اطلاعات تماس','اطلاعات تحصیلی','هدف تحصیلی','توضیحات و تأیید']:['Before you start','Contact details','Education','Academic goals','Details and consent'];
+    const groups=[[],labels.slice(0,3),labels.slice(3,6),labels.slice(6,9),labels.slice(9)];let step=0;const nav=document.createElement('div');nav.className='form-navigation';const prev=document.createElement('button'),next=document.createElement('button'),count=document.createElement('span');prev.type=next.type='button';prev.className='btn outline';next.className='btn solid';count.className='form-step-count';count.setAttribute('aria-live','polite');prev.textContent=fa?'قبلی':'Back';next.textContent=fa?'ادامه':'Continue';nav.append(prev,count,next);submit.before(nav);
+    const compact=matchMedia('(max-width: 980px), (max-height: 820px)');
+    function render(){const stepped=compact.matches,last=groups.length-1;section.classList.toggle('stepped-form',stepped);section.dataset.formStep=step;groups.forEach((g,i)=>g.forEach(el=>el.hidden=stepped&&i!==step));consent.hidden=privacy.hidden=stepped&&step!==last;nav.hidden=!stepped;prev.disabled=step===0;next.hidden=step===last;submit.hidden=stepped&&step!==last;count.textContent=`${numeral(step+1)} / ${numeral(groups.length)} · ${groupNames[step]}`;form.dataset.step=step;}
+    function check(i){for(const label of groups[i]){const input=label.querySelector('input,select,textarea');if(input?.name==='phone' && input.value.trim()){const value=input.value.trim(),digits=value.replace(/[^0-9۰-۹٠-٩]/g,'');input.setCustomValidity(/^\+?[0-9۰-۹٠-٩ ()\-]+$/.test(value)&&digits.length>=6&&digits.length<=18?'':(fa?'لطفاً شمارهٔ تماس معتبری وارد کنید.':'Enter a valid phone number.'));input.addEventListener('input',()=>input.setCustomValidity(''),{once:true});}if(input&&!input.disabled&&!input.checkValidity()){step=i;render();input.reportValidity();return false;}}return true;}
+    prev.onclick=()=>{step=Math.max(0,step-1);render();main.scrollTop=0;};next.onclick=()=>{if(check(step)){step=Math.min(groups.length-1,step+1);render();main.scrollTop=0;groups[step][0]?.querySelector('input,select,textarea')?.focus({preventScroll:true});}};
+    form.addEventListener('invalid',e=>{const i=groups.findIndex(g=>g.some(el=>el.contains(e.target)));if(i>=0&&compact.matches&&step!==i){step=i;render();main.scrollTop=0;}},true);compact.addEventListener('change',render);form.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='BUTTON'&&compact.matches&&step<groups.length-1){e.preventDefault();next.click();}});render();
   }
-  window.addEventListener('wheel',event=>{if(view!=='home'||!chosen||dialog.open||Math.abs(event.deltaY)<12)return;const atBottom=scrollY+innerHeight>=document.documentElement.scrollHeight-3;if((event.deltaY>0&&atBottom&&!document.body.classList.contains('journey-scene'))||(event.deltaY<0&&scrollY<=0&&document.body.classList.contains('journey-scene'))){event.preventDefault();sceneStep(event.deltaY);}}, {passive:false});
-  window.addEventListener('touchstart',event=>{touchStart=event.touches[0].clientY;},{passive:true});
-  window.addEventListener('touchend',event=>{if(view!=='home'||dialog.open)return;const delta=touchStart-event.changedTouches[0].clientY;if(delta>50&&scrollY+innerHeight>=document.documentElement.scrollHeight-3&&!document.body.classList.contains('journey-scene'))sceneStep(1);else if(delta< -50&&scrollY<=0&&document.body.classList.contains('journey-scene'))sceneStep(-1);},{passive:true});
+  // Very short screens cannot show the full unchanged copy at readable sizes. Offer explicit leaves, never clip text.
+  const hero=home.querySelector('#intro'), heroNext=document.createElement('button');heroNext.type='button';heroNext.className='hero-leaf btn outline';hero.querySelector('.hero-foot').prepend(heroNext);let heroPage=0;
+  const tightHome=matchMedia('(max-width: 380px) and (max-height: 720px), (max-height: 440px)');
+  function renderHome(){hero.classList.toggle('is-paged',tightHome.matches);hero.dataset.homePage=heroPage;heroNext.hidden=!tightHome.matches;heroNext.textContent=heroPage?(fa?'بازگشت به عنوان':'Back to introduction'):(fa?'دربارهٔ ولوم هاوس':'Read our introduction');}
+  heroNext.onclick=()=>{heroPage=1-heroPage;renderHome();main.scrollTop=0;};tightHome.addEventListener('change',renderHome);renderHome();
+  function setupFounders(section){if(section.dataset.paged)return;section.dataset.paged='yes';const cards=[...section.querySelectorAll('.founder')], controls=document.createElement('div');controls.className='founder-leaves';const mq=matchMedia('(max-width: 600px) and (max-height: 900px), (max-height: 440px)');let selected=0;const buttons=cards.map((card,i)=>{const b=document.createElement('button');b.type='button';b.className='btn outline';b.textContent=card.querySelector('h2').textContent;b.onclick=()=>{selected=i;render();main.scrollTop=0;};controls.append(b);return b;});section.querySelector('.page-head').after(controls);function render(){controls.hidden=!mq.matches;cards.forEach((card,i)=>{card.hidden=mq.matches&&selected!==i;buttons[i].setAttribute('aria-pressed',String(selected===i));});section.classList.toggle('single-founder',mq.matches);}mq.addEventListener('change',render);render();}
   function markNav(name) {
     document.querySelectorAll('.mast a[href^="#"]').forEach(a=>{
       const match=a.hash==='#'+name || (name==='calendar' && a.hash==='#consult');
@@ -99,7 +117,7 @@
     document.body.classList.toggle('journey-scene',page==='home' && name==='journey');
     updateFilm();
     home.querySelector('#intro').inert=name==='journey'&&page==='home'; journey.inert=name!=='journey';
-    markNav(page==='home'?'intro':page);
+    markNav(page==='home'?name:page);updateSpine();main.scrollTop=0;
     if(page==='home'){
       if(focus && name==='journey')journey.focus({preventScroll:true});
       else if(focus)main.focus({preventScroll:true});
@@ -108,23 +126,18 @@
       if(focus)main.focus({preventScroll:true});
       window.scrollTo({top:0,behavior:'instant'});
     }
+    if(page==='founders')setupFounders(main.querySelector('.founders'));
     if(page==='consult'){
       let draft;
       try{draft=JSON.parse(read('vh-language-draft'));}catch(_){}
-      write('vh-language-draft',null);window.VellumEducation.hydrate(main.querySelector('form'),draft);
+      write('vh-language-draft',null);window.VellumEducation.hydrate(main.querySelector('form'),draft);setupForm(main.querySelector('form'));
       if(name==='privacy')main.querySelector('details').open=true;
     }
     if(page==='calendar')booking().then(m=>{if(view==='calendar')m.openCalendar(key);}).catch(()=>{
       if(view==='calendar')document.getElementById('calendar-area').textContent=fa?'بارگیری تقویم ممکن نشد. صفحه را دوباره باز کنید.':'The calendar could not load. Please reload.';
     });
   }
-  document.addEventListener('click',event=>{
-    const link=event.target.closest('a[href="#intro"],a[href="#journey"]');
-    if(!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)return;
-    event.preventDefault();
-    if(location.hash!==link.hash)history.pushState(null,'',link.hash);
-    route(true,true);
-  });
+  document.addEventListener('click',event=>{const link=event.target.closest('a[href^="#"]');if(!link||link.classList.contains('skip')||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();closeMenu();navigate(link.hash);});
   main.addEventListener('click',event=>{
     const node=event.target.closest('button');if(!node || !journey.contains(node))return;
     if(node.hasAttribute('data-stage'))showStage(Number(node.dataset.stage));
@@ -173,12 +186,13 @@
   dialog.addEventListener('cancel',e=>{e.preventDefault();if(chosen)choose(lang);});
   document.getElementById('language-control').addEventListener('click',()=>openChooser(false));
   document.querySelector('.skip').addEventListener('click',e=>{e.preventDefault();main.focus();});
-  window.addEventListener('hashchange',()=>route());
+  window.addEventListener('hashchange',()=>{if(moving){clearTimeout(transitionTimer);clearTimeout(transitionEnd);sweep.className='thread-sweep';moving=false;route();return;}animateRoute(()=>route(),indexOf(location.hash));});
+  document.querySelector('.footer-lang').addEventListener('click',()=>openChooser(false));
   const previous=window.vhInitialLanguage;
   if(previous && previous!==lang && !/\/(en|index)\.html$/.test(location.pathname)){
     const url=new URL(previous==='en'?'en.html':'index.html',location.href);url.search=location.search;url.hash=location.hash;location.replace(url.href);return;
   }
-  const warm=()=>{if(!blocked())booking().catch(()=>{});};document.querySelectorAll('a[href="#consult"]').forEach(a=>{a.addEventListener('pointerenter',warm,{once:true});a.addEventListener('touchstart',warm,{once:true,passive:true});});
+  const warm=()=>{if(!blocked())booking().catch(()=>{});};const warmLinks=document.querySelectorAll('a[href="#consult"]');warmLinks.forEach(a=>{a.addEventListener('pointerenter',warm,{once:true});a.addEventListener('touchstart',warm,{once:true,passive:true});});if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{for(const e of es)if(e.isIntersecting){warm();io.unobserve(e.target);}});warmLinks.forEach(a=>io.observe(a));}
   showStage(0);route(false);
   if(previous)reveal();else openChooser(true);
 })();
