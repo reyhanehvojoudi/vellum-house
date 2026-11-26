@@ -1,0 +1,137 @@
+/* Royal Academia — single source of truth for the public entrance, founders and contact. */
+body.folio { position:relative; display:grid; grid-template-rows:auto minmax(0,1fr) auto; height:100vh; height:100dvh; overflow:hidden; }
+body.folio .mast { grid-row:1; position:relative; inset:auto; z-index:20; }
+body.folio main { grid-row:2; min-height:0; height:100%; width:100%; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; }
+body.folio .site-footer { grid-row:3; display:flex; justify-content:center; align-items:center; min-height:26px; padding:3px 10px; }
+body.folio.home-lock:not(.journey-scene) .mast { position:absolute; inset:0 0 auto; width:100%; background:linear-gradient(180deg,#081722dc,transparent); border:0; }
+body.folio.home-lock:not(.journey-scene) main { grid-row:1/3; }
+body.folio #home-views { min-height:100%; height:100%; width:100%; }
+/* Hidden always wins — no two chapters can occupy the screen together. */
+body.folio #intro[hidden], body.folio #journey[hidden], body.folio .founder-overlay[hidden], body.folio [data-stage-copy][hidden] { display:none!important; }
+body.folio #journey { min-height:100%; }
+body.folio:not(.journey-scene) #journey { display:none!important; }
+body.folio.journey-scene #intro { display:none!important; }
+body.folio.journey-scene #journey:not([hidden]) { display:block; }
+
+/* Entrance — a single full-bleed film, one clear reading order, compact bottom band. */
+body.folio #intro.hero.page { position:relative; isolation:isolate; display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto; align-content:safe center; justify-items:center; align-items:center; min-height:100%; height:auto; width:100%; max-width:none; margin:0; padding:calc(var(--mast-height,54px) + 14px) clamp(20px,5vw,80px) 20px; gap:clamp(16px,3.3dvh,36px); color:var(--ivory); background:var(--deep); text-align:center; }
+body.folio #intro .hero-film { position:absolute; inset:0; z-index:-1; margin:0; width:100%; height:100%; max-width:none; pointer-events:none; }
+body.folio #intro .film-frame,body.folio #intro .hero-picture { display:block; position:absolute; inset:0; width:100%; height:100%; overflow:hidden; margin:0; border:0; box-shadow:none; aspect-ratio:auto; }
+body.folio #intro .hero-poster,body.folio #intro .film-frame video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; max-width:none; filter:none; transform:none; pointer-events:none; }
+body.folio #intro .film-frame { z-index:auto; }
+body.folio #intro .film-frame::after { content:""; display:block; position:absolute; inset:0; background:linear-gradient(180deg,rgba(10,25,38,.62) 0%,rgba(10,25,38,.76) 42%,rgba(10,25,38,.82) 100%); pointer-events:none; }
+body.folio #intro .hero-film figcaption { display:none; }
+body.folio #intro .hero-copy { display:block; width:min(100%,1160px); max-width:none; margin:0; min-width:0; }
+body.folio #intro .hero-copy h1 { display:block; max-width:1000px; width:100%; margin:0 auto clamp(16px,3dvh,30px); font:600 clamp(30px,min(3.9vw,5.8dvh),58px)/1.12 var(--display); color:var(--ivory); text-align:center; text-wrap:balance; letter-spacing:0; }
+html[lang=fa] body.folio #intro .hero-copy h1 { font-size:clamp(25px,min(3.25vw,4.8dvh),49px); line-height:1.42; font-weight:700; }
+body.folio #intro .statement { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:center; gap:clamp(20px,3.6vw,48px); width:100%; max-width:none; margin:0; font:400 clamp(15px,1.2vw,18px)/1.58 var(--sans); color:var(--ivory); text-align:start; }
+html[lang=fa] body.folio #intro .statement { line-height:1.72; }
+body.folio #intro .hero-problem,body.folio #intro .hero-solution { min-width:0; width:100%; }
+body.folio #intro .hero-solution { border-inline-start:1px solid #c3a36b66; padding-inline-start:clamp(20px,3.6vw,48px); }
+body.folio #intro .statement p { display:block; max-width:none; max-inline-size:none; width:100%; margin:0; font:inherit; color:inherit; text-align:justify; text-align-last:start; }
+body.folio #intro .statement .turn { margin:0 0 7px; font:600 clamp(21px,2.05vw,31px)/1.24 var(--display); color:var(--gold); text-align:start; text-align-last:start; }
+html[lang=fa] body.folio #intro .statement .turn { font-size:clamp(19px,1.85vw,27px); line-height:1.45; }
+body.folio #intro .turn strong { color:var(--gold); font-weight:inherit; }
+body.folio #intro .hero-bottom { width:min(100%,1120px); min-width:0; margin:0; padding:clamp(12px,2dvh,24px) 0 0; border-top:1px solid #c3a36b66; display:grid; grid-template-columns:minmax(0,1fr); gap:clamp(10px,1.8dvh,18px); }
+body.folio #intro .credibility { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; max-width:1000px; margin:0 auto; gap:0; align-items:stretch; }
+body.folio #intro .metric { display:grid; grid-template-rows:auto 1fr; gap:4px; align-items:start; justify-items:center; min-width:0; margin:0; padding:0 clamp(6px,1.2vw,16px); border:0; text-align:center; }
+body.folio #intro .metric+.metric { border-inline-start:1px solid #c3a36b55; }
+body.folio #intro .metric-number { display:block; color:var(--gold); font:600 clamp(28px,4.8dvh,50px)/1.15 var(--display); white-space:nowrap; letter-spacing:0; font-variant-numeric:tabular-nums; }
+html[lang=fa] body.folio #intro .metric-number { font-family:var(--sans); font-size:clamp(27px,4.5dvh,46px); }
+body.folio #intro .metric span { display:block; width:100%; max-width:none; color:var(--ivory); font:400 clamp(12px,1.05vw,15px)/1.4 var(--sans); text-align:center; }
+body.folio #intro .hero-foot { display:grid; justify-items:center; gap:7px; width:100%; max-width:none; margin:0; padding:0; border:0; position:relative; z-index:2; }
+body.folio #intro .hero-foot .explore { display:inline-flex; width:auto; min-width:0; min-height:44px; margin:0; padding:8px 26px; font:600 clamp(14px,1.15vw,17px)/1.4 var(--sans); background:var(--gold); color:var(--deep); border:1px solid var(--gold); border-radius:2px; pointer-events:auto; cursor:pointer; text-decoration:none; }
+body.folio #intro .hero-foot .explore:hover { background:#e0c18a; }
+body.folio #intro .hero-foot small { display:block; width:100%; max-width:960px; margin:0; color:var(--ivory); font:500 clamp(12px,1.08vw,16px)/1.4 var(--sans); text-align:center; text-wrap:balance; }
+body.folio #intro .film-toggle { position:absolute; inset:auto 10px 8px auto; z-index:3; width:36px; height:36px; border-color:#f5f1e880; background:#0a1926bb; pointer-events:auto; }
+html[dir=rtl] body.folio #intro .film-toggle { inset:auto auto 8px 10px; }
+
+/* About Us — central introduction, equal portrait columns, aligned captions. */
+body.folio main[data-view=founders] .founders.page { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto auto; justify-items:center; align-content:safe center; gap:clamp(10px,2dvh,22px); width:100%; max-width:1160px; min-height:100%; margin:0 auto; padding:clamp(10px,2dvh,24px) clamp(16px,4vw,50px); text-align:center; }
+body.folio main[data-view=founders] .page-head { display:grid; justify-items:center; gap:6px; width:100%; max-width:1000px; margin:0 auto; padding:0; text-align:center; }
+body.folio main[data-view=founders] .page-head h1 { width:100%; max-width:none; margin:0; font:600 clamp(26px,min(3.5vw,5dvh),48px)/1.2 var(--display); text-align:center; }
+html[lang=fa] body.folio main[data-view=founders] .page-head h1 { line-height:1.4; font-weight:700; }
+body.folio main[data-view=founders] .about-intro { display:block; width:100%; max-width:980px; margin:0; padding:0; font:400 clamp(13px,1.1vw,16px)/1.5 var(--sans); text-align:center; }
+html[lang=fa] body.folio main[data-view=founders] .about-intro { line-height:1.6; }
+body.folio main[data-view=founders] .about-intro p { display:block; width:100%; max-width:none; max-inline-size:none; margin:0 auto; padding:0; text-align:center; text-align-last:center; }
+body.folio main[data-view=founders] .portrait-hint { display:block; width:100%; max-width:none; max-inline-size:none; margin:3px auto 0; color:var(--gold); font:500 clamp(12px,1.05vw,15px)/1.4 var(--sans); text-align:center; }
+body.folio main[data-view=founders] .founder-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:min(100%,850px); max-width:none; margin:0 auto; padding:0; border:0; gap:clamp(18px,4vw,64px); align-items:stretch; justify-items:stretch; }
+body.folio main[data-view=founders] .founder { display:grid; grid-template-rows:auto 1fr; justify-items:center; align-items:start; width:100%; min-width:0; margin:0; padding:0; border:0; gap:8px; text-align:center; }
+body.folio main[data-view=founders] .portrait-frame { display:block; position:relative; width:min(100%,clamp(168px,35dvh,330px)); max-width:none; min-width:0; height:auto; aspect-ratio:4/5; margin:0 auto; }
+body.folio main[data-view=founders] .portrait-toggle { position:relative; display:block; width:100%; height:100%; margin:0; padding:0; border:1px solid #c3a36b66; overflow:hidden; background:var(--deep); cursor:pointer; }
+body.folio main[data-view=founders] .founder .portrait { display:block; width:100%; max-width:none; height:100%; margin:0; object-fit:cover; object-position:center; }
+body.folio main[data-view=founders] .portrait-plus { position:absolute; inset:auto 8px 8px auto; display:grid; place-items:center; border:1px solid var(--gold); border-radius:50%; background:#0a1926c9; color:var(--gold); width:28px; height:28px; font:400 22px/1 var(--sans); }
+body.folio main[data-view=founders] .founder-caption { display:grid; grid-template-rows:auto 1fr auto; justify-items:center; align-items:start; width:100%; max-width:390px; height:100%; min-width:0; margin:0; gap:5px; text-align:center; }
+body.folio main[data-view=founders] .founder-caption h2 { display:block; width:100%; max-width:none; margin:0; font:600 clamp(20px,2.3vw,32px)/1.25 var(--display); text-align:center; }
+html[lang=fa] body.folio main[data-view=founders] .founder-caption h2 { line-height:1.45; }
+body.folio main[data-view=founders] .founder-role { display:block; width:100%; max-width:none; max-inline-size:none; margin:0; color:var(--gold); font:500 clamp(12px,1.03vw,15px)/1.48 var(--sans); text-align:center; text-align-last:center; }
+body.folio main[data-view=founders] .founder-caption .ink-link { display:inline-flex; align-items:center; justify-content:center; gap:6px; width:auto; min-height:32px; margin:0; color:var(--gold); font:500 13px/1.2 var(--sans); text-decoration:none; }
+body.folio main[data-view=founders] .founder-caption .ink-link:hover { text-decoration:underline; }
+body.folio main[data-view=founders] .linkedin { display:inline-grid; place-items:center; background:var(--gold); color:var(--deep); width:19px; height:19px; border-radius:2px; font:700 12px/1 Arial,sans-serif; }
+body.folio main[data-view=founders] .founder-overlay { position:absolute; inset:0; z-index:3; overflow:auto; overscroll-behavior:contain; background:#0a1926f5; border:1px solid var(--gold); padding:36px 12px 14px; scrollbar-width:thin; scrollbar-color:var(--gold) transparent; text-align:start; }
+body.folio main[data-view=founders] .founder-overlay .bio { width:100%; max-width:none; max-inline-size:none; margin:0 0 9px; font:400 clamp(12px,1.05vw,15px)/1.6 var(--sans); text-align:start; color:var(--ivory); }
+body.folio main[data-view=founders] .founder-overlay .expertise { color:var(--gold); }
+body.folio main[data-view=founders] .bio-close { position:absolute; inset-block-start:2px; inset-inline-end:4px; width:32px; height:32px; font-size:24px; background:transparent; border:0; color:var(--gold); cursor:pointer; }
+body.folio main[data-view=founders] .about-end { width:100%; max-width:none; max-inline-size:none; margin:0 auto; color:var(--gold); font:600 clamp(14px,1.5vw,21px)/1.4 var(--display); text-align:center; text-wrap:balance; }
+
+/* Contact — consistent icon baselines and unbroken central label. */
+body.folio main[data-view=contact] .contact.page { display:grid; grid-template-columns:minmax(0,1fr); align-content:safe center; justify-items:center; gap:clamp(24px,6dvh,58px); min-height:100%; width:100%; max-width:1120px; margin:0 auto; padding:24px clamp(12px,4vw,48px); text-align:center; }
+body.folio main[data-view=contact] .page-head { width:100%; max-width:none; margin:0; text-align:center; }
+body.folio main[data-view=contact] .page-head h1 { width:100%; margin:0; text-align:center; font:600 clamp(30px,4.5vw,56px)/1.4 var(--display); }
+body.folio main[data-view=contact] .contact-lines.icon-contacts { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr); align-items:stretch; width:min(100%,940px); max-width:none; margin:0 auto; padding:0; gap:0; border:0; }
+body.folio main[data-view=contact] .contact-icon { display:grid; grid-template-rows:64px auto 1fr; justify-items:center; align-items:start; width:100%; min-width:0; margin:0; padding:18px clamp(4px,1vw,14px); border:0; gap:12px; color:var(--ivory); text-decoration:none; text-align:center; }
+body.folio main[data-view=contact] .contact-icon+.contact-icon { border-inline-start:1px solid #c3a36b40; }
+body.folio main[data-view=contact] .contact-icon svg { display:block; width:64px; height:64px; margin:0 auto; color:var(--gold); transition:transform .2s; }
+body.folio main[data-view=contact] .contact-icon:hover svg { transform:translateY(-4px); }
+body.folio main[data-view=contact] .contact-icon h2 { display:block; width:100%; max-width:none; margin:0; font:600 clamp(16px,1.9vw,25px)/1.4 var(--display); text-align:center; white-space:nowrap; text-wrap:nowrap; overflow-wrap:normal; }
+body.folio main[data-view=contact] .contact-icon p { display:block; width:100%; max-width:none; max-inline-size:none; margin:0; color:var(--muted); font:400 clamp(12px,1.05vw,15px)/1.5 var(--sans); text-align:center; text-align-last:center; }
+body.folio main[data-view=contact] .contact-icon:hover h2 { color:var(--gold); }
+
+@media(max-width:760px) {
+ body.folio #intro.hero.page { padding:calc(var(--mast-height,54px) + 9px) clamp(12px,4vw,22px) 12px; gap:12px; }
+ body.folio #intro .hero-copy h1 { font-size:clamp(23px,6.4vw,35px); margin:0 auto 9px; }
+ html[lang=fa] body.folio #intro .hero-copy h1 { font-size:clamp(21px,5.7vw,31px); }
+ body.folio #intro .statement { grid-template-columns:minmax(0,1fr); gap:8px; font-size:clamp(13.5px,3.65vw,16px); line-height:1.48; }
+ html[lang=fa] body.folio #intro .statement { line-height:1.65; }
+ body.folio #intro .hero-solution { border:0; padding:0; }
+ body.folio #intro .statement p { text-align:start; text-align-last:auto; }
+ body.folio #intro .statement .turn,html[lang=fa] body.folio #intro .statement .turn { font-size:clamp(17px,4.6vw,23px); margin:0 0 4px; text-align:center; }
+ body.folio #intro .hero-bottom { padding:9px 0 0; gap:8px; }
+ body.folio #intro .metric { padding:0 4px; gap:3px; }
+ body.folio #intro .metric-number,html[lang=fa] body.folio #intro .metric-number { font-size:clamp(21px,6.1vw,32px); }
+ body.folio #intro .metric span { font-size:clamp(10.5px,2.85vw,13px); line-height:1.3; }
+ body.folio #intro .hero-foot { gap:5px; }
+ body.folio #intro .hero-foot small { font-size:11.5px; max-width:calc(100% - 44px); }
+ body.folio #intro .hero-foot .explore { font-size:14px; min-height:44px; padding:7px 18px; }
+ body.folio main[data-view=founders] .founders.page { gap:10px; padding:12px; }
+ body.folio main[data-view=founders] .page-head h1 { font-size:clamp(23px,6.4vw,32px); }
+ body.folio main[data-view=founders] .about-intro { font-size:clamp(13px,3.5vw,15px); }
+ body.folio main[data-view=founders] .founder-grid { gap:12px; }
+ body.folio main[data-view=founders] .portrait-frame { width:min(100%,clamp(120px,25dvh,230px)); }
+ body.folio main[data-view=founders] .founder-caption h2 { font-size:clamp(17px,4.8vw,23px); }
+ body.folio main[data-view=founders] .founder-role { font-size:clamp(11px,3vw,13px); }
+ body.folio main[data-view=founders] .about-end { font-size:14px; }
+ body.folio main[data-view=contact] .contact.page { padding:14px 6px; gap:30px; }
+ body.folio main[data-view=contact] .contact-lines.icon-contacts { grid-template-columns:minmax(0,1fr) minmax(0,1.85fr) minmax(0,1fr); }
+ body.folio main[data-view=contact] .contact-icon { grid-template-rows:44px auto 1fr; padding:8px 2px; gap:9px; }
+ body.folio main[data-view=contact] .contact-icon svg { width:40px; height:40px; }
+ body.folio main[data-view=contact] .contact-icon h2 { font-size:clamp(10.5px,3.1vw,16px); }
+ body.folio main[data-view=contact] .contact-icon p { font-size:clamp(10.5px,2.8vw,13px); }
+}
+@media(min-width:761px) and (max-height:700px) {
+ body.folio #intro.hero.page { padding-block-start:calc(var(--mast-height,54px) + 9px); padding-block-end:12px; gap:14px; }
+ body.folio #intro .hero-copy h1 { margin-bottom:12px; }
+ body.folio #intro .statement { line-height:1.5; }
+ html[lang=fa] body.folio #intro .statement { line-height:1.62; }
+ body.folio #intro .hero-bottom { padding-top:10px; gap:9px; }
+ body.folio main[data-view=founders] .founders.page { gap:9px; padding-block:10px; }
+ body.folio main[data-view=founders] .portrait-frame { width:min(100%,clamp(160px,34dvh,238px)); }
+}
+@media(max-width:760px) and (max-height:720px) {
+ body.folio #intro.hero.page { gap:7px; padding-block-end:8px; }
+ body.folio #intro .statement { font-size:clamp(13px,3.5vw,14.5px); line-height:1.43; gap:5px; }
+ html[lang=fa] body.folio #intro .statement { line-height:1.5; }
+ body.folio #intro .hero-copy h1 { margin-bottom:6px; }
+ body.folio #intro .hero-bottom { padding-top:6px; gap:6px; }
+}
+@media(prefers-reduced-motion:reduce){body.folio main[data-view=contact] .contact-icon svg{transition:none}}

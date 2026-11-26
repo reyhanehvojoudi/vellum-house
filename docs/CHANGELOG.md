@@ -25,3 +25,9 @@
 - Changed only index.html, en.html, assets/house.js, assets/royal.css and documentation/tests. Backend, booking, media and dashboard remain unchanged.
 - Mobile Golden Path now uses a separate horizontal six-point SVG with alternating label positions. Shared segment endpoints define the node geometry, with RTL mirroring retained.
 - Refreshed CSS and JavaScript cache-busting identifiers for GitHub Pages.
+
+## Integrated layout repair — 2026-11-26
+- Rebuilt the entrance, founders and contact styling into `assets/royal-scenes.css`; removed 525 obsolete scene selectors from the accumulated layout stylesheet, plus remaining legacy compound page-head rules.
+- Navigation commits the new hash and active scene synchronously before a cosmetic fade. Hidden scene rules take priority over display declarations. Root language selection, manual six-step journey, contact links, and founder overlays retained.
+- Both public HTML files reference the matching revised assets with new content-based version strings. No text, media, backend, dashboard or API configuration changed from the latest complete revision.
+- Added isolated navigation regression check. Browser navigation remains blocked by environment policy. No screenshots or viewport-fit claims are made.

@@ -1,0 +1,383 @@
+/* Shared Royal Academia rules: header, navigation, journey, booking, dialogs.
+   Three public scenes are owned exclusively by royal-scenes.css. */
+:root{--navy:#102637;--deep:#0A1926;--gold:#C3A36B;--ivory:#F5F1E8;--paper:#F5F1E8;--white:#fff;--line:#a18c634d;--muted:#c5ced0;--bronze:#C3A36B;--sans:"Inter","DM Sans",Arial,sans-serif;--display:"Cormorant Garamond","Georgia",serif;--pad:clamp(18px,4vw,64px);--body:16px;--lead:1.65;--h1:clamp(32px,4.2vw,62px);--h2:clamp(26px,3.2vw,46px);--small:14px;--width:78rem;color-scheme:dark;background:var(--deep)}
+html[lang=fa]{--sans:"Dana",Vazirmatn,Tahoma,sans-serif;--display:var(--sans);--body:16px;--lead:1.9;--h1:clamp(28px,3.5vw,52px);--h2:clamp(24px,2.8vw,39px)}
+body.folio{margin:0;height:100svh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:var(--navy);color:var(--ivory);font-family:var(--sans);font-size:var(--body);line-height:var(--lead);overflow:hidden}
+.folio *{box-sizing:border-box}
+.folio h1,
+.folio h2{font-family:var(--display);font-weight:600;color:var(--ivory);line-height:1.15;letter-spacing:0}
+.folio h1{font-size:var(--h1)}
+.folio h2{font-size:var(--h2)}
+html[lang=fa] .folio h1,
+html[lang=fa] .folio h2{line-height:1.55;font-weight:700}
+.folio h1 em,
+.folio h2 em{color:inherit;text-decoration:none;font:inherit}
+.folio a:focus-visible,
+.folio button:focus-visible,
+.folio input:focus-visible,
+.folio select:focus-visible,
+.folio textarea:focus-visible{outline:2px solid #F5F1E8;outline-offset:3px}
+.folio .kicker{color:var(--gold);font-size:12px;letter-spacing:.15em;text-transform:uppercase;justify-content:center;margin:0 0 8px}
+.folio .kicker::before{background:var(--gold);width:26px}
+.folio .spine,
+.folio .thread-sweep,
+.folio .footer-index{display:none}
+.folio .mast,
+.folio.home-lock .mast{position:relative;inset:auto;background:var(--navy);border-bottom:1px solid var(--line);z-index:20}
+.folio .mast-inner{max-width:1500px;display:grid;grid-template-columns:1fr auto 1fr auto;align-items:center;gap:18px;padding:10px var(--pad);min-height:72px}
+.folio .wordmark{grid-column:2;display:flex;justify-self:center;gap:8px}
+.folio .wordmark img{width:44px;height:44px;object-fit:contain}
+.folio .brand-lock b{font:600 26px/1 var(--display);color:var(--ivory)}
+.folio .brand-lock small{font:500 11px/1.2 var(--sans);color:var(--gold);letter-spacing:.06em}
+.folio .menu-toggle{grid-column:1;grid-row:1;justify-self:start;display:flex;align-items:center;min-height:44px;padding:4px 8px;border:0;background:transparent;color:var(--ivory);font-size:15px;white-space:nowrap}
+.folio .language-control{justify-self:end;color:var(--ivory);white-space:nowrap}
+.folio .mast .btn{font-size:13px;min-height:42px;padding:8px 14px;justify-self:end}
+.folio .mast .short-cta{display:none}
+.folio .mast nav{display:flex!important;position:fixed;top:0;bottom:0;inset-inline-start:0;width:min(370px,88vw);padding:32px;flex-direction:column;align-items:stretch;justify-content:flex-start;background:var(--deep);border-inline-end:1px solid var(--gold);z-index:40;gap:25px;transform:translateX(-105%);visibility:hidden;transition:transform .38s ease,visibility .38s;box-shadow:0 0 60px #0006;overflow:auto}
+.folio .mast.menu-open nav{transform:translateX(0);visibility:visible}
+html[dir=rtl] .folio .mast nav{transform:translateX(105%)}
+html[dir=rtl] .folio .mast.menu-open nav{transform:translateX(0)}
+.folio .nav-links{display:flex;flex-direction:column;gap:10px}
+.folio .nav-links a{font:600 26px/1.35 var(--display);color:var(--ivory);padding:12px 0;border-bottom:1px solid var(--line)}
+.folio .menu-close{align-self:end;color:var(--gold);font-size:30px;background:transparent;border:0;width:44px;height:44px}
+.folio .menu-shade{position:fixed;inset:0;z-index:30;border:0;background:#030d16bb;cursor:pointer}
+.folio .menu-shade[hidden]{display:none}
+.folio main,
+.folio.home-lock main{height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;background:radial-gradient(ellipse at 50% 20%,#1a3546 0,var(--navy) 45%,var(--deep) 100%);scrollbar-width:thin;scrollbar-color:#9f8758 transparent}
+.folio .page{width:100%;max-width:1320px;margin:auto;padding:clamp(20px,3vh,44px) var(--pad)}
+.folio #journey{display:none}
+.folio.journey-scene #journey{display:block}
+.folio .btn.gold,
+.folio .btn.solid,
+.folio .explore{background:var(--gold);color:var(--navy);border:1px solid var(--gold);font-weight:700;border-radius:2px;min-height:44px;text-decoration:none;justify-content:center}
+.folio .btn.gold:hover,
+.folio .btn.solid:hover,
+.folio .explore:hover{background:#e0c18a;color:var(--deep)}
+.folio .btn.outline{border:1px solid var(--gold);color:var(--ivory);background:transparent}
+.folio .btn.outline:hover{background:var(--gold);color:var(--deep)}
+.folio .journey-shell{min-height:100%}
+.folio .journey.page{display:flex;flex-direction:column;align-items:stretch;justify-content:center;min-height:100%;gap:12px;max-width:1120px}
+.folio .journey-back{color:var(--gold);font-size:14px;text-decoration:none;align-self:start;min-height:36px;display:flex;align-items:center}
+.folio .journey-heading{text-align:center}
+.folio .journey-heading h2{font-size:clamp(32px,4vw,56px);text-align:center}
+.folio .journey-heading p{margin:6px auto;color:#c6d0d3}
+.folio .journey-pause{font:500 13px/1.3 var(--sans);color:var(--gold);background:transparent;border:1px solid var(--line);padding:8px 14px;min-height:40px;margin:6px auto 0}
+.folio .journey-map{background:transparent;margin:0;overflow:visible}
+.folio .map-grid{display:none}
+.folio .route-canvas{position:relative;height:clamp(140px,25vh,230px);margin:0 20px 12px}
+.royal-route{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.royal-route.mobile{display:none}
+html[dir=rtl] .royal-route{transform:scaleX(-1)}
+.royal-route path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.royal-route .route-base{stroke:#7a745e;stroke-width:1.5}
+.royal-route .route-fill{stroke:var(--gold);stroke-width:2.5;stroke-dasharray:100;stroke-dashoffset:100}
+.route-light{fill:#fff2d0;filter:drop-shadow(0 0 5px #ffe7ad)}
+.folio .stage-node{position:absolute;inset-inline-start:var(--x);top:var(--y);width:16%;height:44px;transform:translate(-50%,-50%);border:0;display:grid;place-items:center;background:transparent;color:var(--ivory);z-index:2}
+.folio[dir=rtl] .stage-node,
+html[dir=rtl] .folio .stage-node{transform:translate(50%,-50%)}
+.folio .stage-node i{width:27px;height:27px;border:1px solid var(--gold);color:var(--ivory);background:var(--navy);border-radius:50%;font:500 12px/1 var(--sans);font-style:normal}
+.folio .stage-node[aria-pressed=true] i{background:var(--gold);color:var(--deep);outline:1px solid var(--gold);outline-offset:4px}
+.folio .stage-node.passed i{background:#746543}
+.folio .stage-node span{font-size:14px;top:calc(50% + 18px);color:#e1ddcf;width:110%;line-height:1.3}
+.folio .stage-node[aria-pressed=true] span{color:var(--gold);font-weight:700}
+.folio .stage-detail{background:transparent;border:0;border-top:1px solid var(--line);padding:18px 0;gap:20px;align-items:center;grid-template-columns:44px minmax(0,1fr) 44px}
+.folio .stage-copy{text-align:center;min-height:130px}
+.folio .stage-count{color:var(--gold);font-size:12px;letter-spacing:.08em}
+.folio .stage-copy h2{font-size:clamp(26px,3vw,42px);text-align:center;margin:4px auto 8px}
+.folio .stage-copy p{color:#d2dadd;max-width:70ch;margin:0 auto}
+.folio .arrow{border-color:var(--gold);color:var(--gold);width:44px;height:44px;background:transparent}
+.folio .arrow:hover:enabled{background:var(--gold);color:var(--deep)}
+.folio .destination-cta{margin-top:15px}
+.folio .stage-copy article:not([hidden]){animation:copy-in .45s ease both}
+@keyframes copy-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.folio .booking-layout{min-height:100%;align-content:start}
+.folio .page-head{max-width:none;margin:0 auto;text-align:center}
+.folio .page-head h1{text-align:center}
+.folio .ink-link{color:var(--gold)}
+.folio .booking-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:clamp(20px,4vw,60px)}
+.folio .side-intro h1{font-size:clamp(32px,4.2vw,60px)}
+.folio .side-intro .kicker{justify-content:flex-start}
+.folio .side-intro>p,
+.folio .parent-note,
+.folio .help,
+.folio .subtle,
+.folio .privacy,
+.folio .facts{color:#d2dadd}
+.folio .side-intro>p:not(.kicker):not(.parent-note){font-size:17px;color:#d2dadd}
+.folio .paper{background:#142d3e;color:var(--ivory);border:1px solid var(--line);padding:clamp(16px,2.6vw,35px);box-shadow:none}
+.folio .fields label{color:var(--ivory);font-size:15px}
+.folio input:not([type=checkbox]),
+.folio select,
+.folio textarea{background-color:var(--deep);color:var(--ivory);border:1px solid #75838c;font-size:16px;min-height:46px}
+.folio select{background-image:none;appearance:auto}
+.folio input[type=checkbox]{accent-color:var(--gold)}
+.folio .status{color:#d5e8d7}
+.folio .status.error,
+.folio .error{color:#ffc4b8}
+.folio .day,
+.folio .time-choice{background:var(--deep);border:1px solid #829199;color:var(--ivory)}
+.folio .day:disabled{background:transparent;color:#9aa9ad;border-color:transparent}
+.folio .day[aria-pressed=true],
+.folio .time-choice[aria-pressed=true]{background:var(--gold);color:var(--deep);border-color:var(--gold)}
+.folio .weekday{color:#c3cdd0}
+.folio .site-footer,
+.folio.home-lock .site-footer{display:flex;justify-content:center;align-items:center;gap:9px;min-height:30px;padding:4px 12px;background:var(--deep);border-top:1px solid var(--line);color:#c3c9c9;font-size:11px}
+.folio .site-footer img{width:18px;height:18px}
+.folio .site-footer a,
+.folio .footer-lang{font-size:11px;min-height:24px;color:#d9d4c5}
+.folio .footer-lang{border:0;background:transparent}
+.folio .site-footer .footer-index{display:none}
+.folio dialog{background:var(--navy);color:var(--ivory);border:1px solid var(--gold);width:min(92vw,430px)}
+.folio .language-paper{padding:32px;text-align:center}
+.folio .gate-brand{display:flex;justify-content:center;gap:12px;align-items:center;margin:0 auto 25px}
+.folio .gate-brand img{margin:0;width:50px;height:50px}
+.folio .language-paper h2[lang=en]{font:600 34px/1.15 "Cormorant Garamond",Georgia,serif;text-align:center;color:var(--ivory)}
+.folio .language-paper p[lang=fa]{font:500 22px/1.8 "Dana",Vazirmatn,Tahoma,sans-serif;text-align:center;color:var(--ivory);margin:10px auto}
+.folio .language-choices button{background:var(--gold);color:var(--navy);border:1px solid var(--gold);text-align:center!important}
+.folio .language-choices button:lang(fa){font-family:"Dana",Vazirmatn,Tahoma,sans-serif}
+.folio .language-choices button:lang(en){font-family:"Inter","DM Sans",Arial,sans-serif}
+.folio #dismiss-language{color:var(--gold)}
+@media(max-width:900px){
+.folio .mast-inner{grid-template-columns:1fr auto 1fr;gap:8px;min-height:62px;padding:8px 16px}
+.folio .mast .btn{display:none}
+.folio .mast .nav-cta{display:flex}
+.folio .booking-layout{grid-template-columns:1fr}
+.folio .side-intro h1{font-size:40px}
+}
+@media(max-width:600px){
+.folio .mast-inner{padding:6px 12px;gap:5px}
+.folio .wordmark img{width:32px;height:32px}
+.folio .brand-lock b{font-size:21px}
+.folio .brand-lock small{font-size:9px}
+.folio .menu-toggle{font-size:13px;padding:0;min-height:44px}
+.folio .language-control{font-size:13px;gap:3px}
+.folio .language-control svg{width:15px}
+.folio .page{padding:22px 18px}
+.folio .site-footer>span:not(.footer-index),
+.folio .site-footer img{display:none}
+.folio .site-footer{min-height:28px}
+.folio .journey.page{gap:8px}
+.folio .journey-heading h2{font-size:30px}
+.folio .journey-heading p{font-size:14px}
+.folio .journey-pause{margin-top:1px}
+.folio .route-canvas{height:265px;max-width:340px;margin:0 auto;width:100%}
+.royal-route.desktop{display:none}
+.royal-route.mobile{display:block}
+.folio .stage-node{inset-inline-start:var(--mx);top:var(--my);width:44px;height:44px}
+.folio .stage-node span{top:50%;transform:translateY(-50%);inset-inline-start:calc(50% + 22px);width:160px;text-align:start;font-size:15px}
+.folio .stage-detail{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:5px;padding:12px 0}
+.folio .stage-copy{grid-column:2;grid-row:1;min-height:0}
+.folio .stage-copy h2{font-size:25px}
+.folio .stage-copy p{font-size:15px}
+.folio .stage-detail .arrow.left{grid-row:1;grid-column:1}
+.folio .stage-detail .arrow.right{grid-row:1;grid-column:3}
+.folio .fields{grid-template-columns:1fr}
+.folio .side-intro h1{font-size:34px}
+.folio .booking-layout{gap:20px}
+.folio .paper{padding:16px}
+.folio .language-paper{padding:24px}
+.folio .language-paper h2[lang=en]{font-size:29px}
+}
+@media(max-height:600px) and (min-width:601px){
+.folio .journey.page{justify-content:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+.folio *,
+.folio *::before,
+.folio *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+.folio .journey-shell{height:100%;min-height:100%;padding:0;background:transparent}
+.folio .route-canvas{display:block}
+.folio .route-canvas::before{content:none}
+.folio .stage-node{min-height:44px;padding:0;gap:0}
+.folio .stage-node span{position:absolute}
+.folio .stage-detail{color:var(--ivory);box-shadow:none}
+.folio .language-paper{background:var(--navy)}
+.folio .language-control [lang=fa]{font-family:"Dana",Vazirmatn,Tahoma,sans-serif}
+.folio .language-control [lang=en]{font-family:"Inter","DM Sans",Arial,sans-serif}
+.folio .journey-back{margin:0}
+.folio .journey-pause:disabled{opacity:.6}
+.folio .linkedin{background:var(--gold);color:var(--navy)}
+.folio .header-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;grid-column:3;grid-row:1}
+.folio .mast-inner{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.folio .mast nav .nav-cta{display:flex;justify-self:stretch;margin-top:14px}
+.folio .menu-open nav .nav-links a{min-height:44px}
+.folio .site-footer a{white-space:normal}
+.folio .stage-node span{overflow-wrap:normal}
+.folio .journey-heading p{max-width:none}
+@media(max-width:900px){
+.folio .header-actions{gap:0}
+.folio .header-actions .btn{display:none}
+.folio .mast nav .nav-cta{display:flex}
+.folio .journey-shell{min-height:100%}
+}
+@media(max-width:600px){
+.folio .stage-node span{position:absolute;overflow-wrap:normal;white-space:normal;width:min(160px,50vw)}
+.folio .journey-heading h2{font-size:30px}
+.folio .journey-back{min-height:44px}
+.folio .stage-detail .arrow.left,
+.folio .stage-detail .arrow.right{justify-self:center}
+.folio .stage-copy h2{font-size:25px}
+.folio .header-actions{min-width:0}
+.folio .wordmark{gap:5px}
+.folio .brand-lock b{font-size:clamp(17px,5.1vw,21px)}
+.folio .brand-lock small{font-size:9px}
+}
+.folio .brand-lock b{font-family:"Cormorant Garamond",Georgia,serif}
+.folio .brand-lock small{font-family:Inter,"DM Sans",Arial,sans-serif}
+.folio .stage-node{justify-content:center;align-content:center;justify-items:center}
+.folio .stage-node i{margin:auto}
+.folio .stage-node span{margin:0}
+.folio .mast .menu-toggle:hover,
+.folio .language-control:hover{color:var(--gold)}
+.folio{--chrome-h:54px}
+.folio .mast,
+.folio.home-lock .mast{background:var(--deep);border-bottom:1px solid #c3a36b30;box-shadow:none}
+.folio .mast-inner{min-height:54px;padding:4px clamp(12px,3vw,40px);gap:8px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.folio .wordmark{gap:6px}
+.folio .wordmark img{width:30px;height:30px}
+.folio .brand-lock b{font-size:21px;font-weight:500}
+.folio .brand-lock small{font-size:9px;font-weight:400;letter-spacing:.03em}
+.folio .menu-toggle{padding:0 7px;min-height:44px;min-width:44px;justify-content:center;color:var(--ivory)}
+.folio .header-actions{gap:12px;min-width:0}
+.folio .header-consult{color:var(--gold);font:500 12px/1.35 var(--sans);text-decoration:none;border:0;background:none;text-align:center;white-space:normal;display:flex;align-items:center;min-height:44px}
+.folio .header-consult:hover{text-decoration:underline}
+.folio .language-control{font-size:12px;font-weight:400;min-height:44px;padding:0;gap:4px}
+.folio .language-control svg{width:15px;height:15px}
+.folio .mast nav{width:min(310px,86vw);padding:20px 22px;gap:14px;border-inline-end-color:#c3a36b50}
+.folio .nav-links{gap:2px}
+.folio .nav-links a{font:500 21px/1.3 var(--display);padding:10px 0;border-bottom:1px solid #c3a36b24}
+.folio .mast nav .nav-cta{font-size:12px;min-height:40px;margin-top:8px}
+.folio .menu-close{font-size:24px}
+.folio .site-footer,
+.folio.home-lock .site-footer{min-height:26px;padding:0 10px;gap:6px;font-size:10px}
+.folio .site-footer a,
+.folio .footer-lang{font-size:10px;min-height:24px}
+.folio .site-footer img{width:15px;height:15px}
+.folio main{grid-row:2}
+.folio .mast{grid-row:1}
+.folio .site-footer{grid-row:3}
+.folio .stage-copy p,
+.folio .side-intro>p:not(.kicker),
+.folio .privacy p,
+.folio .parent-note{text-align:justify;text-align-last:start;hyphens:auto}
+html[lang=fa] .folio p{hyphens:none}
+.folio .stage-copy p{max-width:65ch}
+.folio .stage-copy h2{margin:3px auto 6px}
+.folio .journey.page{min-height:100%;height:auto;gap:clamp(5px,1vh,12px);padding-block:clamp(8px,2vh,24px)}
+.folio .journey-heading h2{margin:0;font-size:clamp(27px,3.7vw,49px)}
+.folio .journey-heading p{margin:2px auto}
+.folio .journey-pause{min-height:34px;margin:3px auto 0;padding:5px 12px}
+.folio .journey-back{min-height:32px}
+.folio .route-canvas{flex:none;height:clamp(105px,23vh,200px);margin-block:0 8px}
+.folio .stage-detail{padding:10px 0 0;gap:12px}
+.folio .stage-copy{min-height:0}
+.folio .stage-copy h2{font-size:clamp(24px,3vw,38px)}
+.folio .stage-copy p{font-size:15px;line-height:1.55}
+.folio .destination-cta{margin-top:7px}
+.folio .stage-node,
+.folio[dir=rtl] .stage-node,
+html[dir=rtl] .folio .stage-node{position:absolute!important;inset:auto!important;left:var(--x)!important;top:var(--y)!important;transform:translate(-50%,-50%)!important;width:44px;height:44px;min-height:44px;padding:0!important;display:block!important;box-sizing:border-box}
+.folio .stage-node i{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);margin:0!important;display:grid;place-items:center}
+.folio .stage-node span{position:absolute;inset:calc(50% + 19px) auto auto 50%;transform:translateX(-50%);width:clamp(80px,12vw,150px);text-align:center;line-height:1.2;font-size:13px}
+.folio .royal-route .route-fill{stroke-linecap:butt;stroke-dasharray:none;stroke-dashoffset:0;visibility:hidden}
+.folio .royal-route .route-light{visibility:hidden}
+.folio .royal-route.ready .route-fill,
+.folio .royal-route.ready .route-light{visibility:visible}
+.folio .royal-route{transform:none!important}
+@media(max-width:600px){
+.folio .mast-inner{gap:4px;min-height:52px;padding:3px 8px;grid-template-columns:44px minmax(0,1fr) auto}
+.folio .wordmark{justify-self:center;gap:4px}
+.folio .wordmark img{width:25px;height:25px}
+.folio .brand-lock b{font-size:clamp(14px,4vw,18px)}
+.folio .brand-lock small{display:none}
+.folio .header-actions{gap:6px}
+.folio .header-consult{font-size:10px;max-width:61px;line-height:1.15}
+.folio .language-control{font-size:10px;gap:2px}
+.folio .language-control svg{display:none}
+.folio .journey.page{padding:6px 12px;gap:3px}
+.folio .journey-heading h2{font-size:27px}
+.folio .journey-heading p{font-size:12px;line-height:1.3}
+.folio .journey-back{min-height:30px;font-size:12px}
+.folio .journey-pause{font-size:11px;min-height:30px;padding:4px 8px}
+.folio .route-canvas{height:clamp(168px,31vh,248px);width:100%;max-width:300px;margin:0 auto}
+.folio .stage-node,
+.folio[dir=rtl] .stage-node,
+html[dir=rtl] .folio .stage-node{left:var(--mx)!important;top:var(--my)!important}
+.folio .stage-node i{width:22px;height:22px;font-size:10px}
+.folio .stage-node[aria-pressed=true] i{outline-offset:2px}
+.folio .stage-node span{inset:50% auto auto calc(50% + 18px);transform:translateY(-50%);width:clamp(90px,45vw,155px);text-align:start;font-size:13px}
+.folio .stage-detail{padding:5px 0 0;gap:4px;grid-template-columns:36px minmax(0,1fr) 36px}
+.folio .stage-copy h2{font-size:22px;line-height:1.2}
+.folio .stage-copy p{font-size:13px;line-height:1.45;text-align:start}
+.folio .stage-count{font-size:10px}
+.folio .arrow{width:36px;height:36px;min-width:36px;min-height:36px}
+.folio .site-footer{gap:5px}
+}
+html[dir=rtl] .folio .royal-route{transform:scaleX(-1)!important}
+html[dir=rtl] .folio .stage-node{left:calc(100% - var(--x))!important}
+@media(max-width:600px){
+html[dir=rtl] .folio .stage-node{left:calc(100% - var(--mx))!important}
+html[dir=rtl] .folio .stage-node span{inset:50% calc(50% + 18px) auto auto;transform:translateY(-50%);text-align:start}
+}
+@media(max-height:650px){
+.folio .journey-heading h2{font-size:25px}
+.folio .journey-heading p{font-size:12px}
+.folio .stage-copy h2{font-size:22px}
+.folio .stage-copy p{font-size:13px}
+.folio .route-canvas{height:clamp(125px,28vh,175px)}
+}
+.folio .royal-route.ready .route-fill{visibility:hidden}
+.folio .royal-route .route-segment{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linecap:butt;vector-effect:non-scaling-stroke}
+.folio .header-consult{background:var(--gold);color:var(--deep);font-weight:700;padding:7px 13px;border:1px solid var(--gold);border-radius:2px;min-height:40px;max-width:none;text-decoration:none;line-height:1.2;box-shadow:0 2px 12px #0002}
+.folio .header-consult:hover{background:#e0c18a;text-decoration:none}
+.folio .stage-copy p{text-align:justify;text-align-last:start;max-width:88ch}
+.folio .stage-copy p strong{font-weight:600;color:var(--ivory)}
+.folio .journey.page{min-height:100%;gap:8px}
+.folio .stage-copy{min-height:0}
+@media(max-width:700px){
+.folio .mast-inner{grid-template-columns:36px minmax(0,1fr) auto;padding-inline:6px;gap:4px}
+.folio .header-actions{gap:5px}
+.folio .header-consult{font-size:10px;max-width:115px;padding:6px 8px;min-height:38px}
+.folio .wordmark img{width:24px;height:24px}
+.folio .brand-lock b{font-size:clamp(13px,3.7vw,17px)}
+.folio .stage-copy p{text-align:start;line-height:1.45}
+.folio .journey-heading h2{font-size:26px}
+.folio .route-canvas{height:clamp(150px,27vh,225px)}
+}
+.folio #journey{min-height:100%}
+.folio .journey.page{min-height:100%}
+html.language-entry .folio:not(:has(#language-dialog[open])) #main,
+html.language-entry .folio:not(:has(#language-dialog[open])) .mast,
+html.language-entry .folio:not(:has(#language-dialog[open])) .site-footer{visibility:hidden}
+html.language-entry .folio #language-dialog::backdrop{background:#0A1926}
+.folio #language-dialog .language-choices button{border-color:var(--gold);color:var(--gold);background:var(--deep);font-weight:600}
+.folio #language-dialog .language-choices button:hover,
+.folio #language-dialog .language-choices button:focus-visible{background:var(--gold);color:var(--deep)}
+.folio .site-footer>span:not(.footer-index),
+.folio .site-footer img{display:inline-block}
+.folio .site-footer,
+.folio.home-lock .site-footer{min-height:26px;padding:3px 10px;gap:6px;text-align:center}
+@media(max-width:700px){
+.folio .journey-map{width:100%;overflow:visible}
+.folio .route-canvas{position:relative;width:100%;max-width:none;height:clamp(116px,20vh,164px);margin:8px auto 4px}
+.folio .royal-route.desktop{display:none!important}
+.folio .royal-route.mobile{display:block!important}
+.folio .stage-node{left:var(--mx)!important;top:var(--my)!important;transform:translate(-50%,-50%)!important;width:44px;height:44px}
+html[dir=rtl] .folio .stage-node{left:calc(100% - var(--mx))!important;top:var(--my)!important;transform:translate(-50%,-50%)!important}
+.folio .stage-node i{width:23px;height:23px;font-size:11px}
+.folio .stage-node span,
+html[dir=rtl] .folio .stage-node span{inset:auto auto auto 50%;top:calc(50% + 16px);width:clamp(54px,19vw,92px);transform:translateX(-50%);font-size:clamp(10px,2.8vw,13px);line-height:1.25;text-align:center;overflow-wrap:normal;white-space:normal}
+.folio .stage-node:nth-of-type(even) span,
+html[dir=rtl] .folio .stage-node:nth-of-type(even) span{top:auto;bottom:calc(50% + 16px)}
+.folio .stage-copy p{font-size:clamp(15px,3.9vw,17px);line-height:1.65}
+html[lang=fa] .folio .stage-copy p{line-height:1.85}
+}
+body.folio{grid-template-rows:auto minmax(0,1fr) auto;}
+body.folio .mast{grid-row:1;}
+body.folio main{grid-row:2;min-height:0;height:100%;overflow-y:auto;overflow-x:hidden;}
+body.folio .site-footer{grid-row:3;min-height:26px;}
+body.folio:not(.journey-scene) #journey{display:none!important;}
+body.folio.journey-scene #journey{display:block!important;}
+@media(max-width:760px){
+}
