@@ -14,7 +14,7 @@
     const back=document.createElement('a');back.className='journey-back';back.href='#intro';back.textContent=fa?'بازگشت به ابتدا':'Back to the beginning';
     journey.querySelector('.journey').prepend(back);
   }
-  const mast=document.querySelector('.mast');new ResizeObserver(()=>document.documentElement.style.setProperty('--mast-height',mast.offsetHeight+'px')).observe(mast);
+  const mast=document.querySelector('.mast');const menu=mast.querySelector('.menu-toggle');const closeMenu=()=>{mast.classList.remove('menu-open');menu.setAttribute('aria-expanded','false')};menu.addEventListener('click',()=>{const open=mast.classList.toggle('menu-open');menu.setAttribute('aria-expanded',String(open))});mast.querySelector('nav').addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});new ResizeObserver(()=>document.documentElement.style.setProperty('--mast-height',mast.offsetHeight+'px')).observe(mast);
   const cache=new Map([['home',home]]);
   const aliases={method:'journey',approach:'journey',pathways:'journey',services:'journey',people:'founders',about:'founders',consultation:'consult',terms:'intro'};
   let view='', stage=0, bookingModule, chosen=false, switching=false, manualPause=false, canSeeFilm=false, animation;
@@ -35,7 +35,7 @@
       video.load();
     }
     video.muted=true;
-    const attempt=()=>video.play().catch(filmButton);
+    const attempt=()=>{if(chosen&&!dialog.open&&!document.hidden&&view==='home'&&canSeeFilm&&!manualPause&&!blocked()&&!document.body.classList.contains('journey-scene'))video.play().catch(filmButton);};
     if(video.readyState>=2) attempt();
     else video.addEventListener('canplay',attempt,{once:true});
   }
@@ -70,7 +70,7 @@
     animation=requestAnimationFrame(draw);
   }
   function scrollHome(name,animate=false) {
-    const y=name==='journey'?journey.getBoundingClientRect().top+scrollY-document.querySelector('.mast').offsetHeight:0;
+    const y=0;
     window.scrollTo({top:y,behavior:animate && !reduced.matches?'smooth':'instant'});
   }
   // Keep the home experience to one viewport: wheel and swipe gestures
@@ -81,9 +81,9 @@
     const next=direction>0?'journey':'intro';
     if(location.hash!==`#${next}`){gestureLocked=true;history.pushState(null,'',`#${next}`);route(true,true);setTimeout(()=>gestureLocked=false,650);}
   }
-  window.addEventListener('wheel',event=>{if(view!=='home'||!chosen||dialog.open||Math.abs(event.deltaY)<8)return;const active=document.querySelector(document.body.classList.contains('journey-scene')?'#journey':'#intro');if(active&&((event.deltaY>0&&active.scrollTop+active.clientHeight<active.scrollHeight-2)||(event.deltaY<0&&active.scrollTop>2)))return;event.preventDefault();sceneStep(event.deltaY);},{passive:false});
+  window.addEventListener('wheel',event=>{if(view!=='home'||!chosen||dialog.open||Math.abs(event.deltaY)<12)return;const atBottom=scrollY+innerHeight>=document.documentElement.scrollHeight-3;if((event.deltaY>0&&atBottom&&!document.body.classList.contains('journey-scene'))||(event.deltaY<0&&scrollY<=0&&document.body.classList.contains('journey-scene'))){event.preventDefault();sceneStep(event.deltaY);}}, {passive:false});
   window.addEventListener('touchstart',event=>{touchStart=event.touches[0].clientY;},{passive:true});
-  window.addEventListener('touchend',event=>{const delta=touchStart-event.changedTouches[0].clientY;if(Math.abs(delta)>36){const active=home.querySelector(document.body.classList.contains('journey-scene')?'#journey':'#intro');if((delta>0&&active.scrollTop+active.clientHeight>=active.scrollHeight-2)||(delta<0&&active.scrollTop<=2))sceneStep(delta);}},{passive:true});
+  window.addEventListener('touchend',event=>{if(view!=='home'||dialog.open)return;const delta=touchStart-event.changedTouches[0].clientY;if(delta>50&&scrollY+innerHeight>=document.documentElement.scrollHeight-3&&!document.body.classList.contains('journey-scene'))sceneStep(1);else if(delta< -50&&scrollY<=0&&document.body.classList.contains('journey-scene'))sceneStep(-1);},{passive:true});
   function markNav(name) {
     document.querySelectorAll('.mast a[href^="#"]').forEach(a=>{
       const match=a.hash==='#'+name || (name==='calendar' && a.hash==='#consult');
@@ -103,7 +103,7 @@
     if(page==='home'){
       if(focus && name==='journey')journey.focus({preventScroll:true});
       else if(focus)main.focus({preventScroll:true});
-      if(name!=='journey') requestAnimationFrame(()=>{if(view==='home')scrollHome('intro',animate);});
+      requestAnimationFrame(()=>{if(view==='home')scrollHome('intro',animate);});
     } else {
       if(focus)main.focus({preventScroll:true});
       window.scrollTo({top:0,behavior:'instant'});
@@ -118,12 +118,6 @@
       if(view==='calendar')document.getElementById('calendar-area').textContent=fa?'بارگیری تقویم ممکن نشد. صفحه را دوباره باز کنید.':'The calendar could not load. Please reload.';
     });
   }
-  const track=new IntersectionObserver(entries=>{
-    const entry=entries[0];if(view!=='home' || !chosen || dialog.open)return;
-    journey.classList.toggle('in-view',entry.isIntersecting);
-    if(entry.isIntersecting && entry.intersectionRatio>=.35 && location.hash!=='#journey')history.replaceState(null,'','#journey');
-    else if(!entry.isIntersecting && entry.boundingClientRect.top>0 && location.hash==='#journey')history.replaceState(null,'','#intro');
-  },{threshold:[0,.35,.65]});track.observe(journey);
   document.addEventListener('click',event=>{
     const link=event.target.closest('a[href="#intro"],a[href="#journey"]');
     if(!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)return;

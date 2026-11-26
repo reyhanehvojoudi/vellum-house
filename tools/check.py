@@ -10,7 +10,7 @@ class Page(HTMLParser):
     def handle_starttag(self,tag,attrs):self.tags.append((tag,dict(attrs)))
 def check_ref(base,ref):
     url=urlsplit(ref)
-    if not url.scheme and url.path and url.path!='/':assert (base/url.path).is_file(),ref
+    if not url.scheme and url.path and url.path!='/':assert (base/url.path.lstrip("/")).is_file(),ref
 pages=sorted(ROOT.glob('*.html'))
 for p in pages:
     raw=p.read_text()
