@@ -33,7 +33,7 @@ for p in pages:
     # All node positions must agree with the exact cubic endpoints on both layouts.
     nodes=[a for _,a in parser.tags if 'data-stage' in a]
     bases=[a for t,a in parser.tags if t=='path' and a.get('class')=='route-base']
-    for base,(w,h,xkey,ykey) in zip(bases,[(1000,230,'--x','--y'),(260,370,'--mx','--my')]):
+    for base,(w,h,xkey,ykey) in zip(bases,[(1000,230,'--x','--y'),(1000,230,'--mx','--my')]):
         nums=list(map(float,re.findall(r'-?\d+(?:\.\d+)?',base['d'])))
         points=[nums[:2]]+[nums[j+4:j+6] for j in range(2,len(nums),6)]
         assert len(points)==len(nodes)==6

@@ -15,3 +15,13 @@
 - tools/check.py and tools/visual-qa.py updated for new structure and geometry.
 - DESIGN.md, TEST_REPORT.md, PERFORMANCE_REPORT.md, DEPLOYMENT_GUIDE_FA.md updated.
 - Original bios, portraits, homepage content, all form fields, backend, API endpoint and dashboard preserved. No production deployment performed.
+
+## Homepage polish
+- Restored edge-to-edge desktop and portrait mobile video with CSS cover sizing. Both video files are byte-identical to the preceding release; proportional edge cropping is possible.
+- Enlarged homepage copy and separated credibility indicators, pledge and CTA into a distinct lower band.
+- Neutral root entry always requires language selection, even with a saved language; explicit language and functional deep links retain their behavior.
+- Removed Salmani from displayed founder name and added Telecommunications/گرایش مخابرات to Kasra's displayed title.
+- Three contact icons remain in one grid row at all supported widths. Removed footer email and language switch; retained header language switch and contact email link.
+- Changed only index.html, en.html, assets/house.js, assets/royal.css and documentation/tests. Backend, booking, media and dashboard remain unchanged.
+- Mobile Golden Path now uses a separate horizontal six-point SVG with alternating label positions. Shared segment endpoints define the node geometry, with RTL mirroring retained.
+- Refreshed CSS and JavaScript cache-busting identifiers for GitHub Pages.
