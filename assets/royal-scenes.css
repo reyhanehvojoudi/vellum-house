@@ -135,3 +135,55 @@ body.folio main[data-view=contact] .contact-icon:hover h2 { color:var(--gold); }
  body.folio #intro .hero-bottom { padding-top:6px; gap:6px; }
 }
 @media(prefers-reduced-motion:reduce){body.folio main[data-view=contact] .contact-icon svg{transition:none}}
+
+/* Give the opening message and the film distinct areas of emphasis. */
+body.folio #intro.hero.page {
+  justify-items: start;
+  align-content: center;
+  gap: clamp(24px, 6vh, 66px);
+  padding-inline: clamp(24px, 9vw, 160px);
+  text-align: start;
+}
+body.folio #intro .hero-copy { max-width: 43rem; }
+body.folio #intro .hero-copy h1 {
+  margin: 0; font-size: clamp(40px, 5.3vw, 78px);
+  line-height: 1.05; text-align: start;
+}
+html[lang=fa] body.folio #intro .hero-copy h1 {
+  font-size: clamp(30px, 4.1vw, 60px); line-height: 1.45;
+}
+body.folio #intro .hero-summary {
+  margin: 18px 0 24px; max-width: 51ch; color: #f3eee5;
+  font: 400 clamp(16px, 1.3vw, 20px)/1.65 var(--sans); text-align: start;
+}
+body.folio #intro .hero-copy .explore { display: inline-flex; min-height: 46px; padding-inline: 23px; align-items: center; }
+body.folio #intro .hero-bottom { max-width: 43rem; }
+body.folio #intro .metric-number, html[lang=fa] body.folio #intro .metric-number { font-size: clamp(21px, 2.5vw, 34px); }
+body.folio #intro .metric span { font-size: clamp(11px, 1vw, 14px); }
+body.folio #intro .film-frame::after { background: linear-gradient(to right, #071623ef, #071623cd 40%, #07162355); }
+html[dir=rtl] body.folio #intro .film-frame::after { background: linear-gradient(to left, #071623ef, #071623cd 40%, #07162355); }
+body.folio main[data-view=founders] .founders.page { grid-template-rows: auto auto; gap: clamp(18px, 3vh, 36px); }
+body.folio main[data-view=founders] .about-intro { max-width: 62ch; }
+body.folio main[data-view=founders] .founder-grid { max-width: 740px; gap: clamp(18px, 4vw, 50px); }
+body.folio main[data-view=founders] .founder-caption { border-top: 1px solid #c3a36b55; padding-top: 10px; }
+body.folio main[data-view=founders] .founder-role { max-width: 34ch; text-wrap: balance; }
+@media (max-width: 600px) {
+  body.folio #intro.hero.page { padding-inline: 22px; gap: 30px; }
+  body.folio #intro .hero-summary { font-size: 16px; margin: 12px 0 20px; }
+  body.folio main[data-view=founders] .founder-grid { grid-template-columns: 1fr; max-width: 480px; }
+  body.folio main[data-view=founders] .founder {
+    position: relative; grid-template-columns: minmax(95px, 34%) 1fr; grid-template-rows: auto;
+    align-items: center; gap: 16px; padding-block: 12px; border-top: 1px solid #c3a36b55;
+  }
+  body.folio main[data-view=founders] .portrait-frame { position: static; width: 100%; }
+  body.folio main[data-view=founders] .founder-caption { height: auto; border: 0; padding: 0; justify-items: start; gap: 6px; }
+  body.folio main[data-view=founders] .founder-caption h2,
+  body.folio main[data-view=founders] .founder-role { text-align: start; text-align-last: auto; }
+  body.folio main[data-view=founders] .founder-role { font-size: 13px; }
+  body.folio main[data-view=founders] .founder-overlay { text-align: start; }
+  body.folio main[data-view=contact] .contact-lines.icon-contacts { grid-template-columns: 1fr; }
+  body.folio main[data-view=contact] .contact-icon { grid-template-columns: 40px 1fr; grid-template-rows: auto auto; align-items: center; gap: 3px 15px; padding: 14px; }
+  body.folio main[data-view=contact] .contact-icon svg { grid-row: span 2; }
+  body.folio main[data-view=contact] .contact-icon h2, body.folio main[data-view=contact] .contact-icon p { text-align: start; font-size: 14px; }
+  body.folio main[data-view=contact] .contact-icon+.contact-icon { border-inline-start: 0; border-top: 1px solid #c3a36b40; }
+}
