@@ -1,0 +1,393 @@
+/* Royal Academia — public pages only. Shared functional components live in house.css. */
+/* Optional licensed/local font installation: see docs/DEPLOYMENT_GUIDE_FA.md. */
+:root{--navy:#102637;--deep:#0A1926;--gold:#C3A36B;--ivory:#F5F1E8;--paper:#F5F1E8;--white:#fff;--line:#a18c634d;--muted:#c5ced0;--bronze:#C3A36B;--sans:'Inter','DM Sans',Arial,sans-serif;--display:'Cormorant Garamond','Georgia',serif;--pad:clamp(18px,4vw,64px);--body:16px;--lead:1.65;--h1:clamp(32px,4.2vw,62px);--h2:clamp(26px,3.2vw,46px);--small:14px;--width:78rem;color-scheme:dark;background:var(--deep)}
+html[lang=fa]{--sans:'Dana',Vazirmatn,Tahoma,sans-serif;--display:var(--sans);--body:16px;--lead:1.9;--h1:clamp(28px,3.5vw,52px);--h2:clamp(24px,2.8vw,39px)}
+body.folio{margin:0;height:100svh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:var(--navy);color:var(--ivory);font-family:var(--sans);font-size:var(--body);line-height:var(--lead);overflow:hidden}
+.folio *{box-sizing:border-box}.folio h1,.folio h2{font-family:var(--display);font-weight:600;color:var(--ivory);line-height:1.15;letter-spacing:0}.folio h1{font-size:var(--h1)}.folio h2{font-size:var(--h2)}html[lang=fa] .folio h1,html[lang=fa] .folio h2{line-height:1.55;font-weight:700}.folio h1 em,.folio h2 em{color:inherit;text-decoration:none;font:inherit}.folio a:focus-visible,.folio button:focus-visible,.folio input:focus-visible,.folio select:focus-visible,.folio textarea:focus-visible{outline:2px solid #F5F1E8;outline-offset:3px}.folio .kicker{color:var(--gold);font-size:12px;letter-spacing:.15em;text-transform:uppercase;justify-content:center;margin:0 0 8px}.folio .kicker::before{background:var(--gold);width:26px}.folio .spine,.folio .thread-sweep,.folio .footer-index{display:none}
+.folio .mast,.folio.home-lock .mast{position:relative;inset:auto;background:var(--navy);border-bottom:1px solid var(--line);z-index:20}.folio .mast-inner{max-width:1500px;display:grid;grid-template-columns:1fr auto 1fr auto;align-items:center;gap:18px;padding:10px var(--pad);min-height:72px}.folio .wordmark{grid-column:2;display:flex;justify-self:center;gap:8px}.folio .wordmark img{width:44px;height:44px;object-fit:contain}.folio .brand-lock b{font:600 26px/1 var(--display);color:var(--ivory)}.folio .brand-lock small{font:500 11px/1.2 var(--sans);color:var(--gold);letter-spacing:.06em}.folio .menu-toggle{grid-column:1;grid-row:1;justify-self:start;display:flex;align-items:center;min-height:44px;padding:4px 8px;border:0;background:transparent;color:var(--ivory);font-size:15px;white-space:nowrap}.folio .language-control{justify-self:end;color:var(--ivory);white-space:nowrap}.folio .mast .btn{font-size:13px;min-height:42px;padding:8px 14px;justify-self:end}.folio .mast .short-cta{display:none}.folio .mast nav{display:flex!important;position:fixed;top:0;bottom:0;inset-inline-start:0;width:min(370px,88vw);padding:32px;flex-direction:column;align-items:stretch;justify-content:flex-start;background:var(--deep);border-inline-end:1px solid var(--gold);z-index:40;gap:25px;transform:translateX(-105%);visibility:hidden;transition:transform .38s ease,visibility .38s;box-shadow:0 0 60px #0006;overflow:auto}.folio .mast.menu-open nav{transform:translateX(0);visibility:visible}html[dir=rtl] .folio .mast nav{transform:translateX(105%)}html[dir=rtl] .folio .mast.menu-open nav{transform:translateX(0)}.folio .nav-links{display:flex;flex-direction:column;gap:10px}.folio .nav-links a{font:600 26px/1.35 var(--display);color:var(--ivory);padding:12px 0;border-bottom:1px solid var(--line)}.folio .menu-close{align-self:end;color:var(--gold);font-size:30px;background:transparent;border:0;width:44px;height:44px}.folio .menu-shade{position:fixed;inset:0;z-index:30;border:0;background:#030d16bb;cursor:pointer}.folio .menu-shade[hidden]{display:none}
+.folio main,.folio.home-lock main{height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;background:radial-gradient(ellipse at 50% 20%,#1a3546 0,var(--navy) 45%,var(--deep) 100%);scrollbar-width:thin;scrollbar-color:#9f8758 transparent}.folio .page{width:100%;max-width:1320px;margin:auto;padding:clamp(20px,3vh,44px) var(--pad)}.folio #home-views{min-height:100%}.folio #journey,.folio.journey-scene #intro{display:none}.folio.journey-scene #journey{display:block}.folio .hero.page{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(9px,1.4vh,18px);min-height:100%;max-width:none;padding:clamp(15px,2.4vh,28px) var(--pad);background:none;text-align:center}.folio .hero-copy{max-width:1050px;width:100%}.folio .hero h1,.folio .hero h1 em,.folio .hero h1 .hero-tail{font-family:var(--display);font-weight:600;color:var(--ivory);font-style:normal;letter-spacing:0;line-height:1.08;display:inline;font-size:inherit}.folio .hero h1{display:block;font-size:clamp(32px,min(4.3vw,6.1vh),65px);max-width:1000px;margin:0 auto 10px;text-align:center}.folio .hero h1 em{color:var(--gold);text-decoration:none}html[lang=fa] .folio .hero h1{font-size:clamp(26px,min(3.4vw,5.3vh),54px);line-height:1.5}html[lang=fa] .folio .hero h1 em,html[lang=fa] .folio .hero h1 .hero-tail{line-height:inherit;font-weight:700}.folio .hero .statement{max-width:95ch;margin:0 auto;color:#d8dddc;font-size:clamp(14px,1.13vw,17px);line-height:1.55}.folio .hero .statement p,.folio .hero .statement p:first-child{font-size:inherit;line-height:inherit;color:inherit;max-width:none;margin:0 auto}.folio .hero .statement p+p{margin-top:4px}.folio .hero .statement strong{font-weight:500;color:var(--ivory)}html[lang=fa] .folio .hero .statement{line-height:1.85}.folio .hero-film{position:relative;inset:auto;z-index:auto;pointer-events:auto;width:min(100%,calc(41vh * 20 / 11),780px);margin:0}.folio .film-frame{position:relative;inset:auto;z-index:auto;aspect-ratio:20/11;overflow:hidden;background:var(--deep);border:1px solid #c3a36b80;box-shadow:0 12px 40px #0004}.folio .film-frame::after{display:none}.folio .hero-poster,.folio .film-frame video{object-fit:contain;width:100%;height:100%;position:absolute;inset:0}.folio .film-toggle{width:44px;height:44px;inset-block-end:8px;inset-inline-end:8px}.folio .hero-film figcaption{display:none}.folio .hero-foot{border:0;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;max-width:none}.folio .hero-foot small{color:#c8c9c4;font-size:12px;line-height:1.5}.folio .btn.gold,.folio .btn.solid,.folio .explore{background:var(--gold);color:var(--navy);border:1px solid var(--gold);font-weight:700;border-radius:2px;min-height:44px;text-decoration:none;justify-content:center}.folio .btn.gold:hover,.folio .btn.solid:hover,.folio .explore:hover{background:#e0c18a;color:var(--deep)}.folio .hero-foot .explore{width:auto;min-width:235px;padding:12px 30px;font-size:16px;margin:0}.folio .btn.outline{border:1px solid var(--gold);color:var(--ivory);background:transparent}.folio .btn.outline:hover{background:var(--gold);color:var(--deep)}
+.folio .journey-shell{min-height:100%}.folio .journey.page{display:flex;flex-direction:column;align-items:stretch;justify-content:center;min-height:100%;gap:12px;max-width:1120px}.folio .journey-back{color:var(--gold);font-size:14px;text-decoration:none;align-self:start;min-height:36px;display:flex;align-items:center}.folio .journey-heading{text-align:center}.folio .journey-heading h2{font-size:clamp(32px,4vw,56px);text-align:center}.folio .journey-heading p{margin:6px auto;color:#c6d0d3}.folio .journey-pause{font:500 13px/1.3 var(--sans);color:var(--gold);background:transparent;border:1px solid var(--line);padding:8px 14px;min-height:40px;margin:6px auto 0}.folio .journey-map{background:transparent;margin:0;overflow:visible}.folio .map-grid{display:none}.folio .route-canvas{position:relative;height:clamp(140px,25vh,230px);margin:0 20px 12px}.royal-route{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.royal-route.mobile{display:none}html[dir=rtl] .royal-route{transform:scaleX(-1)}.royal-route path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}.royal-route .route-base{stroke:#7a745e;stroke-width:1.5}.royal-route .route-fill{stroke:var(--gold);stroke-width:2.5;stroke-dasharray:100;stroke-dashoffset:100}.route-light{fill:#fff2d0;filter:drop-shadow(0 0 5px #ffe7ad)}.folio .stage-node{position:absolute;inset-inline-start:var(--x);top:var(--y);width:16%;height:44px;transform:translate(-50%,-50%);border:0;display:grid;place-items:center;background:transparent;color:var(--ivory);z-index:2}.folio[dir=rtl] .stage-node,html[dir=rtl] .folio .stage-node{transform:translate(50%,-50%)}.folio .stage-node i{width:27px;height:27px;border:1px solid var(--gold);color:var(--ivory);background:var(--navy);border-radius:50%;font:500 12px/1 var(--sans);font-style:normal}.folio .stage-node[aria-pressed=true] i{background:var(--gold);color:var(--deep);outline:1px solid var(--gold);outline-offset:4px}.folio .stage-node.passed i{background:#746543}.folio .stage-node span{font-size:14px;top:calc(50% + 18px);color:#e1ddcf;width:110%;line-height:1.3}.folio .stage-node[aria-pressed=true] span{color:var(--gold);font-weight:700}.folio .stage-detail{background:transparent;border:0;border-top:1px solid var(--line);padding:18px 0;gap:20px;align-items:center;grid-template-columns:44px minmax(0,1fr) 44px}.folio .stage-copy{text-align:center;min-height:130px}.folio .stage-count{color:var(--gold);font-size:12px;letter-spacing:.08em}.folio .stage-copy h2{font-size:clamp(26px,3vw,42px);text-align:center;margin:4px auto 8px}.folio .stage-copy p{color:#d2dadd;max-width:70ch;margin:0 auto}.folio .arrow{border-color:var(--gold);color:var(--gold);width:44px;height:44px;background:transparent}.folio .arrow:hover:enabled{background:var(--gold);color:var(--deep)}.folio .destination-cta{margin-top:15px}.folio .stage-copy article:not([hidden]){animation:copy-in .45s ease both}@keyframes copy-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.folio .founders,.folio .contact,.folio .booking-layout{min-height:100%;align-content:start}.folio .page-head{max-width:none;margin:0 auto;text-align:center}.folio .page-head h1{text-align:center}.folio .founder-grid{margin-top:24px;gap:clamp(24px,5vw,72px);grid-template-columns:repeat(2,minmax(0,1fr));max-width:1050px;margin-inline:auto}.folio .founder{display:grid;grid-template-columns:minmax(100px,.75fr) minmax(0,1fr);gap:20px;border-top:1px solid var(--line);padding-top:22px}.folio .founder .portrait{max-width:230px;width:100%;aspect-ratio:4/5;object-fit:cover;border:1px solid var(--line)}.folio .founder h2{font-size:clamp(25px,2.8vw,40px)}.folio .founder .degree,.folio .founder-facts{color:var(--gold);font-size:15px}.folio .founder .bio{font-size:16px;color:#d2dadd}.folio .ink-link{color:var(--gold)}.folio .contact{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:30px}.folio .contact-lines{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;width:100%;max-width:1000px;margin:0;border-top:1px solid var(--line)}.folio .contact-line{flex-direction:column;align-items:center;text-align:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding:24px 12px}.folio .contact-line h2{text-align:center;font-size:clamp(23px,2.4vw,34px)}.folio .contact-line p{color:#d2dadd;font-size:15px}.folio .booking-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:clamp(20px,4vw,60px)}.folio .side-intro h1{font-size:clamp(32px,4.2vw,60px)}.folio .side-intro .kicker{justify-content:flex-start}.folio .side-intro>p,.folio .parent-note,.folio .help,.folio .subtle,.folio .privacy,.folio .facts{color:#d2dadd}.folio .side-intro>p:not(.kicker):not(.parent-note){font-size:17px;color:#d2dadd}.folio .paper{background:#142d3e;color:var(--ivory);border:1px solid var(--line);padding:clamp(16px,2.6vw,35px);box-shadow:none}.folio .fields label{color:var(--ivory);font-size:15px}.folio input:not([type=checkbox]),.folio select,.folio textarea{background-color:var(--deep);color:var(--ivory);border:1px solid #75838c;font-size:16px;min-height:46px}.folio select{background-image:none;appearance:auto}.folio input[type=checkbox]{accent-color:var(--gold)}.folio .status{color:#d5e8d7}.folio .status.error,.folio .error{color:#ffc4b8}.folio .day,.folio .time-choice{background:var(--deep);border:1px solid #829199;color:var(--ivory)}.folio .day:disabled{background:transparent;color:#9aa9ad;border-color:transparent}.folio .day[aria-pressed=true],.folio .time-choice[aria-pressed=true]{background:var(--gold);color:var(--deep);border-color:var(--gold)}.folio .weekday{color:#c3cdd0}.folio .site-footer,.folio.home-lock .site-footer{display:flex;justify-content:center;align-items:center;gap:9px;min-height:30px;padding:4px 12px;background:var(--deep);border-top:1px solid var(--line);color:#c3c9c9;font-size:11px}.folio .site-footer img{width:18px;height:18px}.folio .site-footer a,.folio .footer-lang{font-size:11px;min-height:24px;color:#d9d4c5}.folio .footer-lang{border:0;background:transparent}.folio .site-footer .footer-index{display:none}.folio dialog{background:var(--navy);color:var(--ivory);border:1px solid var(--gold);width:min(92vw,430px)}.folio .language-paper{padding:32px;text-align:center}.folio .gate-brand{display:flex;justify-content:center;gap:12px;align-items:center;margin:0 auto 25px}.folio .gate-brand img{margin:0;width:50px;height:50px}.folio .language-paper h2[lang=en]{font:600 34px/1.15 'Cormorant Garamond',Georgia,serif;text-align:center;color:var(--ivory)}.folio .language-paper p[lang=fa]{font:500 22px/1.8 'Dana',Vazirmatn,Tahoma,sans-serif;text-align:center;color:var(--ivory);margin:10px auto}.folio .language-choices button{background:var(--gold);color:var(--navy);border:1px solid var(--gold);text-align:center!important}.folio .language-choices button:lang(fa){font-family:'Dana',Vazirmatn,Tahoma,sans-serif}.folio .language-choices button:lang(en){font-family:'Inter','DM Sans',Arial,sans-serif}.folio #dismiss-language{color:var(--gold)}
+@media(max-width:900px){.folio .mast-inner{grid-template-columns:1fr auto 1fr;gap:8px;min-height:62px;padding:8px 16px}.folio .mast .btn{display:none}.folio .mast .nav-cta{display:flex}.folio .hero-film{width:min(100%,650px)}.folio .founder{grid-template-columns:1fr}.folio .founder .portrait{max-width:220px}.folio .booking-layout{grid-template-columns:1fr}.folio .side-intro h1{font-size:40px}}
+@media(max-width:600px){.folio .mast-inner{padding:6px 12px;gap:5px}.folio .wordmark img{width:32px;height:32px}.folio .brand-lock b{font-size:21px}.folio .brand-lock small{font-size:9px}.folio .menu-toggle{font-size:13px;padding:0;min-height:44px}.folio .language-control{font-size:13px;gap:3px}.folio .language-control svg{width:15px}.folio .page{padding:22px 18px}.folio .hero.page{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:18px 16px;align-content:start;justify-items:center}.folio .hero-copy{display:contents}.folio .hero .kicker{grid-row:1;margin:0;font-size:11px}.folio .hero h1{grid-row:2;font-size:clamp(30px,8.5vw,42px);line-height:1.13;margin:0;max-width:450px}.folio .hero-film{grid-row:3;width:100%;max-width:500px}.folio .hero-foot{grid-row:4}.folio .hero .statement{grid-row:5;font-size:15px;line-height:1.65;max-width:54ch}.folio .hero-foot small{display:none}.folio .hero-foot .explore{min-width:220px;min-height:48px;padding:10px 16px}.folio .hero .statement p+p{margin-top:7px}html[lang=fa] .folio .hero h1{font-size:clamp(26px,7vw,35px);line-height:1.55}.folio .site-footer>span:not(.footer-index),.folio .site-footer img{display:none}.folio .site-footer{min-height:28px}.folio .journey.page{gap:8px}.folio .journey-heading h2{font-size:30px}.folio .journey-heading p{font-size:14px}.folio .journey-pause{margin-top:1px}.folio .route-canvas{height:265px;max-width:340px;margin:0 auto;width:100%}.royal-route.desktop{display:none}.royal-route.mobile{display:block}.folio .stage-node{inset-inline-start:var(--mx);top:var(--my);width:44px;height:44px}.folio .stage-node span{top:50%;transform:translateY(-50%);inset-inline-start:calc(50% + 22px);width:160px;text-align:start;font-size:15px}.folio .stage-detail{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:5px;padding:12px 0}.folio .stage-copy{grid-column:2;grid-row:1;min-height:0}.folio .stage-copy h2{font-size:25px}.folio .stage-copy p{font-size:15px}.folio .stage-detail .arrow.left{grid-row:1;grid-column:1}.folio .stage-detail .arrow.right{grid-row:1;grid-column:3}.folio .founder-grid,.folio .contact-lines,.folio .fields{grid-template-columns:1fr}.folio .founder{grid-template-columns:minmax(95px,.7fr) minmax(0,1fr);gap:13px}.folio .founder .bio{font-size:15px}.folio .founder h2{font-size:25px}.folio .contact-line{padding:17px 0}.folio .side-intro h1{font-size:34px}.folio .booking-layout{gap:20px}.folio .paper{padding:16px}.folio .contact{justify-content:flex-start}.folio .language-paper{padding:24px}.folio .language-paper h2[lang=en]{font-size:29px}}
+@media(max-height:600px) and (min-width:601px){.folio .hero.page{justify-content:flex-start}.folio .hero-film{width:min(100%,500px)}.folio .hero h1{font-size:36px}.folio .journey.page{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){.folio *, .folio *::before,.folio *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* Explicitly reset legacy public layout primitives where the new composition differs. */
+.folio #home-views{height:100%}.folio .journey-shell{height:100%;min-height:100%;padding:0;background:transparent}.folio .route-canvas{display:block}.folio .route-canvas::before{content:none}.folio .stage-node{min-height:44px;padding:0;gap:0}.folio .stage-node span{position:absolute}.folio .stage-detail{color:var(--ivory);box-shadow:none}.folio .language-paper{background:var(--navy)}.folio .language-control [lang=fa]{font-family:'Dana',Vazirmatn,Tahoma,sans-serif}.folio .language-control [lang=en]{font-family:'Inter','DM Sans',Arial,sans-serif}.folio .hero-foot small{width:auto}.folio .journey-back{margin:0}.folio .journey-pause:disabled{opacity:.6}.folio .founder-facts{border-color:var(--gold)}.folio .linkedin{background:var(--gold);color:var(--navy)}.folio .film-toggle:focus-visible{outline-offset:2px}.folio .header-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;grid-column:3;grid-row:1}.folio .mast-inner{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.folio .mast nav .nav-cta{display:flex;justify-self:stretch;margin-top:14px}.folio .menu-open nav .nav-links a{min-height:44px}.folio .hero .kicker{white-space:normal}.folio .hero-foot .explore{letter-spacing:.01em}.folio .hero .statement p{font-weight:400}.folio .site-footer a{white-space:normal}.folio .stage-node span{overflow-wrap:normal}.folio .journey-heading p{max-width:none}
+@media(max-width:900px){.folio .header-actions{gap:0}.folio .header-actions .btn{display:none}.folio .mast nav .nav-cta{display:flex}.folio .journey-shell{min-height:100%}}
+@media(max-width:600px){.folio .stage-node span{position:absolute;overflow-wrap:normal;white-space:normal;width:min(160px,50vw)}.folio .journey-heading h2{font-size:30px}.folio .journey-back{min-height:44px}.folio .hero-foot small{display:block;font-size:11px;line-height:1.5}.folio .hero-foot{gap:4px}.folio .stage-detail .arrow.left,.folio .stage-detail .arrow.right{justify-self:center}.folio .stage-copy h2{font-size:25px}.folio .header-actions{min-width:0}.folio .wordmark{gap:5px}.folio .brand-lock b{font-size:clamp(17px,5.1vw,21px)}.folio .brand-lock small{font-size:9px}}
+
+.folio .brand-lock b{font-family:"Cormorant Garamond",Georgia,serif}.folio .brand-lock small{font-family:Inter,"DM Sans",Arial,sans-serif}
+
+.folio .stage-node{justify-content:center;align-content:center;justify-items:center}.folio .stage-node i{margin:auto}.folio .stage-node span{margin:0}.folio .mast .menu-toggle:hover,.folio .language-control:hover{color:var(--gold)}
+
+/* Royal Academia revision: fullscreen film, compact chrome, exact path and portraits. */
+.folio{--chrome-h:54px}.folio .mast,.folio.home-lock .mast{background:var(--deep);border-bottom:1px solid #c3a36b30;box-shadow:none}.folio .mast-inner{min-height:54px;padding:4px clamp(12px,3vw,40px);gap:8px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.folio .wordmark{gap:6px}.folio .wordmark img{width:30px;height:30px}.folio .brand-lock b{font-size:21px;font-weight:500}.folio .brand-lock small{font-size:9px;font-weight:400;letter-spacing:.03em}.folio .menu-toggle{padding:0 7px;min-height:44px;min-width:44px;justify-content:center;color:var(--ivory)}.folio .header-actions{gap:12px;min-width:0}.folio .header-consult{color:var(--gold);font:500 12px/1.35 var(--sans);text-decoration:none;border:0;background:none;text-align:center;white-space:normal;display:flex;align-items:center;min-height:44px}.folio .header-consult:hover{text-decoration:underline}.folio .language-control{font-size:12px;font-weight:400;min-height:44px;padding:0;gap:4px}.folio .language-control svg{width:15px;height:15px}.folio .mast nav{width:min(310px,86vw);padding:20px 22px;gap:14px;border-inline-end-color:#c3a36b50}.folio .nav-links{gap:2px}.folio .nav-links a{font:500 21px/1.3 var(--display);padding:10px 0;border-bottom:1px solid #c3a36b24}.folio .mast nav .nav-cta{font-size:12px;min-height:40px;margin-top:8px}.folio .menu-close{font-size:24px}.folio .site-footer,.folio.home-lock .site-footer{min-height:26px;padding:0 10px;gap:6px;font-size:10px}.folio .site-footer a,.folio .footer-lang{font-size:10px;min-height:24px}.folio .site-footer img{width:15px;height:15px}
+/* The header overlays the cinematic background, without covering the copy. */
+.folio main{grid-row:2}.folio .mast{grid-row:1}.folio .site-footer{grid-row:3}.folio.home-lock:not(.journey-scene) .mast{position:absolute;inset:0 0 auto;background:linear-gradient(#081722b0,transparent);border:0}.folio.home-lock:not(.journey-scene) main{grid-row:1/3}.folio .hero.page{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:clamp(12px,2.5vh,28px);min-height:100%;height:auto;width:100%;max-width:none;padding:calc(var(--mast-height,54px) + 18px) clamp(20px,6vw,84px) 42px;overflow:hidden;text-align:center}.folio .hero-copy{display:block;position:relative;z-index:1;max-width:920px}.folio .hero .kicker{display:flex;margin:0 0 12px}.folio .hero h1{font-size:clamp(32px,min(4.9vw,7vh),72px);max-width:900px;margin:0 auto 18px;text-shadow:0 2px 18px #06121b80}.folio .hero .statement{max-width:760px;font-size:clamp(15px,1.25vw,18px);line-height:1.65;color:var(--ivory)}.folio .hero .statement p{margin:0;text-align:justify;text-align-last:start}.folio .hero-film{position:absolute;inset:0;width:100%;max-width:none;height:100%;z-index:-1;margin:0;pointer-events:none}.folio .film-frame{position:absolute;inset:0;height:100%;width:100%;aspect-ratio:auto;border:0;box-shadow:none;overflow:hidden}.folio .hero-picture{position:absolute;inset:0;display:block}.folio .hero-poster,.folio .film-frame video{object-fit:cover;object-position:center;width:100%;height:100%;filter:blur(3px);transform:scale(1.012)}.folio .film-frame::after{display:block;position:absolute;inset:0;content:"";background:linear-gradient(180deg,#0a192675 0%,#102637b5 30%,#102637c9 68%,#0a1926ba 100%);pointer-events:none}.folio .hero-foot{position:relative;z-index:1;gap:8px;align-items:center;padding:0}.folio .hero-foot .explore{min-width:0;width:auto;padding:11px 24px;min-height:44px}.folio .hero-foot small{font-size:11px;max-width:95%;color:var(--ivory)}.folio .hero .film-toggle{z-index:2;width:36px;height:36px;inset-block-end:8px;inset-inline-end:12px;background:#0a1926b0;border-color:#f5f1e899}.folio .hero .film-toggle span{transform:scale(.8)}
+/* Paragraphs retain natural direction, with justification where space permits. */
+.folio .stage-copy p,.folio .founder .bio,.folio .side-intro>p:not(.kicker),.folio .privacy p,.folio .parent-note{text-align:justify;text-align-last:start;hyphens:auto}html[lang=fa] .folio p{hyphens:none}.folio .stage-copy p{max-width:65ch}.folio .stage-copy h2{margin:3px auto 6px}.folio .journey.page{min-height:100%;height:auto;gap:clamp(5px,1vh,12px);padding-block:clamp(8px,2vh,24px)}.folio .journey-heading h2{margin:0;font-size:clamp(27px,3.7vw,49px)}.folio .journey-heading p{margin:2px auto}.folio .journey-pause{min-height:34px;margin:3px auto 0;padding:5px 12px}.folio .journey-back{min-height:32px}.folio .route-canvas{flex:none;height:clamp(105px,23vh,200px);margin-block:0 8px}.folio .stage-detail{padding:10px 0 0;gap:12px}.folio .stage-copy{min-height:0}.folio .stage-copy h2{font-size:clamp(24px,3vw,38px)}.folio .stage-copy p{font-size:15px;line-height:1.55}.folio .destination-cta{margin-top:7px}.folio .stage-node,.folio[dir=rtl] .stage-node,html[dir=rtl] .folio .stage-node{position:absolute!important;inset:auto!important;left:var(--x)!important;top:var(--y)!important;transform:translate(-50%,-50%)!important;width:44px;height:44px;min-height:44px;padding:0!important;display:block!important;box-sizing:border-box}.folio .stage-node i{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);margin:0!important;display:grid;place-items:center}.folio .stage-node span{position:absolute;inset:calc(50% + 19px) auto auto 50%;transform:translateX(-50%);width:clamp(80px,12vw,150px);text-align:center;line-height:1.2;font-size:13px}.folio .royal-route .route-fill{stroke-linecap:butt;stroke-dasharray:none;stroke-dashoffset:0;visibility:hidden}.folio .royal-route .route-light{visibility:hidden}.folio .royal-route.ready .route-fill,.folio .royal-route.ready .route-light{visibility:visible}.folio .royal-route{transform:none!important}
+/* About Us: two equal portraits; original full bios are accessible overlays. */
+.folio .founders.page{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:clamp(14px,3vh,36px);min-height:100%;padding-block:clamp(12px,3vh,32px)}.folio .founders .page-head h1{margin:0;font-size:clamp(34px,5vw,60px)}.folio .founder-grid{width:min(100%,760px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,5vw,72px);margin:0;border:0;align-items:start}.folio .founder{display:flex;flex-direction:column;align-items:center;min-width:0;gap:10px;padding:0;border:0}.folio .portrait-frame{position:relative;width:100%;max-width:min(100%,calc(48vh * .8),300px);aspect-ratio:4/5}.folio .portrait-toggle{display:block;position:relative;padding:0;margin:0;border:1px solid #c3a36b66;width:100%;height:100%;background:var(--deep);overflow:hidden;cursor:pointer}.folio .founder .portrait{width:100%;max-width:none;height:100%;display:block;object-fit:cover;border:0;transition:filter .25s}.folio .portrait-plus{position:absolute;inset:auto 8px 8px auto;border:1px solid var(--gold);background:#0a1926be;color:var(--gold);border-radius:50%;width:28px;height:28px;display:grid;place-items:center;font:400 22px/1 var(--sans)}.folio .founder-caption{text-align:center}.folio .founder-caption h2{font-size:clamp(21px,3vw,35px);line-height:1.2;margin:0}.folio .founder-role{font:500 13px/1.5 var(--sans);color:var(--gold);margin:3px 0 0}.folio .founder-overlay{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;background:#0a1926f5;border:1px solid var(--gold);padding:35px clamp(9px,2vw,20px) 14px;z-index:3;scrollbar-width:thin;scrollbar-color:var(--gold) transparent;animation:copy-in .3s ease both;text-align:start}.folio .founder-overlay[hidden]{display:none!important}.folio .founder-overlay .degree,.folio .founder-overlay .founder-facts,.folio .founder-overlay .bio{font-size:clamp(12px,1.2vw,15px);line-height:1.5;margin:0 0 9px}.folio .founder-overlay .founder-facts{padding-inline-start:7px}.folio .founder-overlay .ink-link{font-size:13px}.folio .bio-close{position:absolute;inset:2px 4px auto auto;min-width:32px;min-height:32px;font-size:24px;background:transparent;border:0;color:var(--gold);cursor:pointer}html[dir=rtl] .folio .bio-close{inset:2px auto auto 4px}.folio .contact.page{justify-content:center;gap:clamp(12px,3vh,30px);padding-block:14px}.folio .contact-lines{gap:12px}.folio .contact-line{padding:14px 8px;gap:9px}.folio .contact-line p{margin:3px 0}.folio .contact-line .btn{min-height:44px;padding:8px 12px}.folio .contact .page-head h1{margin:0}
+@media(max-width:700px) and (orientation:portrait){.folio .hero .film-frame::after{background:linear-gradient(180deg,#0a192675,#102637ae 25%,#102637bb 70%,#0a1926d0)}.folio .hero-poster,.folio .film-frame video{filter:blur(2px);transform:scale(1.008)}}
+@media(max-width:600px){.folio .mast-inner{gap:4px;min-height:52px;padding:3px 8px;grid-template-columns:44px minmax(0,1fr) auto}.folio .wordmark{justify-self:center;gap:4px}.folio .wordmark img{width:25px;height:25px}.folio .brand-lock b{font-size:clamp(14px,4vw,18px)}.folio .brand-lock small{display:none}.folio .header-actions{gap:6px}.folio .header-consult{font-size:10px;max-width:61px;line-height:1.15}.folio .language-control{font-size:10px;gap:2px}.folio .language-control svg{display:none}.folio .hero.page{padding:calc(var(--mast-height,52px) + 14px) 20px 38px;gap:15px}.folio .hero h1{font-size:clamp(28px,7.5vw,39px);line-height:1.13;margin-bottom:13px}.folio .hero .kicker{font-size:10px;margin-bottom:8px}.folio .hero .statement{font-size:14px;line-height:1.5}.folio .hero .statement p{font-size:inherit;line-height:inherit}.folio .hero-foot small{font-size:10px}.folio .hero-foot .explore{font-size:14px;min-height:44px;padding:10px 18px}html[lang=fa] .folio .hero h1{font-size:clamp(24px,6.5vw,34px);line-height:1.45}html[lang=fa] .folio .hero .statement{line-height:1.8}.folio .journey.page{padding:6px 12px;gap:3px}.folio .journey-heading h2{font-size:27px}.folio .journey-heading p{font-size:12px;line-height:1.3}.folio .journey-back{min-height:30px;font-size:12px}.folio .journey-pause{font-size:11px;min-height:30px;padding:4px 8px}.folio .route-canvas{height:clamp(168px,31vh,248px);width:100%;max-width:300px;margin:0 auto}.folio .stage-node,.folio[dir=rtl] .stage-node,html[dir=rtl] .folio .stage-node{left:var(--mx)!important;top:var(--my)!important}.folio .stage-node i{width:22px;height:22px;font-size:10px}.folio .stage-node[aria-pressed=true] i{outline-offset:2px}.folio .stage-node span{inset:50% auto auto calc(50% + 18px);transform:translateY(-50%);width:clamp(90px,45vw,155px);text-align:start;font-size:13px}.folio .stage-detail{padding:5px 0 0;gap:4px;grid-template-columns:36px minmax(0,1fr) 36px}.folio .stage-copy h2{font-size:22px;line-height:1.2}.folio .stage-copy p{font-size:13px;line-height:1.45;text-align:start}.folio .stage-count{font-size:10px}.folio .arrow{width:36px;height:36px;min-width:36px;min-height:36px}.folio .founder-grid{gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}.folio .founders.page{padding-inline:16px}.folio .founder-caption h2{font-size:clamp(17px,5vw,23px)}.folio .founder-role{font-size:11px}.folio .portrait-frame{max-width:100%}.folio .founder-overlay .bio{font-size:12px;text-align:start}.folio .contact-lines{grid-template-columns:1fr;gap:0}.folio .contact-line{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;text-align:start;padding:10px 0;gap:8px}.folio .contact-line h2{text-align:start;font-size:22px}.folio .contact-line p{font-size:12px;overflow-wrap:anywhere}.folio .contact-line .btn{font-size:12px;min-height:40px;max-width:124px;white-space:normal}.folio .contact .page-head h1{font-size:34px}.folio .site-footer{gap:5px}.folio .hero .film-toggle{width:36px;height:36px}}
+/* A mirrored physical coordinate system keeps RTL geometry exact. */
+html[dir=rtl] .folio .royal-route{transform:scaleX(-1)!important}html[dir=rtl] .folio .stage-node{left:calc(100% - var(--x))!important} @media(max-width:600px){html[dir=rtl] .folio .stage-node{left:calc(100% - var(--mx))!important}html[dir=rtl] .folio .stage-node span{inset:50% calc(50% + 18px) auto auto;transform:translateY(-50%);text-align:start}}
+@media(max-height:650px){.folio .hero.page{gap:8px;padding-bottom:32px}.folio .hero h1{margin-bottom:9px}.folio .hero .statement{font-size:13px}.folio .hero-foot small{font-size:10px}.folio .journey-heading h2{font-size:25px}.folio .journey-heading p{font-size:12px}.folio .stage-copy h2{font-size:22px}.folio .stage-copy p{font-size:13px}.folio .route-canvas{height:clamp(125px,28vh,175px)}.folio .contact.page{gap:8px}.folio .contact-line{padding:8px 0}}
+/* Paint exact completed cubic segments, never an estimated whole-path percentage. */
+.folio .royal-route.ready .route-fill{visibility:hidden}.folio .royal-route .route-segment{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linecap:butt;vector-effect:non-scaling-stroke}
+/* Final approved content: cinematic, full-frame film and editorial hierarchy. */
+.folio .header-consult{background:var(--gold);color:var(--deep);font-weight:700;padding:7px 13px;border:1px solid var(--gold);border-radius:2px;min-height:40px;max-width:none;text-decoration:none;line-height:1.2;box-shadow:0 2px 12px #0002}.folio .header-consult:hover{background:#e0c18a;text-decoration:none}.folio .hero.page{justify-content:center;gap:clamp(8px,1.4vh,16px);padding:calc(var(--mast-height,54px) + 10px) clamp(16px,5vw,64px) 22px;min-height:100%;height:auto}.folio .hero-copy{display:block;width:min(100%,1120px);max-width:none}.folio .hero h1{font-size:clamp(28px,min(4.3vw,5.8vh),60px);line-height:1.07;max-width:1000px;margin:0 auto clamp(8px,1.4vh,15px);text-wrap:balance}.folio .hero .statement{font-size:clamp(14px,min(1.18vw,1.9vh),18px);line-height:1.48;max-width:930px}.folio .hero .statement p{margin:0;text-align:justify;text-align-last:start}.folio .hero .statement .turn{text-align:center;text-align-last:center;margin:clamp(5px,1vh,11px) 0;font:600 clamp(20px,min(2.5vw,3.5vh),34px)/1.2 var(--display);color:var(--gold)}.folio .hero .statement .turn strong{color:inherit;font-weight:inherit}.folio .hero-poster,.folio .film-frame video{object-fit:contain;object-position:center;filter:none;transform:none}.folio .film-frame{background:var(--deep)}.folio .film-frame::after{background:linear-gradient(180deg,#0a19266b,#102637b3 22%,#102637cb 72%,#0a1926b3)}.folio .credibility{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,870px);margin:clamp(9px,1.8vh,20px) auto 0;align-items:stretch}.folio .metric{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 clamp(8px,2vw,24px);min-width:0}.folio .metric+.metric{border-inline-start:1px solid #c3a36b70}.folio .metric-number{display:block;color:var(--gold);font:600 clamp(34px,min(5.1vw,6.7vh),64px)/.98 var(--display);font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}.folio .metric span{font-size:clamp(12px,min(1.2vw,1.8vh),16px);line-height:1.35;color:var(--ivory);text-wrap:balance}.folio .brand-pledge{font:600 clamp(17px,min(2vw,2.8vh),27px)/1.25 var(--display);text-align:center;margin:clamp(9px,1.8vh,18px) 0 0;text-wrap:balance;color:var(--ivory)}.folio .hero-foot{width:100%;gap:7px}.folio .hero-foot small{display:block;font-size:clamp(13px,1.2vw,17px);font-weight:600;line-height:1.4;max-width:95%;text-wrap:balance;color:var(--ivory)}.folio .hero-foot .explore{padding:10px 24px;min-height:44px}.folio .hero .film-toggle{bottom:5px}.folio .hero .film-toggle:focus-visible{outline-offset:1px}html[lang=fa] .folio .hero h1{font-size:clamp(24px,min(3.6vw,4.8vh),48px);line-height:1.45}html[lang=fa] .folio .hero .statement{line-height:1.65}html[lang=fa] .folio .hero .statement .turn{font-size:clamp(17px,min(2vw,2.8vh),28px);line-height:1.5}html[lang=fa] .folio .metric-number{font:600 clamp(30px,min(4.5vw,5.8vh),57px)/1.2 var(--sans)}html[lang=fa] .folio .brand-pledge{line-height:1.6;font-size:clamp(15px,min(1.7vw,2.4vh),23px)}
+.folio .stage-copy p{text-align:justify;text-align-last:start;max-width:88ch}.folio .stage-copy p strong{font-weight:600;color:var(--ivory)}.folio .journey.page{min-height:100%;gap:8px}.folio .stage-copy{min-height:0}
+.folio .founders.page{gap:clamp(7px,1.5vh,16px);padding-block:clamp(8px,1.5vh,18px)}.folio .founders .page-head{width:min(100%,940px);text-align:center;margin:0}.folio .founders .page-head h1{font-size:clamp(27px,min(4.2vw,5vh),50px);margin:0 0 5px}.folio .about-intro{max-width:880px;margin:0 auto;font-size:clamp(13px,1.1vw,16px);line-height:1.45}.folio .about-intro p{margin:2px 0;text-align:center}.folio .founders .meet-title{font-size:clamp(20px,min(2.8vw,3.8vh),32px);margin:8px 0 0}.folio .portrait-hint{color:var(--gold);font-size:13px;margin:2px 0 0}.folio .founder-grid{width:min(100%,880px);gap:clamp(14px,4vw,54px)}.folio .founder{gap:5px}.folio .portrait-frame{max-width:min(100%,calc(34vh * .8),260px)}.folio .founder-caption h2{font-size:clamp(19px,2.2vw,29px);text-wrap:balance}.folio .founder-role{font-size:clamp(11px,1.1vw,14px);line-height:1.45;max-width:38ch;margin:3px auto}.folio .founder-caption .ink-link{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:13px;color:var(--gold);margin:3px auto}.folio .founder-overlay .bio{font-size:clamp(13px,1.05vw,15px);line-height:1.55;text-align:justify;text-align-last:start}.folio .founder-overlay .expertise{color:var(--gold)}.folio .about-end{max-width:900px;text-align:center;color:var(--gold);font:600 clamp(15px,1.6vw,23px)/1.45 var(--display);margin:0;text-wrap:balance}html[lang=fa] .folio .about-intro{line-height:1.65}html[lang=fa] .folio .founder-role{line-height:1.6}
+.folio .icon-contacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,900px);gap:0;margin:0 auto;border:0}.folio .contact-icon{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-decoration:none;color:var(--ivory);padding:clamp(10px,3vw,30px);gap:10px;min-width:0}.folio .contact-icon+.contact-icon{border-inline-start:1px solid var(--line)}.folio .contact-icon svg{width:clamp(42px,7vw,80px);height:auto;color:var(--gold);transition:transform .2s}.folio .contact-icon:hover svg{transform:translateY(-4px)}.folio .contact-icon h2{font-size:clamp(18px,2.4vw,30px);margin:0;line-height:1.3;text-align:center}.folio .contact-icon p{font-size:14px;color:var(--muted);margin:0;line-height:1.5;text-align:center}.folio .contact-icon:hover h2{color:var(--gold)}
+@media(max-width:700px){.folio .mast-inner{grid-template-columns:36px minmax(0,1fr) auto;padding-inline:6px;gap:4px}.folio .header-actions{gap:5px}.folio .header-consult{font-size:10px;max-width:115px;padding:6px 8px;min-height:38px}.folio .wordmark img{width:24px;height:24px}.folio .brand-lock b{font-size:clamp(13px,3.7vw,17px)}.folio .hero.page{padding:calc(var(--mast-height,52px) + 7px) 16px 17px;gap:9px}.folio .hero h1{font-size:clamp(25px,6.5vw,34px);line-height:1.08;margin-bottom:9px}.folio .hero .statement{font-size:clamp(13px,3.45vw,15px);line-height:1.42}.folio .hero .statement .turn{font-size:22px;margin:6px 0}.folio .metric{padding:0 5px;gap:3px}.folio .credibility{margin-top:12px}.folio .metric-number{font-size:clamp(28px,8vw,40px)}.folio .metric span{font-size:clamp(10px,2.9vw,12px);line-height:1.25}.folio .brand-pledge{font-size:18px;margin-top:10px}.folio .hero-foot .explore{padding:9px 15px;font-size:14px;min-height:42px}.folio .hero-foot small{display:block;font-size:12px;max-width:90%}html[lang=fa] .folio .hero h1{font-size:clamp(22px,5.8vw,29px);line-height:1.45}html[lang=fa] .folio .hero .statement{line-height:1.65}html[lang=fa] .folio .hero .statement .turn{font-size:18px}html[lang=fa] .folio .metric-number{font-size:clamp(26px,7.2vw,36px)}html[lang=fa] .folio .brand-pledge{font-size:15px}.folio .founders.page{padding-inline:12px;gap:9px}.folio .founders .page-head h1{font-size:27px}.folio .about-intro{font-size:13px;line-height:1.45}.folio .founders .meet-title{font-size:21px;margin-top:6px}.folio .portrait-hint{font-size:12px}.folio .founder-grid{gap:12px}.folio .portrait-frame{max-width:min(100%,calc(31vh * .8),210px)}.folio .founder-caption h2{font-size:20px}.folio .founder-role{font-size:11px}.folio .founder-overlay .bio{font-size:12px;line-height:1.5;text-align:start}.folio .about-end{font-size:15px}.folio .icon-contacts{grid-template-columns:repeat(3,minmax(0,1fr))}.folio .contact-icon{padding:8px 4px;gap:9px}.folio .contact-icon svg{width:42px}.folio .contact-icon h2{font-size:18px}.folio .contact-icon p{font-size:12px}.folio .stage-copy p{text-align:start;line-height:1.45}.folio .journey-heading h2{font-size:26px}.folio .route-canvas{height:clamp(150px,27vh,225px)}}
+@media(max-height:680px){.folio .hero.page{justify-content:flex-start;gap:7px}.folio .hero h1{margin-bottom:6px}.folio .hero .statement .turn{margin:4px 0}.folio .credibility{margin-top:8px}.folio .brand-pledge{margin-top:7px}.folio .hero-foot{gap:5px}.folio .hero-foot small{line-height:1.25}.folio .founders.page{gap:6px}.folio .portrait-frame{max-width:min(100%,calc(29vh * .8),220px)}}
+@media(prefers-reduced-motion:reduce){.folio .contact-icon svg{transition:none}}
+.folio #home-views{height:100%;min-height:100%}.folio #journey{min-height:100%}.folio .journey.page{min-height:100%}.folio .hero.page{flex-shrink:0}.folio .hero .hero-foot small{overflow-wrap:break-word}.folio .founder-caption .ink-link .linkedin{color:inherit}.folio .hero .film-toggle{inset-inline-end:8px}
+
+/* Homepage-only polish: true full-bleed film, readable editorial copy, separate lower band. */
+.folio #intro.hero.page{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  gap:clamp(24px,4vh,52px);min-height:100%;height:auto;
+  padding:calc(var(--mast-height,54px) + clamp(16px,3vh,38px)) clamp(18px,5vw,76px) clamp(26px,3vh,40px);
+}
+.folio #intro .hero-film{position:absolute;inset:0;width:100%;height:100%;max-width:none;z-index:-1;margin:0;pointer-events:none}
+.folio #intro .film-frame,.folio #intro .hero-picture{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;overflow:hidden}
+.folio #intro .hero-poster,.folio #intro .film-frame video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transform:none}
+.folio #intro .film-frame::after{background:linear-gradient(180deg,rgba(10,25,38,.48),rgba(10,25,38,.77) 33%,rgba(10,25,38,.74) 66%,rgba(10,25,38,.86));}
+.folio #intro .hero-copy{position:relative;z-index:1;display:block;width:min(100%,1160px);margin-block-start:auto}
+.folio #intro h1{font-size:clamp(30px,min(4.5vw,6.2vh),66px);line-height:1.1;margin:0 auto clamp(12px,2vh,22px);max-width:1120px;text-wrap:balance}
+.folio #intro .statement{font-size:clamp(17px,1.38vw,21px);line-height:1.55;max-width:1050px}
+.folio #intro .statement p{font-size:inherit;line-height:inherit}
+.folio #intro .statement .turn{font-size:clamp(23px,2.6vw,35px);line-height:1.25;margin:clamp(9px,1.5vh,16px) 0}
+.folio #intro .hero-bottom{position:relative;z-index:1;width:min(100%,1100px);margin-block-start:auto;display:flex;flex-direction:column;align-items:center;gap:clamp(12px,1.8vh,22px);padding-block-start:clamp(14px,2.2vh,26px);border-top:1px solid rgba(195,163,107,.48)}
+.folio #intro .credibility{margin:0 auto;width:min(100%,950px)}
+.folio #intro .metric span{font-size:clamp(13px,1.25vw,17px);line-height:1.35}
+.folio #intro .brand-pledge{margin:0;font-size:clamp(19px,2.05vw,28px)}
+.folio #intro .hero-foot{gap:9px;width:100%}
+.folio #intro .hero-foot .explore{font-size:clamp(16px,1.35vw,19px);padding:11px 26px;min-height:46px}
+.folio #intro .hero-foot small{font-size:clamp(13px,1.2vw,17px);max-width:100%;line-height:1.45}
+html[lang=fa] .folio #intro h1{font-size:clamp(27px,min(3.8vw,5.1vh),51px);line-height:1.48}
+html[lang=fa] .folio #intro .statement{line-height:1.76}
+html[lang=fa] .folio #intro .statement .turn{font-size:clamp(20px,2.1vw,30px);line-height:1.5}
+html[lang=fa] .folio #intro .brand-pledge{font-size:clamp(17px,1.75vw,24px);line-height:1.6}
+@media(max-width:700px){
+ .folio #intro.hero.page{padding:calc(var(--mast-height,52px) + 16px) 17px 32px;gap:24px}
+ .folio #intro h1{font-size:clamp(27px,6.7vw,38px);line-height:1.15;margin-bottom:12px}
+ .folio #intro .statement{font-size:clamp(15px,3.85vw,17px);line-height:1.52}
+ .folio #intro .statement .turn{font-size:23px;margin:9px 0}
+ .folio #intro .hero-bottom{gap:13px;padding-block-start:15px}
+ .folio #intro .metric span{font-size:clamp(11px,3.1vw,14px);line-height:1.35}
+ .folio #intro .brand-pledge{font-size:19px}
+ .folio #intro .hero-foot .explore{font-size:15px;padding:10px 18px}
+ .folio #intro .hero-foot small{font-size:12.5px;max-width:92%}
+ html[lang=fa] .folio #intro h1{font-size:clamp(24px,6.15vw,32px);line-height:1.48}
+ html[lang=fa] .folio #intro .statement{line-height:1.8}
+ html[lang=fa] .folio #intro .statement .turn{font-size:19px}
+ html[lang=fa] .folio #intro .brand-pledge{font-size:16px}
+}
+@media(min-width:701px) and (max-height:780px){
+ .folio #intro.hero.page{gap:clamp(18px,3vh,30px);padding-block-start:calc(var(--mast-height,54px) + 14px);padding-block-end:24px}
+ .folio #intro h1{font-size:clamp(30px,5.4vh,48px);margin-bottom:10px}
+ .folio #intro .statement{font-size:17px;line-height:1.48}
+ .folio #intro .statement .turn{font-size:25px;margin:8px 0}
+ .folio #intro .hero-bottom{gap:10px;padding-block-start:13px}
+ html[lang=fa] .folio #intro h1{font-size:clamp(27px,4.6vh,42px);line-height:1.4}
+ html[lang=fa] .folio #intro .statement{line-height:1.65}
+}
+
+/* Entry gate: a neutral root URL always requests a language, even for returning visitors. */
+html.language-entry .folio:not(:has(#language-dialog[open])) #main,
+html.language-entry .folio:not(:has(#language-dialog[open])) .mast,
+html.language-entry .folio:not(:has(#language-dialog[open])) .site-footer{visibility:hidden}
+html.language-entry .folio #language-dialog::backdrop{background:#0A1926}
+.folio #language-dialog .language-choices button{border-color:var(--gold);color:var(--gold);background:var(--deep);font-weight:600}
+.folio #language-dialog .language-choices button:hover,.folio #language-dialog .language-choices button:focus-visible{background:var(--gold);color:var(--deep)}
+/* Full viewport background on the entrance, with the supplied portrait film on phones. */
+.folio #intro.hero.page{isolation:isolate;position:relative}
+.folio #intro .film-frame{border:0;box-shadow:none}
+.folio #intro .film-frame::after{display:block;pointer-events:none}
+.folio #intro .statement p:not(.turn){text-align:justify;text-align-last:start}
+.folio #intro .statement .turn{text-align:center;text-align-last:center}
+/* Keep text comfortably large on short screens; allow internal overflow rather than clipping. */
+@media(max-width:390px){.folio #intro .statement p:not(.turn){text-align:start;text-align-last:auto}}
+
+/* Keep all three contact destinations on one line, including narrow phones. */
+.folio .contact-lines.icon-contacts{grid-template-columns:repeat(3,minmax(0,1fr));gap:0;align-items:start}
+.folio .contact-icon{align-self:start;justify-content:flex-start;overflow-wrap:anywhere}
+.folio .contact-icon svg{flex:none;width:clamp(38px,7vw,80px);height:auto;margin:0 auto}
+@media(max-width:700px){.folio .contact-lines.icon-contacts{grid-template-columns:repeat(3,minmax(0,1fr))}.folio .contact-icon h2{font-size:clamp(13px,4vw,17px);line-height:1.4}.folio .contact-icon p{font-size:12px;line-height:1.5}.folio .contact-icon svg{width:42px;height:42px}}
+/* Footer retains only the brand. */
+.folio .site-footer>span:not(.footer-index),.folio .site-footer img{display:inline-block}
+.folio .site-footer,.folio.home-lock .site-footer{min-height:26px;padding:3px 10px;gap:6px;text-align:center}
+/* The homepage film fills the entire entrance, not a letterboxed player. */
+.folio #intro .hero-poster,.folio #intro .film-frame video{object-fit:cover;object-position:center;filter:none;transform:none}
+/* Align every credibility numeral on the same baseline; labels may wrap independently. */
+.folio #intro .credibility{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+.folio #intro .metric{justify-content:flex-start;align-items:center;min-width:0}
+.folio #intro .metric-number{line-height:1.2;flex:none;white-space:nowrap;font-variant-numeric:lining-nums tabular-nums}
+@supports(grid-template-rows:subgrid){
+ .folio #intro .credibility{grid-template-rows:auto auto;row-gap:4px}
+ .folio #intro .metric{display:grid;grid-row:span 2;grid-template-rows:subgrid;justify-items:center;align-items:start;gap:4px}
+ .folio #intro .metric-number{align-self:baseline}
+}
+@media(max-width:700px){
+ .folio #intro .metric{padding-inline:4px}
+ .folio #intro .metric-number{font-size:clamp(23px,7.1vw,37px)}
+ html[lang=fa] .folio #intro .metric-number{font-size:clamp(22px,6.8vw,36px)}
+}
+/* Preserve usable space on desktop and let the lower band sit at the bottom when it fits. */
+@media(min-width:701px){.folio #intro .hero-copy{margin-block-start:0}.folio #intro .hero-bottom{margin-block-start:auto}}
+.folio .contact-lines.icon-contacts{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.folio .contact-icon{display:grid;grid-template-rows:auto auto 1fr;justify-items:center;align-items:start}
+
+/* Compact horizontal Golden Path: all six milestones visible; stagger labels to prevent overlap. */
+@media(max-width:700px){
+ .folio .journey-map{width:100%;overflow:visible}
+ .folio .route-canvas{position:relative;width:100%;max-width:none;height:clamp(116px,20vh,164px);margin:8px auto 4px}
+ .folio .royal-route.desktop{display:none!important}
+ .folio .royal-route.mobile{display:block!important}
+ .folio .stage-node{left:var(--mx)!important;top:var(--my)!important;transform:translate(-50%,-50%)!important;width:44px;height:44px}
+ html[dir=rtl] .folio .stage-node{left:calc(100% - var(--mx))!important;top:var(--my)!important;transform:translate(-50%,-50%)!important}
+ .folio .stage-node i{width:23px;height:23px;font-size:11px}
+ .folio .stage-node span,html[dir=rtl] .folio .stage-node span{inset:auto auto auto 50%;top:calc(50% + 16px);width:clamp(54px,19vw,92px);transform:translateX(-50%);font-size:clamp(10px,2.8vw,13px);line-height:1.25;text-align:center;overflow-wrap:normal;white-space:normal}
+ .folio .stage-node:nth-of-type(even) span,html[dir=rtl] .folio .stage-node:nth-of-type(even) span{top:auto;bottom:calc(50% + 16px)}
+ .folio .stage-copy p{font-size:clamp(15px,3.9vw,17px);line-height:1.65}
+ html[lang=fa] .folio .stage-copy p{line-height:1.85}
+}
+/* Keep cover sizing without re-encoding the supplied videos. Background may crop at the edges. */
+.folio #intro .hero-film{grid-row:auto;display:block;padding:0}
+.folio #intro .hero-picture{display:block}
+.folio #intro .hero-poster,.folio #intro .film-frame video{object-fit:cover!important;object-position:center;transform:none;filter:none}
+/* Lower band remains a distinct visual group; avoid excessive top padding on short laptops. */
+@media(min-width:701px){.folio #intro .hero-copy{flex:none}.folio #intro .hero-bottom{flex:none}.folio #intro.hero.page{gap:clamp(22px,4vh,54px)}}
+@media(min-width:701px) and (max-height:780px){.folio #intro.hero.page{gap:clamp(16px,3vh,28px)}}
+
+/* Compact homepage, centered founder gallery, centered consultation icon.
+   Keep the full copy and video; allow accessible overflow only when physically necessary. */
+.folio.home-lock:not(.journey-scene) .site-footer{display:none}
+.folio.home-lock:not(.journey-scene) main{grid-row:1/-1;min-height:0}
+.folio #intro.hero.page{min-height:100%;height:auto;justify-content:safe center;gap:clamp(9px,2.2dvh,28px);padding:calc(var(--mast-height,54px) + clamp(5px,1.3dvh,16px)) clamp(12px,4vw,64px) clamp(8px,1.6dvh,20px)}
+.folio #intro .hero-copy{flex:none;margin:0;width:min(100%,1160px)}
+.folio #intro h1{font-size:clamp(28px,min(4vw,5.6dvh),60px);line-height:1.1;margin:0 auto clamp(6px,1.2dvh,15px)}
+html[lang=fa] .folio #intro h1{font-size:clamp(25px,min(3.4vw,4.6dvh),48px);line-height:1.36}
+.folio #intro .statement{font-size:clamp(15px,min(1.35vw,2.35dvh),20px);line-height:1.48;max-width:1100px}
+.folio #intro .statement p:not(.turn){margin:0;line-height:inherit}
+html[lang=fa] .folio #intro .statement{line-height:1.66}
+.folio #intro .statement .turn{font-size:clamp(21px,3.2dvh,33px);line-height:1.16;margin:clamp(4px,1dvh,12px) 0}
+html[lang=fa] .folio #intro .statement .turn{font-size:clamp(19px,2.8dvh,29px);line-height:1.35}
+.folio #intro .hero-bottom{flex:none;width:min(100%,1100px);margin:0;padding-block-start:clamp(5px,1.15dvh,13px);gap:clamp(5px,1dvh,12px)}
+.folio #intro .credibility{width:100%;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto;align-items:stretch;gap:0}
+.folio #intro .metric{display:grid;grid-row:auto;grid-template-rows:auto 1fr;align-content:start;justify-items:center;align-items:start;gap:2px;padding:0 clamp(5px,1vw,14px);min-width:0}
+.folio #intro .metric-number,html[lang=fa] .folio #intro .metric-number{font-size:clamp(27px,4.8dvh,49px);line-height:1.12;align-self:baseline;white-space:nowrap}
+.folio #intro .metric span{font-size:clamp(12px,1.3vw,15px);line-height:1.3;text-align:center;text-wrap:balance}
+.folio #intro .brand-pledge,html[lang=fa] .folio #intro .brand-pledge{font-size:clamp(16px,2.5dvh,25px);line-height:1.35;margin:0}
+.folio #intro .hero-foot{gap:5px;margin:0;padding:0;align-items:center}
+.folio #intro .hero-foot .explore{font-size:clamp(14px,1.3vw,18px);padding:7px 22px;min-height:44px;margin:0;min-width:0}
+.folio #intro .hero-foot small{font-size:clamp(12px,1.1vw,16px);line-height:1.35;max-width:calc(100% - 70px);margin:0 auto}
+/* Numeral and caption sit beside each other on desktop, saving an entire line of height. */
+@media(min-width:850px){
+ .folio #intro .metric{grid-template-rows:auto;grid-template-columns:auto minmax(0,1fr);align-items:center;justify-items:start;gap:clamp(8px,1.15vw,18px);padding-block:3px}
+ .folio #intro .metric-number,html[lang=fa] .folio #intro .metric-number{align-self:center;font-size:clamp(31px,4.8dvh,54px)}
+ .folio #intro .metric span{text-align:start;text-wrap:wrap}
+}
+@media(max-width:700px){
+ .folio #intro.hero.page{gap:clamp(7px,1.5dvh,15px);padding:calc(var(--mast-height,52px) + 5px) clamp(10px,3.4vw,18px) 8px}
+ .folio #intro h1{font-size:clamp(23px,6.4vw,32px);line-height:1.13;margin-bottom:7px}
+ html[lang=fa] .folio #intro h1{font-size:clamp(21px,5.9vw,29px);line-height:1.4}
+ .folio #intro .statement{font-size:clamp(14px,3.8vw,16px);line-height:1.4}
+ html[lang=fa] .folio #intro .statement{line-height:1.57}
+ .folio #intro .statement .turn{font-size:21px;margin:5px 0}
+ html[lang=fa] .folio #intro .statement .turn{font-size:18px;line-height:1.35}
+ .folio #intro .hero-bottom{gap:5px;padding-block-start:7px}
+ .folio #intro .metric{padding:0 3px;gap:2px}
+ .folio #intro .metric-number,html[lang=fa] .folio #intro .metric-number{font-size:clamp(22px,6.4vw,30px);line-height:1.1}
+ .folio #intro .metric span{font-size:clamp(11px,3vw,13px);line-height:1.25}
+ .folio #intro .brand-pledge,html[lang=fa] .folio #intro .brand-pledge{font-size:clamp(14px,3.8vw,18px);line-height:1.3}
+ .folio #intro .hero-foot .explore{min-height:44px;font-size:14px;padding:7px 16px;width:auto}
+ .folio #intro .hero-foot small{font-size:11.5px;line-height:1.3;max-width:calc(100% - 60px)}
+}
+@media(max-width:700px) and (max-height:720px){
+ .folio #intro.hero.page{gap:6px;padding-block-start:calc(var(--mast-height,52px) + 3px);padding-block-end:6px;padding-inline:10px}
+ .folio #intro h1{font-size:clamp(21px,5.8vw,27px);margin-bottom:5px}
+ html[lang=fa] .folio #intro h1{font-size:clamp(20px,5.5vw,26px);line-height:1.32}
+ .folio #intro .statement{font-size:clamp(13px,3.65vw,14.5px);line-height:1.35}
+ html[lang=fa] .folio #intro .statement{line-height:1.48}
+ .folio #intro .statement .turn{font-size:19px;margin:4px 0}
+ html[lang=fa] .folio #intro .statement .turn{font-size:17px}
+ .folio #intro .hero-bottom{gap:4px;padding-block-start:5px}
+ .folio #intro .metric-number,html[lang=fa] .folio #intro .metric-number{font-size:clamp(20px,5.9vw,25px)}
+ .folio #intro .metric span{font-size:11px;line-height:1.2}
+ .folio #intro .brand-pledge,html[lang=fa] .folio #intro .brand-pledge{font-size:14px}
+ .folio #intro .hero-foot{gap:4px}
+ .folio #intro .hero-foot small{font-size:11px;line-height:1.25}
+}
+@media(min-width:701px) and (max-height:650px){
+ .folio #intro.hero.page{gap:7px;padding-block-start:calc(var(--mast-height,54px) + 4px);padding-block-end:6px}
+ .folio #intro h1{font-size:clamp(24px,5dvh,36px);margin-bottom:5px}
+ html[lang=fa] .folio #intro h1{font-size:clamp(23px,4.6dvh,32px);line-height:1.3}
+ .folio #intro .statement{font-size:14px;line-height:1.4}
+ html[lang=fa] .folio #intro .statement{line-height:1.5}
+ .folio #intro .statement .turn{font-size:21px;margin:4px 0}
+ .folio #intro .hero-bottom{gap:4px;padding-block-start:5px}
+}
+/* About Us: override legacy start-aligned headings and paragraph measure constraints. */
+.folio .founders.page{width:100%;max-width:1240px;margin-inline:auto;text-align:center;align-items:center;justify-content:safe center;gap:clamp(8px,1.45dvh,18px);padding:clamp(9px,1.6dvh,22px) clamp(12px,4vw,48px)}
+.folio .founders .page-head{width:100%;max-width:1000px;margin:0 auto;text-align:center}
+.folio .founders .page-head h1{margin:0 auto 6px;text-align:center;font-size:clamp(26px,min(4vw,4.8dvh),48px)}
+.folio .founders .about-intro{width:100%;max-width:960px;margin:0 auto;text-align:center;line-height:1.5}
+.folio .founders .about-intro p{max-inline-size:none;width:100%;margin:2px auto;text-align:center;text-align-last:center;text-wrap:pretty}
+.folio .founders .portrait-hint{margin:6px auto 0;max-inline-size:none;text-align:center;font-size:clamp(12px,1.05vw,15px)}
+.folio .founders .founder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:min(100%,1000px);max-width:none;gap:clamp(12px,4vw,56px);margin:0 auto;justify-items:center;align-items:start}
+.folio .founders .founder{width:100%;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.folio .founders .portrait-frame{width:min(100%,clamp(180px,36dvh,380px));max-width:none;flex:none;margin:0 auto;aspect-ratio:4/5}
+.folio .founders .portrait-toggle,.folio .founders .portrait{width:100%;height:100%;max-width:none;display:block}
+.folio .founders .founder-caption{width:100%;max-width:420px;margin:0 auto;text-align:center}
+.folio .founders .founder-caption h2{margin:0 auto;text-align:center;font-size:clamp(20px,2.4vw,32px)}
+.folio .founders .founder-role{max-inline-size:none;margin:3px auto;text-align:center;text-align-last:center;font-size:clamp(12px,1.1vw,15px);line-height:1.45}
+.folio .founders .founder-caption .ink-link{margin:1px auto;min-height:36px;justify-content:center}
+.folio .founders .about-end{width:100%;max-inline-size:960px;margin:0 auto;text-align:center;font-size:clamp(15px,1.6vw,23px)}
+html[lang=fa] .folio .founders .about-intro,html[lang=fa] .folio .founders .founder-role{line-height:1.65}
+@media(max-width:700px){
+ .folio .founders .founder-grid{gap:12px}
+ .folio .founders .portrait-frame{width:min(100%,calc(35dvh * .8),230px)}
+ .folio .founders .founder-caption h2{font-size:clamp(17px,4.8vw,23px)}
+ .folio .founders .founder-role{font-size:clamp(11px,3.15vw,13px)}
+ .folio .founders .about-intro{font-size:clamp(13px,3.6vw,15px)}
+ .folio .founders .page-head h1{font-size:clamp(24px,6.8vw,32px)}
+ .folio .founders .about-end{font-size:14px}
+}
+/* Keep the middle contact label intact: allocate a wider middle column. */
+.folio .contact-lines.icon-contacts{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr)!important;gap:0;align-items:start;max-width:1000px;width:100%}
+.folio .contact-icon h2{max-width:100%;text-align:center;margin:0;overflow-wrap:normal}
+.folio .contact-icon[href="#consult"] h2{white-space:nowrap;text-wrap:nowrap;font-size:clamp(17px,2.2vw,28px)}
+@media(max-width:700px){
+ .folio .contact.page{padding-inline:8px}
+ .folio .contact-icon{padding-inline:2px;gap:8px}
+ .folio .contact-icon[href="#consult"] h2{font-size:clamp(10.5px,3.15vw,16px);letter-spacing:0}
+ html[lang=fa] .folio .contact-icon[href="#consult"] h2{font-size:clamp(11px,3.25vw,17px)}
+}
+
+/* Final layout correction: one active scene, a clear editorial homepage,
+   centered portrait gallery and three equally aligned contact destinations. */
+body.folio {grid-template-rows:auto minmax(0,1fr) auto;}
+body.folio .mast {grid-row:1;}
+body.folio main {grid-row:2;min-height:0;height:100%;overflow-y:auto;overflow-x:hidden;}
+body.folio .site-footer {grid-row:3;min-height:26px;}
+body.folio.home-lock:not(.journey-scene) main {grid-row:1/3;}
+body.folio.home-lock:not(.journey-scene) .site-footer {display:flex;}
+/* Override #intro.hero.page, which previously defeated the less specific hidden-scene rule. */
+body.folio.journey-scene #intro.hero.page {display:none!important;}
+body.folio:not(.journey-scene) #journey {display:none!important;}
+body.folio.journey-scene #journey {display:block!important;}
+body.folio #home-views {height:100%;min-height:100%;}
+body.folio #intro.hero.page {
+  display:flex;flex-direction:column;align-items:center;justify-content:safe center;
+  min-height:100%;height:auto;width:100%;max-width:none;margin:0;
+  gap:clamp(12px,2.4dvh,32px);
+  padding:calc(var(--mast-height,54px) + clamp(8px,1.5dvh,18px)) clamp(16px,5vw,78px) clamp(10px,2dvh,26px);
+  isolation:isolate;position:relative;
+}
+body.folio #intro .hero-film {position:absolute;inset:0;width:100%;height:100%;max-width:none;pointer-events:none;z-index:-1;}
+body.folio #intro .film-frame::after {background:linear-gradient(180deg,#0a19268c 0%,#0a1926bd 35%,#0a1926ce 80%,#0a1926df 100%);pointer-events:none;}
+body.folio #intro .hero-copy {display:block;flex:none;width:min(100%,1120px);max-width:none;margin:0;position:relative;z-index:1;}
+body.folio #intro .hero-copy h1 {max-width:1000px;margin:0 auto clamp(14px,2.6dvh,30px);font-size:clamp(30px,min(4.1vw,5.6dvh),60px);line-height:1.12;text-align:center;text-wrap:balance;}
+html[lang=fa] body.folio #intro .hero-copy h1 {font-size:clamp(26px,min(3.3vw,4.9dvh),49px);line-height:1.35;}
+body.folio #intro .statement {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;column-gap:clamp(18px,4.3vw,64px);width:100%;max-width:none;margin:0;font-size:clamp(15px,1.22vw,19px);line-height:1.5;color:var(--ivory);}
+body.folio #intro .statement .hero-problem,body.folio #intro .statement .hero-solution {min-width:0;width:100%;}
+body.folio #intro .statement .hero-solution {border-inline-start:1px solid #c3a36b66;padding-inline-start:clamp(18px,3vw,42px);}
+body.folio #intro .statement p:not(.turn) {max-width:none;width:100%;margin:0;text-align:justify;text-align-last:start;line-height:inherit;font-size:inherit;}
+html[lang=fa] body.folio #intro .statement {line-height:1.7;}
+body.folio #intro .statement .turn {font-size:clamp(21px,2vw,32px);line-height:1.25;margin:0 0 8px;text-align:start;text-align-last:start;color:var(--gold);}
+html[lang=fa] body.folio #intro .statement .turn {font-size:clamp(20px,1.8vw,28px);line-height:1.45;}
+body.folio #intro .statement .turn strong {color:var(--gold);font-weight:700;}
+body.folio #intro .hero-bottom {width:min(100%,1120px);margin:0;flex:none;display:flex;flex-direction:column;gap:clamp(8px,1.6dvh,17px);padding:clamp(8px,1.6dvh,17px) 0 0;border-top:1px solid #c3a36b66;position:relative;z-index:2;}
+body.folio #intro .credibility {width:100%;max-width:1000px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto;margin:0 auto;gap:0;align-items:stretch;}
+body.folio #intro .metric {display:grid;grid-row:auto;grid-template-rows:auto 1fr;justify-items:center;align-items:start;gap:3px;margin:0;padding:0 clamp(4px,1.4vw,18px);border:0;}
+body.folio #intro .metric+.metric {border-inline-start:1px solid #c3a36b66;}
+body.folio #intro .metric .metric-number {font-size:clamp(29px,4.5dvh,49px);line-height:1.15;letter-spacing:0;white-space:nowrap;margin:0;}
+html[lang=fa] body.folio #intro .metric .metric-number {font-size:clamp(27px,4.4dvh,47px);line-height:1.2;letter-spacing:0;}
+body.folio #intro .metric span {font-size:clamp(12px,1.05vw,15px);line-height:1.4;text-align:center;max-width:none;}
+body.folio #intro .hero-foot {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;margin:0;padding:0;border:0;width:100%;max-width:none;position:relative;z-index:3;pointer-events:auto;}
+body.folio #intro .hero-foot .explore {position:relative;z-index:4;pointer-events:auto;min-height:44px;min-width:0;width:auto;margin:0;padding:8px 24px;font-size:clamp(14px,1.2vw,17px);white-space:normal;}
+body.folio #intro .hero-foot small {display:block;max-width:100%;width:auto;margin:0 auto;font-size:clamp(12px,1.05vw,16px);line-height:1.4;text-align:center;text-wrap:balance;}
+/* Center the portrait composition explicitly; no inherited page-head measure or start alignment. */
+body.folio main[data-view=founders] .founders.page {display:flex;flex-direction:column;align-items:center;justify-content:safe center;min-height:100%;width:100%;max-width:1160px;margin:0 auto;padding:clamp(9px,1.6dvh,20px) clamp(14px,4vw,52px);gap:clamp(8px,1.35dvh,18px);text-align:center;}
+body.folio main[data-view=founders] .page-head {display:flex;flex-direction:column;align-items:center;max-width:960px;width:100%;margin:0 auto;padding:0;gap:5px;text-align:center;}
+body.folio main[data-view=founders] .page-head h1 {width:100%;max-width:none;font-size:clamp(25px,min(3.4vw,4.7dvh),46px);line-height:1.2;margin:0;text-align:center;}
+html[lang=fa] body.folio main[data-view=founders] .page-head h1 {line-height:1.42;}
+body.folio main[data-view=founders] .about-intro {display:block;max-width:900px;width:100%;margin:0 auto;font-size:clamp(13px,1.05vw,16px);line-height:1.5;text-align:center;}
+body.folio main[data-view=founders] .about-intro p {display:block;width:100%;max-width:none;max-inline-size:none;margin:2px auto;text-align:center;text-align-last:center;}
+html[lang=fa] body.folio main[data-view=founders] .about-intro {line-height:1.65;}
+body.folio main[data-view=founders] .portrait-hint {width:100%;max-width:none;max-inline-size:none;margin:0 auto;text-align:center;color:var(--gold);font-size:clamp(12px,1.02vw,14px);line-height:1.4;}
+body.folio main[data-view=founders] .founder-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,4vw,60px);width:min(100%,820px);max-width:none;margin:0 auto;padding:0;border:0;align-items:stretch;justify-items:center;}
+body.folio main[data-view=founders] .founder {display:grid;grid-template-rows:auto 1fr;align-items:start;justify-items:center;min-width:0;width:100%;margin:0;padding:0;border:0;gap:7px;text-align:center;}
+body.folio main[data-view=founders] .portrait-frame {position:relative;width:min(100%,clamp(170px,34dvh,320px));max-width:none;height:auto;aspect-ratio:4/5;margin:0 auto;}
+body.folio main[data-view=founders] .portrait-toggle,body.folio main[data-view=founders] .founder .portrait {display:block;width:100%;height:100%;max-width:none;margin:0;object-fit:cover;}
+body.folio main[data-view=founders] .founder-caption {display:grid;grid-template-rows:auto 1fr auto;justify-items:center;align-items:start;width:100%;max-width:380px;height:100%;margin:0 auto;gap:4px;text-align:center;}
+body.folio main[data-view=founders] .founder-caption h2 {width:100%;max-width:none;margin:0;text-align:center;font-size:clamp(20px,2vw,29px);line-height:1.25;}
+body.folio main[data-view=founders] .founder-role {width:100%;max-width:none;max-inline-size:none;margin:0 auto;text-align:center;text-align-last:center;font-size:clamp(12px,1.04vw,15px);line-height:1.45;}
+html[lang=fa] body.folio main[data-view=founders] .founder-role {line-height:1.6;}
+body.folio main[data-view=founders] .founder-caption .ink-link {display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:30px;margin:0 auto;padding:2px 0;text-decoration:none;line-height:1.3;}
+body.folio main[data-view=founders] .ink-link .linkedin {background:var(--gold);color:var(--deep);}
+body.folio main[data-view=founders] .about-end {width:100%;max-width:900px;max-inline-size:none;margin:0 auto;text-align:center;color:var(--gold);font-size:clamp(14px,1.35vw,20px);line-height:1.45;}
+/* All three contact items share identical rows, with the wider center label never wrapping. */
+body.folio main[data-view=contact] .contact.page {display:flex;flex-direction:column;align-items:center;justify-content:safe center;min-height:100%;max-width:1160px;width:100%;margin:0 auto;padding:18px clamp(10px,4vw,56px);gap:clamp(24px,6dvh,58px);}
+body.folio main[data-view=contact] .page-head {width:100%;max-width:none;text-align:center;margin:0 auto;}
+body.folio main[data-view=contact] .page-head h1 {text-align:center;margin:0;font-size:clamp(29px,4.4vw,58px);}
+body.folio main[data-view=contact] .contact-lines.icon-contacts {display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr)!important;align-items:stretch;gap:0;max-width:900px;width:100%;margin:0 auto;border:0;}
+body.folio main[data-view=contact] .contact-icon {display:grid;grid-template-rows:76px auto 1fr;align-items:start;align-self:stretch;justify-items:center;justify-content:stretch;gap:13px;padding:12px clamp(3px,1.5vw,20px);margin:0;min-width:0;text-align:center;overflow-wrap:normal;}
+body.folio main[data-view=contact] .contact-icon+.contact-icon {border-inline-start:1px solid #c3a36b55;}
+body.folio main[data-view=contact] .contact-icon svg {width:64px;height:64px;align-self:center;margin:0 auto;}
+body.folio main[data-view=contact] .contact-icon h2 {width:100%;max-width:none;margin:0;text-align:center;font-size:clamp(16px,1.8vw,24px);line-height:1.4;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;}
+html[lang=fa] body.folio main[data-view=contact] .contact-icon h2 {font-size:clamp(16px,1.75vw,24px);line-height:1.5;}
+body.folio main[data-view=contact] .contact-icon p {width:100%;max-width:none;max-inline-size:none;margin:0;text-align:center;text-align-last:center;font-size:clamp(12px,1vw,14px);line-height:1.5;}
+@media(max-width:760px){
+ body.folio #intro.hero.page {gap:clamp(8px,1.5dvh,16px);padding:calc(var(--mast-height,54px) + 6px) clamp(12px,4vw,22px) 10px;}
+ body.folio #intro .hero-copy h1 {font-size:clamp(23px,6.4vw,34px);margin:0 auto 8px;line-height:1.15;}
+ html[lang=fa] body.folio #intro .hero-copy h1 {font-size:clamp(21px,5.7vw,31px);line-height:1.42;}
+ body.folio #intro .statement {display:flex;flex-direction:column;gap:7px;font-size:clamp(13.5px,3.7vw,16px);line-height:1.45;}
+ html[lang=fa] body.folio #intro .statement {line-height:1.6;}
+ body.folio #intro .statement .hero-solution {border:0;padding:0;}
+ body.folio #intro .statement .turn,html[lang=fa] body.folio #intro .statement .turn {font-size:clamp(17px,4.7vw,23px);margin:0 0 3px;text-align:center;text-align-last:center;}
+ body.folio #intro .statement p:not(.turn) {text-align:start;text-align-last:auto;}
+ body.folio #intro .hero-bottom {gap:7px;padding-block-start:8px;}
+ body.folio #intro .metric {padding:0 3px;gap:3px;}
+ body.folio #intro .metric .metric-number,html[lang=fa] body.folio #intro .metric .metric-number {font-size:clamp(21px,6.2vw,32px);}
+ body.folio #intro .metric span {font-size:clamp(10.5px,2.9vw,13px);line-height:1.3;}
+ body.folio #intro .hero-foot {gap:4px;}
+ body.folio #intro .hero-foot small {font-size:11px;max-width:calc(100% - 40px);}
+ body.folio #intro .hero-foot .explore {font-size:14px;min-height:44px;padding:6px 16px;}
+ body.folio main[data-view=founders] .founders.page {gap:9px;padding:12px;}
+ body.folio main[data-view=founders] .page-head h1 {font-size:clamp(23px,6.4vw,32px);}
+ body.folio main[data-view=founders] .about-intro {font-size:clamp(13px,3.5vw,15px);}
+ body.folio main[data-view=founders] .founder-grid {gap:12px;}
+ body.folio main[data-view=founders] .portrait-frame {width:min(100%,clamp(120px,25dvh,230px));}
+ body.folio main[data-view=founders] .founder-caption h2 {font-size:clamp(17px,4.8vw,23px);}
+ body.folio main[data-view=founders] .founder-role {font-size:clamp(11px,3vw,13px);}
+ body.folio main[data-view=founders] .about-end {font-size:14px;}
+ body.folio main[data-view=contact] .contact.page {padding:14px 6px;gap:30px;}
+ body.folio main[data-view=contact] .contact-icon {grid-template-rows:46px auto 1fr;gap:9px;padding:8px 2px;}
+ body.folio main[data-view=contact] .contact-icon svg {width:40px;height:40px;}
+ body.folio main[data-view=contact] .contact-icon h2,html[lang=fa] body.folio main[data-view=contact] .contact-icon h2 {font-size:clamp(10.5px,3.15vw,16px);line-height:1.4;}
+ body.folio main[data-view=contact] .contact-icon p {font-size:clamp(10.5px,2.8vw,13px);}
+}
+@media(min-width:761px) and (max-height:690px){
+ body.folio #intro.hero.page {gap:10px;padding-block-start:calc(var(--mast-height,54px) + 8px);padding-block-end:9px;}
+ body.folio #intro .hero-copy h1 {margin-bottom:12px;font-size:clamp(28px,5.4dvh,44px);}
+ html[lang=fa] body.folio #intro .hero-copy h1 {font-size:clamp(25px,4.9dvh,40px);}
+ body.folio #intro .statement {font-size:clamp(14px,2.3dvh,16px);line-height:1.45;}
+ html[lang=fa] body.folio #intro .statement {line-height:1.6;}
+ body.folio #intro .hero-bottom {gap:8px;padding-block-start:8px;}
+ body.folio main[data-view=founders] .portrait-frame {width:min(100%,clamp(155px,33dvh,240px));}
+ body.folio main[data-view=founders] .founders.page {gap:7px;padding-block:8px;}
+}
+@media(max-width:760px) and (max-height:720px){
+ body.folio #intro.hero.page {gap:6px;padding-block-end:6px;}
+ body.folio #intro .hero-copy h1 {margin-bottom:5px;}
+ body.folio #intro .statement {font-size:clamp(13px,3.5vw,14.5px);line-height:1.4;gap:5px;}
+ html[lang=fa] body.folio #intro .statement {line-height:1.5;}
+ body.folio #intro .hero-bottom {gap:5px;padding-block-start:5px;}
+ body.folio #intro .metric .metric-number,html[lang=fa] body.folio #intro .metric .metric-number {font-size:clamp(20px,5.8vw,27px);}
+}
