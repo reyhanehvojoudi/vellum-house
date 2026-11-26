@@ -33,11 +33,19 @@ with sync_playwright() as p:
                     if route=='intro-dialog':pg.locator('#language-control').click()
                     if route=='journey':
                         assert pg.locator('[data-stage]').count()==6
-                        pg.locator('[data-stage="2"]').click();assert pg.locator('[data-stage-copy="2"]').is_visible()
+                        for stage in range(6):
+                            pg.locator(f'[data-stage="{stage}"]').click();assert pg.locator(f'[data-stage-copy="{stage}"]').is_visible()
+                            error=pg.evaluate("""(stage)=>{const svg=[...document.querySelectorAll('.royal-route')].find(s=>getComputedStyle(s).display!=='none'), light=svg.querySelector('.route-light'),pt=new DOMPoint(+light.getAttribute('cx'),+light.getAttribute('cy')).matrixTransform(svg.getScreenCTM()),n=document.querySelector('[data-stage="'+stage+'"] i').getBoundingClientRect();return Math.hypot(pt.x-n.x-n.width/2,pt.y-n.y-n.height/2)}""",stage)
+                            assert error<=1.5,f'Milestone {stage+1}: {error:.2f}px error'
+                        pg.locator('[data-stage="2"]').click()
+                    if route=='founders':
+                        assert pg.locator('.portrait-toggle').count()==2
+                        a,b=[e.bounding_box() for e in pg.locator('.portrait-toggle').all()];assert abs(a['y']-b['y'])<2
+                        pg.locator('.portrait-toggle').first.focus();pg.keyboard.press('Enter');assert pg.locator('.founder-overlay').first.is_visible();pg.keyboard.press('Escape');assert not pg.locator('.founder-overlay').first.is_visible()
                     if route=='consult':
                         form=pg.locator('#enquiry-form');assert form.is_visible();assert form.locator('[name="fullName"]').is_visible();assert form.locator('[name="serviceInterest"]').is_visible();assert form.locator('[type="submit"]').is_visible();assert not pg.locator('.form-navigation').count()
                     record.update(pg.evaluate('''()=>{const m=document.querySelector('main');return {scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,mainWidth:m?.clientWidth,mainScrollWidth:m?.scrollWidth,mainHeight:m?.clientHeight,mainScrollHeight:m?.scrollHeight,loadedFonts:[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family)}}'''))
-                    pg.screenshot(path=str(OUT/f'{lang}-{w}x{h}-{state}.png'));record['status']='measured';record['errors']=errors[:]
+                    pg.screenshot(path=str(OUT/f'{lang}-{w}x{h}-{state}.png'));record['status']='measured';record['errors']=errors[:];record['mainOverflowPx']=max(0,record['mainScrollHeight']-record['mainHeight']);record['cinematicFit']=record['mainOverflowPx']<=2 if route in ('intro','journey','founders','contact') else None
                 except Exception as e:record['status']='blocked/error';record['detail']=str(e).splitlines()[0]
                 results.append(record)
             c.close()

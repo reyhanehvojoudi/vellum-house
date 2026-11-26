@@ -19,7 +19,7 @@ for p in pages:
     parser=Page();parser.feed(raw)
     assert any(a.get('rel')=='icon' for _,a in parser.tags),p
     for _,a in parser.tags:
-        for attr in ('href','src','poster','data-src','data-src-small'):
+        for attr in ('href','src','poster','data-src','data-src-small','data-poster','data-poster-small'):
             if a.get(attr):check_ref(ROOT,a[attr])
         for ref in a.get('srcset','').split(','):
             if ref.strip():check_ref(ROOT,ref.strip().split()[0])
@@ -31,9 +31,24 @@ for p in pages:
     assert sum('data-stage' in a for _,a in parser.tags)==6
     assert sum('data-stage-copy' in a for _,a in parser.tags)==6
     assert sum('data-delta' in a for _,a in parser.tags)==2
+    # All node positions must agree with the exact cubic endpoints on both layouts.
+    nodes=[a for _,a in parser.tags if 'data-stage' in a]
+    bases=[a for t,a in parser.tags if t=='path' and a.get('class')=='route-base']
+    for base,(w,h,xkey,ykey) in zip(bases,[(1000,230,'--x','--y'),(260,370,'--mx','--my')]):
+        nums=list(map(float,re.findall(r'-?\d+(?:\.\d+)?',base['d'])))
+        points=[nums[:2]]+[nums[j+4:j+6] for j in range(2,len(nums),6)]
+        assert len(points)==len(nodes)==6
+        for node,(x,y) in zip(nodes,points):
+            css=dict(re.findall(r'(--\w+):([\d.]+)%',node['style']))
+            assert abs(float(css[xkey])-100*x/w)<1e-6
+            assert abs(float(css[ykey])-100*y/h)<1e-6
     assert 'id="journey-pause"' in raw and 'class="royal-route desktop"' in raw and 'class="royal-route mobile"' in raw
     assert 'assets/royal.css' in raw and 'class="explore btn gold"' in raw
     assert raw.index('class="hero-film"') < raw.index('class="explore btn gold"')
+    assert 'hero-portrait.mp4' in raw and 'hero-portrait-poster.webp' in raw
+    assert sum(a.get('class')=='portrait-toggle' for _,a in parser.tags)==2
+    assert sum(a.get('class')=='founder-overlay' and 'hidden' in a for _,a in parser.tags)==2
+    assert ('About Us' if p.name=='en.html' else 'درباره ما') in raw
     assert sum('linkedin.com/in/' in a.get('href','') for _,a in parser.tags)==2
     assert any(a.get('href')=='https://t.me/VH_edu' for _,a in parser.tags)
     assert any(a.get('href')=='mailto:vellumhouse.edu@gmail.com' for _,a in parser.tags)

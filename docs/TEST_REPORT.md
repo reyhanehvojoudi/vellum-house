@@ -1,21 +1,16 @@
-# Release verification
+# Revision 2 — verification
 
-| Test | Result | Evidence |
-|---|---|---|
-| Original baseline static checks | PASS | 23 HTML entry points; original four-stage journey |
-| Final static integrity | PASS | tools/check.py: 23 HTML entry points, 6 stage nodes and details, pause/vertical and horizontal SVG, video before gold CTA, required form fields, local references, profiles, links, manifest |
-| JavaScript parse | PASS | node --check assets/house.js; remaining JS checked separately |
-| Backend isolated regression | PASS | node tools/test-backend.cjs: 59 isolated API calls; validation, sheets, booking limits, overlaps, retry, cancellation, staff authorization |
-| Backend/config preservation | PASS | SHA-256 byte comparison against original archive; no backend, booking, education, dashboard or endpoint edits |
-| Video metadata | PASS | ffprobe: both 48.000 s, same 20:11 aspect, optimized H.264 |
-| Sample media comparison | PASS (sampled) | 13 grayscale SSIM frames; see PERFORMANCE_REPORT.md |
-| Browser navigation / screenshots | BLOCKED | Chromium launched, but file:/// and http://127.0.0.1 navigation returned net::ERR_BLOCKED_BY_ADMINISTRATOR. No screenshots or browser motion evidence claimed. |
-| Browser responsive geometry, keyboard, contrast, playback and transitions | NOT PERFORMED | Requires authorized local browser. Run tools/visual-qa.py and manual checks. |
-| Actual approved font rendering | NOT PERFORMED | Selected font assets missing. Local fallback active; installer and licensed Dana procedure provided. |
-| Live Google Sheets, Calendar, Meet, mail, staff dashboard | NOT PERFORMED | No live writes authorized; isolated backend tests are not live integration proof. |
-| Lighthouse / field Web Vitals | NOT PERFORMED | Browser policy blocker; no scores claimed. |
+| Test | Result |
+|---|---|
+| Static site checks | PASS — 23 HTML entry points; required fields, routes, 6 milestones, 2 founder overlays, linked assets, responsive portrait media |
+| JavaScript syntax | PASS — changed house.js checked with Node |
+| Golden Path geometry | PASS — six cubic endpoints match all six static node positions for both SVG variants and both languages; animation now paints actual per-segment paths |
+| Backend isolated regression | PASS — 59 API calls, including booking conflict protection and validation |
+| Preservation | PASS — 12 critical files byte-identical to prior release (backend, config, booking, education, calendar API, admin scripts/page, shared CSS, desktop film) |
+| New mobile film metadata | PASS — source 720×1280, delivered 540×960, full 24.033333 s, 1,465,819 bytes |
+| Actual browser visual checks | BLOCKED — Chromium http://127.0.0.1:8765/en.html returned net::ERR_BLOCKED_BY_ADMINISTRATOR |
+| Actual pixel alignment, viewport fit, overlay and responsive video interaction | UNVERIFIED — run updated tools/visual-qa.py and inspect manually |
+| Actual selected font rendering | UNVERIFIED — fonts not supplied; fallbacks remain |
+| Live Google integrations and Lighthouse | NOT PERFORMED — no production writes authorized; no browser metrics |
 
-## Owner pre-publication acceptance
-Review home EN/FA at 360×640, 390×844, 430×932, 768×1024, 1024×768, 1280×720, 1440×900 and 1920×1080. Verify actual approved fonts, no unwanted wrapping/clipping, full frame and duration, CTA below film, play/pause, slow network, language gate/switcher, sliding drawer and Esc/focus, swipe and scroll chapter transitions, all six milestones, 10-second automatic progression and pause/replay, Persian alignment, founders, contact, all consultation fields visible in a single scrollable page, validation, calendar and admin login. Test Chrome, Safari/WebKit, Firefox and Edge where available; reduced motion and keyboard only. Verify published availability and true booking with owner-authorized test data only. Never expose personal records in screenshots. Review source founder experience/student-count claims before publication.
-
-Result: reviewable build; not certified production-ready until browser, typography and live integration acceptance is completed.
+Before publication: open both languages locally and check home, journey, About Us and contact on typical phones and desktops; test actual video startup, portrait/landscape selection, all six path endpoints and no overshoot, hover/tap/keyboard biography interaction and compact header. Check that normal cinematic scenes fit the viewport; accessibility or unusually compact screens may use internal overflow. Test form/calendar using authorized test data only. The browser QA runner records main overflow and asserts milestone light-to-marker center error ≤1.5 CSS px for each stage. No genuine screenshots are claimed. This is a review build, not a production-certified release.

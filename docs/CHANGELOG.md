@@ -1,8 +1,8 @@
-# Royal Academia release changes
-- Modified `index.html`, `en.html`: header/drawer, centered composition (CSS), CTA order, 6 bilingual journey milestones, responsive SVG paths, pause, final consultation action, language gate crest. Existing homepage and founder text, photo links, form fields and identifiers retained.
-- Replaced `assets/thread.ad99890decf7.css` with `assets/royal.css`, separate `royal-fonts.css` installation hook. Shared house.css/admin remain unchanged. No extra animation library.
-- Modified `assets/house.js`: chapter dissolve, drawer focus/dismiss, manual playback fallback, adaptive media, six-stage animated route, auto/manual controls, language-stage preservation, native scrolling for forms and founders; remove stepped-form implementation and early booking prefetch.
-- Replaced desktop/mobile MP4 assets with content-hashed optimized versions; removed older public video versions. Original ZIP retained as rollback source.
-- Updated tools/check.py for six stages and new assets, added tools/install_fonts.py, revised tools/visual-qa.py; archived previous design/performance reports. Added design, performance, test, deployment and rollback docs.
-- Preserved byte-for-byte: backend directory, assets/config.js, assets/calendar-api.js, assets/booking.js, assets/education.js, assets/admin.js, assets/house.css, admin.html, CNAME, legacy redirects, crest, portraits, existing form endpoint.
-- Decisions: keep all content rather than force unreadable single viewport; on mobile show video/CTA before long introductory paragraph; font fallback until approved files obtained; fade through navy rather than an overlap of live scenes. No production writes or deployment.
+# Revision 2 changes
+- en.html, index.html: full-background homepage, responsive portrait film/poster, slim consultation header, About Us navigation and side-by-side interactive portrait overlays; cache-busted public CSS/JS.
+- assets/royal.css: compact cinematic compositions, paragraph justification, subdued header, responsive full-screen media, physical node-center geometry, founder overlay styling. Shared house.css unchanged.
+- assets/house.js: responsive video source/poster, exact SVG per-segment painting and synchronized milestones, interactive biography overlays.
+- assets/media/hero-portrait.mp4 and hero-portrait-poster.webp added from IMG_7231.MP4. Previous hero-mobile.c4f6743aa437.mp4 removed from release (can safely remove obsolete file from GitHub after review). Desktop film unchanged.
+- tools/check.py and tools/visual-qa.py updated for new structure and geometry.
+- DESIGN.md, TEST_REPORT.md, PERFORMANCE_REPORT.md, DEPLOYMENT_GUIDE_FA.md updated.
+- Original bios, portraits, homepage content, all form fields, backend, API endpoint and dashboard preserved. No production deployment performed.
