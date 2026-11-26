@@ -63,21 +63,11 @@
   const names=fa?['آغاز','مسیر همراهی','درباره ما','مشاوره']:['Home','Approach','About Us','Consultation'];
   const indexOf=(hash)=>{const raw=hash.replace(/^#/, '').split('/')[0];const n=aliases[raw]||raw;return n==='journey'?1:n==='founders'?2:['consult','calendar','contact','privacy'].includes(n)?3:0};
   const numeral=n=>String(n).padStart(2,'0').replace(/\d/g,d=>fa?'۰۱۲۳۴۵۶۷۸۹'[Number(d)]:d);
-  let currentLeaf=0;
+  let currentLeaf=0, transitionTimer, transitionEnd, moving=false;
   const sweep=document.querySelector('.thread-sweep');
-  function updateSpine(){currentLeaf=indexOf(location.hash);document.body.style.setProperty('--progress',(currentLeaf+1)/4);const count=`${numeral(currentLeaf+1)} / ${numeral(4)}`;for(const [sel,text] of [['.spine-index',count],['.footer-index',count],['.spine-name',names[currentLeaf]]]){const node=document.querySelector(sel);if(node)node.textContent=text;}}
-  // Commit navigation synchronously. Animation is cosmetic and never gates routing.
-  function animateRoute(apply,next){
-    if(typeof main.getAnimations==='function')main.getAnimations().forEach(a=>a.cancel());
-    apply();
-    if(!reduced.matches&&typeof main.animate==='function'){
-      try{main.animate([{opacity:.12},{opacity:1}],{duration:520,easing:'ease-out'});}catch(_){}
-    }
-  }
-  function navigate(hash){
-    if(hash===location.hash){route(true);return;}
-    animateRoute(()=>{history.pushState(null,'',hash);route(true);},indexOf(hash));
-  }
+  function updateSpine(){currentLeaf=indexOf(location.hash);document.body.style.setProperty('--progress',(currentLeaf+1)/4);const count=`${numeral(currentLeaf+1)} / ${numeral(4)}`;document.querySelector('.spine-index').textContent=count;document.querySelector('.footer-index').textContent=count;document.querySelector('.spine-name').textContent=names[currentLeaf];}
+  function animateRoute(apply,next){clearTimeout(transitionTimer);clearTimeout(transitionEnd);main.getAnimations().forEach(a=>a.cancel());if(reduced.matches){moving=false;apply();return;}moving=true;main.animate([{opacity:1},{opacity:0}],{duration:300,easing:'ease-in-out',fill:'forwards'});transitionTimer=setTimeout(()=>{main.getAnimations().forEach(a=>a.cancel());apply();main.animate([{opacity:0},{opacity:1}],{duration:360,easing:'ease-out'});},300);transitionEnd=setTimeout(()=>{main.getAnimations().forEach(a=>a.cancel());moving=false;},680);}
+  function navigate(hash){if(moving||hash===location.hash)return;animateRoute(()=>{history.pushState(null,'',hash);route(true);},indexOf(hash));}
   function setupForm(form){if(form.dataset.ready)return;form.dataset.ready='yes';const phone=form.elements.phone;function validate(){const value=phone.value.trim(),digits=value.replace(/[^0-9۰-۹٠-٩]/g,'');phone.setCustomValidity(!value||(/^\+?[0-9۰-۹٠-٩ ()\-]+$/.test(value)&&digits.length>=6&&digits.length<=18)?'':(fa?'لطفاً شمارهٔ تماس معتبری وارد کنید.':'Enter a valid phone number.'));}phone.addEventListener('input',validate);phone.addEventListener('change',validate);}
   function setupFounders(section){if(!section||section.dataset.ready)return;section.dataset.ready='yes';for(const card of section.querySelectorAll('.founder')){const frame=card.querySelector('.portrait-frame'),button=card.querySelector('.portrait-toggle'),overlay=card.querySelector('.founder-overlay'),close=overlay.querySelector('.bio-close');let pinned=false;function open(){overlay.hidden=false;button.setAttribute('aria-expanded','true');}function hide(focus=false){pinned=false;overlay.hidden=true;button.setAttribute('aria-expanded','false');if(focus)button.focus();}frame.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!pinned)open();});frame.addEventListener('pointerleave',()=>{if(!pinned&&!overlay.contains(document.activeElement))hide();});button.addEventListener('click',()=>{if(pinned){hide(true);return;}pinned=true;open();close.focus({preventScroll:true});});close.addEventListener('click',()=>hide(true));frame.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();hide(true);}});frame.addEventListener('focusout',e=>{if(!pinned&&!frame.contains(e.relatedTarget)&&!frame.matches(':hover'))hide();});}}
   function markNav(name) {
@@ -91,11 +81,10 @@
     const name=aliases[raw] || raw || 'intro';
     const page=['consult','calendar','founders','contact'].includes(name)?name:name==='privacy'?'consult':'home';
     if(!cache.has(page))cache.set(page,document.getElementById('view-'+page).content.firstElementChild.cloneNode(true));
-    if(view!==page){view=page;main.replaceChildren(cache.get(page));main.dataset.view=page;document.body.classList.toggle('home-lock',page==='home');}
+    if(view!==page){view=page;main.replaceChildren(cache.get(page));main.dataset.view=page;document.body.classList.toggle('home-lock',page==='home');updateFilm();}
     document.body.classList.toggle('journey-scene',page==='home' && name==='journey');
-    const inJourney=page==='home'&&name==='journey',intro=home.querySelector('#intro');
-    intro.hidden=inJourney;intro.inert=inJourney;journey.hidden=!inJourney;journey.inert=!inJourney;
     updateFilm();
+    home.querySelector('#intro').inert=name==='journey'&&page==='home'; journey.inert=name!=='journey';
     markNav(page==='home'?name:page);updateSpine();main.scrollTop=0;if(name==='journey'&&page==='home'){if(/^[0-5]$/.test(key))showStage(Number(key));else drawPath(stageMotion);}
     if(page==='home'){
       if(focus && name==='journey')journey.focus({preventScroll:true});
@@ -116,7 +105,7 @@
       if(view==='calendar')document.getElementById('calendar-area').textContent=fa?'بارگیری تقویم ممکن نشد. صفحه را دوباره باز کنید.':'The calendar could not load. Please reload.';
     });
   }
-  document.addEventListener('click',event=>{const link=event.target.closest?.('a[href^="#"]');if(!link||link.classList.contains('skip')||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();closeMenu();navigate(link.hash);});
+  document.addEventListener('click',event=>{const link=event.target.closest('a[href^="#"]');if(!link||link.classList.contains('skip')||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();closeMenu();navigate(link.hash);});
   main.addEventListener('click',event=>{
     const node=event.target.closest('button');if(!node || !journey.contains(node))return;
     if(node.hasAttribute('data-stage'))showStage(Number(node.dataset.stage),true);
@@ -135,13 +124,13 @@
     }
   });
   function reveal(){
-    chosen=true;document.documentElement.classList.remove('language-entry');document.documentElement.classList.add('language-chosen');
+    chosen=true;document.documentElement.classList.add('language-chosen');
     filmButton();
     clearTimeout(filmWarmupTimer);
     filmWarmupTimer=setTimeout(()=>{if(chosen && !document.hidden)updateFilm();},150);
   }
   function openChooser(first) {
-    closeMenu();dismiss.hidden=first;dialog.classList.remove('leaving');if(!dialog.open)dialog.showModal();video.pause();
+    closeMenu();dismiss.hidden=first;dialog.classList.remove('leaving');dialog.showModal();video.pause();
     dialog.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));
     dialog.querySelector('[data-lang="'+lang+'"]').focus({preventScroll:true});
   }
@@ -165,12 +154,12 @@
   dialog.addEventListener('cancel',e=>{e.preventDefault();if(chosen)choose(lang);});
   document.getElementById('language-control').addEventListener('click',()=>openChooser(false));
   document.querySelector('.skip').addEventListener('click',e=>{e.preventDefault();main.focus();});
-  window.addEventListener('hashchange',()=>animateRoute(()=>route(),indexOf(location.hash)));
-  const previous=window.vhRequireLanguage?null:window.vhInitialLanguage;
+  window.addEventListener('hashchange',()=>{if(moving){clearTimeout(transitionTimer);clearTimeout(transitionEnd);main.getAnimations().forEach(a=>a.cancel());moving=false;route();return;}animateRoute(()=>route(),indexOf(location.hash));});
+  document.querySelector('.footer-lang').addEventListener('click',()=>openChooser(false));
+  const previous=window.vhInitialLanguage;
   if(previous && previous!==lang && !/\/(en|index)\.html$/.test(location.pathname)){
     const url=new URL(previous==='en'?'en.html':'index.html',location.href);url.search=location.search;url.hash=location.hash;location.replace(url.href);return;
   }
-  if(!previous)openChooser(true);
   showStage(0);route(false);
-  if(previous)reveal();
+  if(previous)reveal();else openChooser(true);
 })();
