@@ -9,7 +9,7 @@
   // Keep the first paint light: the poster is shown immediately and the
   // large film is fetched shortly after the interface becomes usable.
   video.setAttribute('preload','none');
-  const journey=document.getElementById('journey'); const pauseJourney=journey.querySelector('#journey-pause'); let autoPaused=reduced.matches, autoTimer, stageMotion=0; const pathMetrics=new WeakMap();
+  const journey=document.getElementById('journey'); let stageMotion=0; const pathMetrics=new WeakMap();
   if(!journey.querySelector('.journey-back')){
     const back=document.createElement('a');back.className='journey-back';back.href='#intro';back.textContent=fa?'بازگشت به ابتدا':'Back to the beginning';
     journey.querySelector('.journey').prepend(back);
@@ -44,15 +44,11 @@
   new IntersectionObserver(entries=>{canSeeFilm=entries[0].isIntersecting;updateFilm();},{threshold:.12}).observe(video);
   document.addEventListener('visibilitychange',updateFilm);
   reduced.addEventListener('change',updateFilm);
-  function scheduleJourney(){clearTimeout(autoTimer);if(autoPaused||reduced.matches||document.hidden||dialog.open||!chosen||!document.body.classList.contains('journey-scene')||stage>=5)return;autoTimer=setTimeout(()=>showStage(stage+1),10000);}
-  function setJourneyPause(value){autoPaused=value;pauseJourney.disabled=reduced.matches;pauseJourney.setAttribute('aria-pressed',String(value));pauseJourney.textContent=value?(fa?'ادامهٔ پخش خودکار':'Resume automatic journey'):(fa?'توقف پخش خودکار':'Pause automatic journey');scheduleJourney();}
-  pauseJourney.addEventListener('click',()=>{if(stage===5&&autoPaused){showStage(0);setJourneyPause(false);}else setJourneyPause(!autoPaused);});
   // The exact cubic endpoints define both the milestone coordinates and the painted segments.
   function metricsFor(p){let m=pathMetrics.get(p);if(m)return m;const svg=p.ownerSVGElement,box=svg.viewBox.baseVal,nums=p.getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number);let x=nums[0],y=nums[1];const points=[[x,y]],segments=[];for(let j=2;j<nums.length;j+=6){const seg=nums.slice(j,j+6),line=document.createElementNS('http://www.w3.org/2000/svg','path');line.setAttribute('class','route-segment');line.setAttribute('d',`M${x} ${y} C${seg.join(' ')}`);line.setAttribute('visibility','hidden');svg.insertBefore(line,svg.querySelector('.route-light'));segments.push({line,length:line.getTotalLength()});[x,y]=seg.slice(4);points.push([x,y]);}const mobile=svg.classList.contains('mobile');journey.querySelectorAll('[data-stage]').forEach((node,i)=>{node.style.setProperty(mobile?'--mx':'--x',100*(points[i][0]-box.x)/box.width+'%');node.style.setProperty(mobile?'--my':'--y',100*(points[i][1]-box.y)/box.height+'%');});m={points,segments};pathMetrics.set(p,m);return m;}
   function drawPath(fraction){for(const svg of journey.querySelectorAll('.royal-route')){if(!svg.isConnected||getComputedStyle(svg).display==='none'||!svg.getBoundingClientRect().width)continue;const p=svg.querySelector('.route-fill'),light=svg.querySelector('.route-light'),m=metricsFor(p),current=Math.min(5,Math.max(0,fraction)),lo=Math.floor(current),t=current-lo;for(const [i,{line,length}] of m.segments.entries()){if(i<lo){line.setAttribute('visibility','visible');line.style.strokeDasharray='none';line.style.strokeDashoffset='0';}else if(i===lo&&t>0){line.setAttribute('visibility','visible');line.style.strokeDasharray=`${length} ${length}`;line.style.strokeDashoffset=String(length*(1-t));}else line.setAttribute('visibility','hidden');}const pt=t>0?m.segments[lo].line.getPointAtLength(m.segments[lo].length*t):{x:m.points[lo][0],y:m.points[lo][1]};light.setAttribute('cx',pt.x);light.setAttribute('cy',pt.y);svg.classList.add('ready');}}
-  function showStage(index,manual=false){const nodes=[...journey.querySelectorAll('[data-stage]')];if(!nodes[index])return;if(manual)setJourneyPause(true);const from=stageMotion;stage=index;nodes.forEach((node,i)=>{node.setAttribute('aria-pressed',String(i===index));node.classList.toggle('passed',i<index);});journey.querySelectorAll('[data-stage-copy]').forEach((article,i)=>{article.hidden=i!==index;});journey.querySelectorAll('[data-delta]').forEach(btn=>{btn.disabled=!nodes[index+Number(btn.dataset.delta)];});cancelAnimationFrame(animation);if(reduced.matches||from===index){stageMotion=index;drawPath(index);}else{const start=performance.now();function draw(now){const fraction=Math.min(1,(now-start)/620);stageMotion=from+(index-from)*(1-(1-fraction)**3);drawPath(stageMotion);if(fraction<1)animation=requestAnimationFrame(draw);}animation=requestAnimationFrame(draw);}if(index===5)setJourneyPause(true);scheduleJourney();}
-  window.addEventListener('resize',()=>{if(document.body.classList.contains('journey-scene'))drawPath(stageMotion);});document.addEventListener('visibilitychange',scheduleJourney);reduced.addEventListener('change',()=>{if(reduced.matches)setJourneyPause(true);else pauseJourney.disabled=false;drawPath(stage);});
-  journey.addEventListener('focusin',e=>{if(e.target!==pauseJourney&&e.target!==journey)setJourneyPause(true);});journey.addEventListener('pointerdown',e=>{if(e.target.closest('button,a'))return;setJourneyPause(true);});
+  function showStage(index,manual=false){const nodes=[...journey.querySelectorAll('[data-stage]')];if(!nodes[index])return;const from=stageMotion;stage=index;nodes.forEach((node,i)=>{node.setAttribute('aria-pressed',String(i===index));node.classList.toggle('passed',i<index);});journey.querySelectorAll('[data-stage-copy]').forEach((article,i)=>{article.hidden=i!==index;});journey.querySelectorAll('[data-delta]').forEach(btn=>{btn.disabled=!nodes[index+Number(btn.dataset.delta)];});cancelAnimationFrame(animation);if(reduced.matches||from===index){stageMotion=index;drawPath(index);}else{const start=performance.now();function draw(now){const fraction=Math.min(1,(now-start)/620);stageMotion=from+(index-from)*(1-(1-fraction)**3);drawPath(stageMotion);if(fraction<1)animation=requestAnimationFrame(draw);}animation=requestAnimationFrame(draw);}}
+  window.addEventListener('resize',()=>{if(document.body.classList.contains('journey-scene'))drawPath(stageMotion);});reduced.addEventListener('change',()=>{cancelAnimationFrame(animation);stageMotion=stage;drawPath(stage);});
   function scrollHome(name,animate=false) {
     const y=0;
     window.scrollTo({top:y,behavior:animate && !reduced.matches?'smooth':'instant'});
@@ -89,7 +85,7 @@
     document.body.classList.toggle('journey-scene',page==='home' && name==='journey');
     updateFilm();
     home.querySelector('#intro').inert=name==='journey'&&page==='home'; journey.inert=name!=='journey';
-    markNav(page==='home'?name:page);updateSpine();main.scrollTop=0;if(name==='journey'&&page==='home'){if(/^[0-5]$/.test(key))showStage(Number(key));else drawPath(stageMotion);}scheduleJourney();
+    markNav(page==='home'?name:page);updateSpine();main.scrollTop=0;if(name==='journey'&&page==='home'){if(/^[0-5]$/.test(key))showStage(Number(key));else drawPath(stageMotion);}
     if(page==='home'){
       if(focus && name==='journey')journey.focus({preventScroll:true});
       else if(focus)main.focus({preventScroll:true});
@@ -131,10 +127,10 @@
     chosen=true;document.documentElement.classList.add('language-chosen');
     filmButton();
     clearTimeout(filmWarmupTimer);
-    filmWarmupTimer=setTimeout(()=>{if(chosen && !document.hidden)updateFilm();},150);scheduleJourney();
+    filmWarmupTimer=setTimeout(()=>{if(chosen && !document.hidden)updateFilm();},150);
   }
   function openChooser(first) {
-    closeMenu();dismiss.hidden=first;dialog.classList.remove('leaving');dialog.showModal();video.pause();clearTimeout(autoTimer);
+    closeMenu();dismiss.hidden=first;dialog.classList.remove('leaving');dialog.showModal();video.pause();
     dialog.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));
     dialog.querySelector('[data-lang="'+lang+'"]').focus({preventScroll:true});
   }
@@ -164,6 +160,6 @@
   if(previous && previous!==lang && !/\/(en|index)\.html$/.test(location.pathname)){
     const url=new URL(previous==='en'?'en.html':'index.html',location.href);url.search=location.search;url.hash=location.hash;location.replace(url.href);return;
   }
-  showStage(0);setJourneyPause(reduced.matches);route(false);
+  showStage(0);route(false);
   if(previous)reveal();else openChooser(true);
 })();

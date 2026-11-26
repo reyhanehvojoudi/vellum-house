@@ -15,7 +15,6 @@ pages=sorted(ROOT.glob('*.html'))
 for p in pages:
     raw=p.read_text()
     assert re.search(r'<title>Vellum House</title>',raw),p
-    assert not re.search(r'دانش[\s‌-]*آموز',raw),p
     parser=Page();parser.feed(raw)
     assert any(a.get('rel')=='icon' for _,a in parser.tags),p
     for _,a in parser.tags:
@@ -42,17 +41,21 @@ for p in pages:
             css=dict(re.findall(r'(--\w+):([\d.]+)%',node['style']))
             assert abs(float(css[xkey])-100*x/w)<1e-6
             assert abs(float(css[ykey])-100*y/h)<1e-6
-    assert 'id="journey-pause"' in raw and 'class="royal-route desktop"' in raw and 'class="royal-route mobile"' in raw
+    assert sum(a.get('class')=='metric-number' for _,a in parser.tags)==3
+    assert sum(a.get('class')=='contact-icon' for _,a in parser.tags)==3
+    assert 'همراهی اختصاصی در مسیر تحصیل' not in raw
+    assert ('Your Journey Begins Here.' if p.name=='en.html' else 'مسیر شما، از اینجا آغاز می‌شود') in raw
+    assert 'id="journey-pause"' not in raw and 'class="royal-route desktop"' in raw and 'class="royal-route mobile"' in raw
     assert 'assets/royal.css' in raw and 'class="explore btn gold"' in raw
     assert raw.index('class="hero-film"') < raw.index('class="explore btn gold"')
-    assert 'hero-portrait.mp4' in raw and 'hero-portrait-poster.webp' in raw
+    assert 'hero-portrait-original.mp4' in raw and 'hero-portrait-poster.webp' in raw
     assert sum(a.get('class')=='portrait-toggle' for _,a in parser.tags)==2
     assert sum(a.get('class')=='founder-overlay' and 'hidden' in a for _,a in parser.tags)==2
     assert ('About Us' if p.name=='en.html' else 'درباره ما') in raw
     assert sum('linkedin.com/in/' in a.get('href','') for _,a in parser.tags)==2
     assert any(a.get('href')=='https://t.me/VH_edu' for _,a in parser.tags)
     assert any(a.get('href')=='mailto:vellumhouse.edu@gmail.com' for _,a in parser.tags)
-    assert 'Vellum House' in raw and 'Academic Management' in raw and 'ولوم هاوس | مدیریت یکپارچه و اختصاصی مسیر رشد و موفقیت' in raw
+    assert 'Vellum House' in raw and 'Academic Management' in raw and ('ولوم هاوس | مدیریت یکپارچه و اختصاصی مسیر رشد و موفقیت' if p.name=='index.html' else 'Vellum House | Personalized, Integrated Management of Your Journey to Growth and Success') in raw
     assert 'id="language-dialog"' in raw and 'id="calendar-area"' in raw and 'id="journey"' in raw
     assert not any(x in raw for x in ('atlas-','How we plan','چگونه با هم'))
     ids=[a['id'] for _,a in parser.tags if 'id' in a];assert len(ids)==len(set(ids))
@@ -64,10 +67,11 @@ for p in (ROOT/'assets').glob('*.js'):
     s=p.read_text()
     for ref in re.findall(r"(?:from\s+|import\()['\"]\./([^'\"]+)['\"]",s):check_ref(p.parent,ref)
     assert 'qa-transport' not in s and 'example.test' not in s
+assert all(x not in (ROOT/'assets/house.js').read_text() for x in ('scheduleJourney','autoTimer','Resume automatic journey','Pause automatic journey'))
 assert not any('atlas-' in p.name for p in (ROOT/'assets/media').iterdir())
 assert (ROOT/'CNAME').read_text().strip()=='vhouse.ir'
-assert 'At Vellum House, we believe exceptional futures are built through personalized guidance, not one-size-fits-all education.' in (ROOT/'en.html').read_text()
+assert 'Every student is unique. Why should their educational journey be the same?' in (ROOT/'en.html').read_text()
 assert json.loads((ROOT/'backend/appsscript.json').read_text())['dependencies']['enabledAdvancedServices'][0]['version']=='v3'
-assert (ROOT/'assets/media/hero-desktop.1b758f4796d5.mp4').stat().st_size>100000
+assert (ROOT/'assets/media/hero-desktop-original.mp4').stat().st_size>100000
 assert (ROOT/'favicon.ico').read_bytes()[:4]==bytes([0,0,1,0])
 print(f'PASS. {len(pages)} HTML entry points, English tab titles, bilingual profiles and navigation, six-stage path, form requirements, linked media, fonts, contact destinations and Apps Script manifest.')

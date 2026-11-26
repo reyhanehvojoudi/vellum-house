@@ -29,9 +29,12 @@ with sync_playwright() as p:
                 name=route.split('/')[0];state=route if not route.startswith('calendar/') else 'calendar-MOCK';record={'lang':lang,'viewport':f'{w}x{h}','state':state}
                 try:
                     pg.goto(BASE+'/'+entry+'#'+('intro' if route.startswith('intro-') else route),wait_until='domcontentloaded',timeout=10000);pg.evaluate('document.fonts.ready');pg.wait_for_timeout(300)
+                    if pg.locator('#language-dialog').evaluate('(el)=>el.open'):
+                        pg.locator(f'#language-dialog [data-lang="{lang}"]').click();pg.wait_for_timeout(350)
                     if route=='intro-menu':pg.locator('.menu-toggle').click()
                     if route=='intro-dialog':pg.locator('#language-control').click()
                     if route=='journey':
+                        assert not pg.locator('#journey-pause').count()
                         assert pg.locator('[data-stage]').count()==6
                         for stage in range(6):
                             pg.locator(f'[data-stage="{stage}"]').click();assert pg.locator(f'[data-stage-copy="{stage}"]').is_visible()

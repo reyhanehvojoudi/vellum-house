@@ -1,10 +1,3 @@
-# Revision 2 — media and performance
+# Final content revision — media and performance
 
-| Asset | Source | Delivered | Duration | Dimensions delivered |
-|---|---:|---:|---:|---|
-| New portrait film | 8,700,080 bytes | 1,465,819 bytes | 24.033333 s | 540 × 960 |
-| Existing desktop film | 2,976,000 bytes approx. | Unchanged, byte-identical | 48 s | 1280 × 704 |
-
-Portrait film reduced by 83.2%, encoded H.264 faststart with original 9:16 proportions and complete duration. Source has no separate audio stream. Portrait poster is approximately 13 KB. Replaced obsolete landscape mobile asset in release tree. Desktop media is not recompressed. Portrait and desktop video are selected responsively; poster loads first. Full-screen background cover may crop edges slightly at different aspect ratios. Blur is CSS, not baked into the encoded video. No extra animation framework added.
-
-The selected licensed Dana and English fonts remain uninstalled; existing fallbacks and installer are retained. Actual startup, motion smoothness, LCP, CLS, INP and Lighthouse are not measured. Chromium navigation returned ERR_BLOCKED_BY_ADMINISTRATOR in this environment. Test on your actual phone and desktop before production. No performance scores are claimed.
+The owner now prioritizes complete video framing and preservation of quality over the previous compressed file-size targets. Desktop uses the highest-quality available desktop derivative from Vellum-House-The-Thread.zip (1280 × 704, H.264, 48 s, 7,560,247 bytes), unmodified. The original desktop camera master was not supplied. Portrait uses the original IMG_7231.MP4 source (720 × 1280, H.264, 24.033 s), remuxed with faststart without re-encoding. The source and delivered copied video streams have identical SHA-256 hashes. No zoom, cropping, stretching or CSS blur; contain sizing with dark navy surrounding space where aspect ratios differ. A navy overlay retains contrast. Existing posters, responsive source selection and deferred muted inline playback remain. Larger media files may increase startup time on slow connections; no quality downgrade was applied. Actual loading metrics and browser behavior remain unmeasured due to browser navigation restriction. No Lighthouse results are claimed.

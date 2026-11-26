@@ -1,16 +1,12 @@
-# Revision 2 — verification
+# Final content revision — test report
 
-| Test | Result |
-|---|---|
-| Static site checks | PASS — 23 HTML entry points; required fields, routes, 6 milestones, 2 founder overlays, linked assets, responsive portrait media |
-| JavaScript syntax | PASS — changed house.js checked with Node |
-| Golden Path geometry | PASS — six cubic endpoints match all six static node positions for both SVG variants and both languages; animation now paints actual per-segment paths |
-| Backend isolated regression | PASS — 59 API calls, including booking conflict protection and validation |
-| Preservation | PASS — 12 critical files byte-identical to prior release (backend, config, booking, education, calendar API, admin scripts/page, shared CSS, desktop film) |
-| New mobile film metadata | PASS — source 720×1280, delivered 540×960, full 24.033333 s, 1,465,819 bytes |
-| Actual browser visual checks | BLOCKED — Chromium http://127.0.0.1:8765/en.html returned net::ERR_BLOCKED_BY_ADMINISTRATOR |
-| Actual pixel alignment, viewport fit, overlay and responsive video interaction | UNVERIFIED — run updated tools/visual-qa.py and inspect manually |
-| Actual selected font rendering | UNVERIFIED — fonts not supplied; fallbacks remain |
-| Live Google integrations and Lighthouse | NOT PERFORMED — no production writes authorized; no browser metrics |
+- PASS: `python tools/check.py` — 23 HTML entry points, all six milestone coordinates for both languages and SVG layouts, three credibility indicators, three contact icons, no automatic journey controls or timer, updated CTA, required inquiry fields and links.
+- PASS: `node --check assets/house.js`.
+- PASS: `node tools/test-backend.cjs` — 59 isolated API calls, including availability, validation and overlapping reservation protection.
+- PASS: 12 critical existing files byte-identical to Vellum-House-Revised.zip, including all backend files, configuration, booking, dashboard and shared styles.
+- PASS: original supplied desktop derivative preserved exactly; portrait source remuxed without encoding changes (identical SHA-256 of copied video stream).
+- BLOCKED: actual Chromium navigation to local preview returned `net::ERR_BLOCKED_BY_ADMINISTRATOR`. No real browser screenshots or verified pixel measurements. Run `tools/visual-qa.py` locally as described in that file.
+- NOT PERFORMED: live booking, Google Calendar/Meet/email integrations or Lighthouse; production unchanged.
+- UNVERIFIED: exact one-viewport layout at all sizes, font rendering, video startup, hover/tap and keyboard behavior. Short screens or text enlargement may require natural internal overflow to retain the full supplied copy at readable sizes. Existing fallback font assets remain until approved fonts are installed.
 
-Before publication: open both languages locally and check home, journey, About Us and contact on typical phones and desktops; test actual video startup, portrait/landscape selection, all six path endpoints and no overshoot, hover/tap/keyboard biography interaction and compact header. Check that normal cinematic scenes fit the viewport; accessibility or unusually compact screens may use internal overflow. Test form/calendar using authorized test data only. The browser QA runner records main overflow and asserts milestone light-to-marker center error ≤1.5 CSS px for each stage. No genuine screenshots are claimed. This is a review build, not a production-certified release.
+Before publication confirm the three owner-supplied achievement figures and both biographies are accurate and appropriately attributed. The owner should visually review both languages, including the longest journey step and portrait overlays, and verify booking using authorized test data.
