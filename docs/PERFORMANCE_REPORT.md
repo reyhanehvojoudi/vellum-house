@@ -1,3 +1,6 @@
 # Final content revision — media and performance
 
 The owner now prioritizes complete video framing and preservation of quality over the previous compressed file-size targets. Desktop uses the highest-quality available desktop derivative from Vellum-House-The-Thread.zip (1280 × 704, H.264, 48 s, 7,560,247 bytes), unmodified. The original desktop camera master was not supplied. Portrait uses the original IMG_7231.MP4 source (720 × 1280, H.264, 24.033 s), remuxed with faststart without re-encoding. The source and delivered copied video streams have identical SHA-256 hashes. No zoom, cropping, stretching or CSS blur; contain sizing with dark navy surrounding space where aspect ratios differ. A navy overlay retains contrast. Existing posters, responsive source selection and deferred muted inline playback remain. Larger media files may increase startup time on slow connections; no quality downgrade was applied. Actual loading metrics and browser behavior remain unmeasured due to browser navigation restriction. No Lighthouse results are claimed.
+
+## Homepage polish
+Both video files are unchanged from the preceding release. Cover is a CSS rendering change, not a re-encode. No new dependencies or media files. Browser/Lighthouse measurements remain unavailable.

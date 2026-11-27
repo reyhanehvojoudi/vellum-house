@@ -33,7 +33,7 @@ for p in pages:
     # All node positions must agree with the exact cubic endpoints on both layouts.
     nodes=[a for _,a in parser.tags if 'data-stage' in a]
     bases=[a for t,a in parser.tags if t=='path' and a.get('class')=='route-base']
-    for base,(w,h,xkey,ykey) in zip(bases,[(1000,230,'--x','--y'),(260,370,'--mx','--my')]):
+    for base,(w,h,xkey,ykey) in zip(bases,[(1000,230,'--x','--y'),(1000,230,'--mx','--my')]):
         nums=list(map(float,re.findall(r'-?\d+(?:\.\d+)?',base['d'])))
         points=[nums[:2]]+[nums[j+4:j+6] for j in range(2,len(nums),6)]
         assert len(points)==len(nodes)==6
@@ -46,7 +46,7 @@ for p in pages:
     assert 'همراهی اختصاصی در مسیر تحصیل' not in raw
     assert ('Your Journey Begins Here.' if p.name=='en.html' else 'مسیر شما، از اینجا آغاز می‌شود') in raw
     assert 'id="journey-pause"' not in raw and 'class="royal-route desktop"' in raw and 'class="royal-route mobile"' in raw
-    assert 'assets/royal.css' in raw and 'class="explore btn gold"' in raw
+    assert 'assets/royal-layout.css' in raw and 'assets/royal-scenes.css' in raw and 'class="explore btn gold"' in raw
     assert raw.index('class="hero-film"') < raw.index('class="explore btn gold"')
     assert 'hero-portrait-original.mp4' in raw and 'hero-portrait-poster.webp' in raw
     assert sum(a.get('class')=='portrait-toggle' for _,a in parser.tags)==2
@@ -59,7 +59,7 @@ for p in pages:
     assert 'id="language-dialog"' in raw and 'id="calendar-area"' in raw and 'id="journey"' in raw
     assert not any(x in raw for x in ('atlas-','How we plan','چگونه با هم'))
     ids=[a['id'] for _,a in parser.tags if 'id' in a];assert len(ids)==len(set(ids))
-style=(ROOT/'assets/house.css').read_text()+'\n'+(ROOT/'assets/royal.css').read_text()
+style=(ROOT/'assets/house.css').read_text()+'\n'+(ROOT/'assets/royal-layout.css').read_text()+'\n'+(ROOT/'assets/royal-scenes.css').read_text()
 for ref in re.findall(r'url\(([^)]+)\)',style):
     u=ref.strip('"\'')
     if not u.startswith(('data:','#')):check_ref(ROOT/'assets',u)
